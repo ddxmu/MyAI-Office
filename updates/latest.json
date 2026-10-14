@@ -1,0 +1,21 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.4.0",
+  "releaseNotes": "加入自动升级、增量更新包和升级后自动重启。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.4.0/MyAI-Office-0.4.0-arm64.zip",
+    "sha256": "ac4d0655afebe833659cc73b6bbdacecbac276a96926da34102b4a1a34580f27",
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.4.0/MyAI-Office-0.4.0-arm64.dmg",
+    "sha256": "0cbd24805ee23cc1aa754711f9446ac5d51238ede485cfa2cb041fb1192e8e60"
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.3.1",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.4.0/MyAI-Office-0.3.1-to-0.4.0-arm64.delta.zip",
+      "sha256": "bfb82cf9d6f87908fd0ff548f95686dfe25e3f159a00ad45cfca1780721e323a"
+    }
+  ]
+}
