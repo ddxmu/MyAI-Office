@@ -1,0 +1,21 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.5.4",
+  "releaseNotes": "MyAI Power Point 编辑器界面中文化，PDF 首页移除社区信息框",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.4/MyAI-Office-0.5.4-arm64.zip",
+    "sha256": "e05fab86a6610747fafb04dfe9dbf61a4dd45338b77a2a32b61667485dea69d3",
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.4/MyAI-Office-0.5.4-arm64.dmg",
+    "sha256": "563b306ba8733099eb0b503b7a95b5e1106e6d583b2e7ee80de92639ff2e2df9"
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.5.3",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.4/MyAI-Office-0.5.3-to-0.5.4-arm64.delta.zip",
+      "sha256": "d514af42e4c4423a2da303878c2bd5bfddd6ed7f2ce5014990dd80ff1053ccfa"
+    }
+  ]
+}
