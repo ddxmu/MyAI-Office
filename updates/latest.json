@@ -16,6 +16,11 @@
       "baseVersion": "0.5.4",
       "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.4-to-0.5.5-arm64.delta.zip",
       "sha256": "ec3917b4291ef255165335316ea9e53730736f4c1f101e9ba849f4eafb5ffbc9"
+    },
+    {
+      "baseVersion": "0.5.3",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.3-to-0.5.5-arm64.delta.zip",
+      "sha256": "db0f9c05791ee82c868057a7c76061c15564ef5be0d9d43e4b2901451583a4d2"
     }
   ]
 }
