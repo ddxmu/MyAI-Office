@@ -64,7 +64,7 @@ private enum MyAIOfficeUpdateError: LocalizedError {
     }
 }
 
-final class MyAIOfficeUpdateManager: NSObject {
+final class MyAIOfficeUpdateManager: NSObject, URLSessionDownloadDelegate {
     static let shared = MyAIOfficeUpdateManager()
 
     static var currentVersion: String {
@@ -74,7 +74,12 @@ final class MyAIOfficeUpdateManager: NSObject {
     private var hasChecked = false
     private weak var presentingWindow: NSWindow?
     private var downloadTask: URLSessionDownloadTask?
+    private var downloadSession: URLSession?
+    private var downloadedFileURL: URL?
+    private var downloadProcessingError: Error?
     private var downloadAlert: NSAlert?
+    private weak var downloadProgressIndicator: NSProgressIndicator?
+    private weak var downloadProgressLabel: NSTextField?
     private var pendingAsset: MyAIOfficeUpdateAsset?
     private var pendingVersion: String?
     private var stateObserver: ((MyAIOfficeUpdateState) -> Void)?
@@ -151,55 +156,119 @@ final class MyAIOfficeUpdateManager: NSObject {
     private func download(_ asset: MyAIOfficeUpdateAsset, targetVersion: String) {
         guard downloadTask == nil else { return }
         setState(.downloading(version: targetVersion))
+        downloadedFileURL = nil
+        downloadProcessingError = nil
 
         let alert = NSAlert()
         alert.alertStyle = .informational
         alert.messageText = "正在下载 MyAI Office \(targetVersion)"
         alert.informativeText = "下载完成后会自动校验、替换并重启应用，请不要退出当前账户。"
-        let indicator = NSProgressIndicator(frame: NSRect(x: 0, y: 0, width: 260, height: 20))
-        indicator.style = .spinning
-        indicator.controlSize = .regular
-        indicator.startAnimation(nil)
-        alert.accessoryView = indicator
+        let accessory = NSStackView(frame: NSRect(x: 0, y: 0, width: 320, height: 48))
+        accessory.orientation = .vertical
+        accessory.alignment = .width
+        accessory.spacing = 7
+
+        let indicator = NSProgressIndicator()
+        indicator.style = .bar
+        indicator.controlSize = .small
+        indicator.isIndeterminate = false
+        indicator.minValue = 0
+        indicator.maxValue = 1
+        indicator.doubleValue = 0
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.heightAnchor.constraint(equalToConstant: 8).isActive = true
+        accessory.addArrangedSubview(indicator)
+
+        let progressLabel = NSTextField(labelWithString: "准备下载…")
+        progressLabel.alignment = .center
+        progressLabel.font = NSFont.systemFont(ofSize: 11)
+        progressLabel.textColor = .secondaryLabelColor
+        accessory.addArrangedSubview(progressLabel)
+
+        alert.accessoryView = accessory
         alert.addButton(withTitle: "正在下载…").isEnabled = false
         downloadAlert = alert
+        downloadProgressIndicator = indicator
+        downloadProgressLabel = progressLabel
         present(alert)
 
-        downloadTask = URLSession.shared.downloadTask(with: asset.url) { [weak self] temporaryURL, response, error in
-            guard let self else { return }
-            do {
-                guard error == nil, let temporaryURL,
-                      let http = response as? HTTPURLResponse,
-                      (200..<300).contains(http.statusCode) else {
-                    throw MyAIOfficeUpdateError.invalidResponse
-                }
+        let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+        downloadSession = session
+        downloadTask = session.downloadTask(with: asset.url)
+        downloadTask?.resume()
+    }
 
-                let localURL = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("MyAI-Office-update-\(UUID().uuidString).zip")
-                try? FileManager.default.removeItem(at: localURL)
-                try FileManager.default.moveItem(at: temporaryURL, to: localURL)
-                guard try Self.sha256(of: localURL).caseInsensitiveCompare(asset.sha256) == .orderedSame else {
-                    throw MyAIOfficeUpdateError.checksumMismatch
-                }
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        let progress = totalBytesExpectedToWrite > 0
+            ? Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            : 0
+        let received = ByteCountFormatter.string(fromByteCount: totalBytesWritten, countStyle: .file)
+        let expected = totalBytesExpectedToWrite > 0
+            ? ByteCountFormatter.string(fromByteCount: totalBytesExpectedToWrite, countStyle: .file)
+            : nil
+        let text = expected.map { "已下载 \(received) / \($0)（\(Int(progress * 100))%）" } ?? "已下载 \(received)"
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.downloadTask?.taskIdentifier == downloadTask.taskIdentifier else { return }
+            self.downloadProgressIndicator?.doubleValue = progress
+            self.downloadProgressLabel?.stringValue = text
+        }
+    }
 
-                DispatchQueue.main.async {
-                    self.downloadTask = nil
-                    self.setState(.installing(version: targetVersion))
-                    self.dismissDownloadAlert {
-                        self.launchUpdater(package: localURL, targetVersion: targetVersion)
-                    }
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        let localURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MyAI-Office-update-\(UUID().uuidString).zip")
+        do {
+            try FileManager.default.moveItem(at: location, to: localURL)
+            downloadedFileURL = localURL
+        } catch {
+            downloadProcessingError = error
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard task.taskIdentifier == downloadTask?.taskIdentifier else { return }
+        let response = task.response as? HTTPURLResponse
+        let localURL = downloadedFileURL
+        let processingError = downloadProcessingError
+        downloadTask = nil
+        downloadSession = nil
+        downloadedFileURL = nil
+        downloadProcessingError = nil
+        session.finishTasksAndInvalidate()
+
+        do {
+            guard error == nil, processingError == nil, let localURL,
+                  let response, (200..<300).contains(response.statusCode) else {
+                throw processingError ?? MyAIOfficeUpdateError.invalidResponse
+            }
+
+            guard let asset = pendingAsset,
+                  try Self.sha256(of: localURL).caseInsensitiveCompare(asset.sha256) == .orderedSame else {
+                throw MyAIOfficeUpdateError.checksumMismatch
+            }
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.setState(.installing(version: self.pendingVersion ?? ""))
+                self.dismissDownloadAlert {
+                    self.launchUpdater(package: localURL, targetVersion: self.pendingVersion ?? "")
                 }
-            } catch {
-                DispatchQueue.main.async {
-                    self.downloadTask = nil
-                    self.dismissDownloadAlert {
-                        self.setState(.failed(message: error.localizedDescription))
-                        self.showFailure(error)
-                    }
+            }
+        } catch {
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.dismissDownloadAlert {
+                    self.setState(.failed(message: error.localizedDescription))
+                    self.showFailure(error)
                 }
             }
         }
-        downloadTask?.resume()
     }
 
     private func launchUpdater(package: URL, targetVersion: String) {
@@ -265,6 +334,8 @@ final class MyAIOfficeUpdateManager: NSObject {
             return
         }
         downloadAlert = nil
+        downloadProgressIndicator = nil
+        downloadProgressLabel = nil
         let alertWindow = alert.window
         if let parent = alertWindow.sheetParent {
             parent.endSheet(alertWindow, returnCode: .abort)

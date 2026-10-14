@@ -1,0 +1,21 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.5.5",
+  "releaseNotes": "升级下载显示百分比、已下载大小和确定进度条",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.5-arm64.zip",
+    "sha256": "7ba59f570d503b2e1cfff128c8af1d8ded4b2f3a0d42b02c6eb6145d2fa8aeee",
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.5-arm64.dmg",
+    "sha256": "7450489215e6fdad88c3bb78cdbdd842439449ffc960916b1c18debf6a5ca0d6"
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.5.4",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.4-to-0.5.5-arm64.delta.zip",
+      "sha256": "4d1c944f2497dfd205a364f48da4a7363e2cc6563c820da899a237c60fc0168d"
+    }
+  ]
+}

@@ -1,21 +1,21 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.5.4",
-  "releaseNotes": "MyAI Power Point 编辑器界面中文化，PDF 首页移除社区信息框",
+  "latestVersion": "0.5.5",
+  "releaseNotes": "升级下载显示百分比、已下载大小和确定进度条",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.4/MyAI-Office-0.5.4-arm64.zip",
-    "sha256": "e05fab86a6610747fafb04dfe9dbf61a4dd45338b77a2a32b61667485dea69d3",
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.5-arm64.zip",
+    "sha256": "7ba59f570d503b2e1cfff128c8af1d8ded4b2f3a0d42b02c6eb6145d2fa8aeee",
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.4/MyAI-Office-0.5.4-arm64.dmg",
-    "sha256": "563b306ba8733099eb0b503b7a95b5e1106e6d583b2e7ee80de92639ff2e2df9"
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.5-arm64.dmg",
+    "sha256": "7450489215e6fdad88c3bb78cdbdd842439449ffc960916b1c18debf6a5ca0d6"
   },
   "deltas": [
     {
-      "baseVersion": "0.5.3",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.4/MyAI-Office-0.5.3-to-0.5.4-arm64.delta.zip",
-      "sha256": "f097cb4542112eb0b788f3c173a3f11c4837edd6563ff1fe82349beac3afa2d1"
+      "baseVersion": "0.5.4",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.5/MyAI-Office-0.5.4-to-0.5.5-arm64.delta.zip",
+      "sha256": "4d1c944f2497dfd205a364f48da4a7363e2cc6563c820da899a237c60fc0168d"
     }
   ]
 }
