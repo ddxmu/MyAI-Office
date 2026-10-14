@@ -1,21 +1,21 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.5.0",
-  "releaseNotes": "修复老格式兼容：改进 .doc 目录版面导入，修复 .xls 打开时的阻塞弹窗并支持兼容导入后另存为 .xlsx。",
+  "latestVersion": "0.5.1",
+  "releaseNotes": "统一产品名称：窗口标题、Finder 文件类型和编辑器界面统一为 MyAI Word、MyAI Excel、MyAI Power Point。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.0/MyAI-Office-0.5.0-arm64.zip",
-    "sha256": "8bba8133c6f31e5c21daf716d36a9c285c27056d9dc2d395b5a93012cf88c34f",
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.1-arm64.zip",
+    "sha256": "355ebc1698fdee83042abfca67a6c8453bd448a30dc6f1306e177fdc8d52233a",
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.0/MyAI-Office-0.5.0-arm64.dmg",
-    "sha256": "ac75a7223eb1df1493b3ac9e2968aa4e8c85dc6e9af672ed2cf1865c5b23a8a5"
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.1-arm64.dmg",
+    "sha256": "f5e0e0f83f6f93452942ddd240e41d4f822ed524a320abfc4ffa93b0374f0217"
   },
   "deltas": [
     {
-      "baseVersion": "0.4.0",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.0/MyAI-Office-0.4.0-to-0.5.0-arm64.delta.zip",
-      "sha256": "349c73cf74cece945ed5b0032f21e718905ce6b53e045d4795f62279cc2ad320"
+      "baseVersion": "0.5.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.0-to-0.5.1-arm64.delta.zip",
+      "sha256": "e61f667b0535b13d42d28f48c4cfb1fa87d840c177719f6368a3a1704addf935"
     }
   ]
 }

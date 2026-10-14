@@ -8,7 +8,7 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>MyAI Writer document</string>
+			<string>MyAI Word document</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -22,7 +22,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>MyAI Sheet workbook</string>
+			<string>MyAI Excel workbook</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -36,7 +36,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>MyAI Slides presentation</string>
+			<string>MyAI Power Point presentation</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -75,9 +75,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5.0</string>
+	<string>0.5.1</string>
 	<key>CFBundleVersion</key>
-	<string>500</string>
+	<string>501</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSMultipleInstancesProhibited</key>

@@ -1,0 +1,21 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.5.1",
+  "releaseNotes": "统一产品名称：窗口标题、Finder 文件类型和编辑器界面统一为 MyAI Word、MyAI Excel、MyAI Power Point。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.1-arm64.zip",
+    "sha256": "355ebc1698fdee83042abfca67a6c8453bd448a30dc6f1306e177fdc8d52233a",
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.1-arm64.dmg",
+    "sha256": "f5e0e0f83f6f93452942ddd240e41d4f822ed524a320abfc4ffa93b0374f0217"
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.5.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.0-to-0.5.1-arm64.delta.zip",
+      "sha256": "e61f667b0535b13d42d28f48c4cfb1fa87d840c177719f6368a3a1704addf935"
+    }
+  ]
+}
