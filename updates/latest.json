@@ -1,21 +1,21 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.5.1",
-  "releaseNotes": "统一产品名称：窗口标题、Finder 文件类型和编辑器界面统一为 MyAI Word、MyAI Excel、MyAI Power Point。",
+  "latestVersion": "0.5.2",
+  "releaseNotes": "统一 Word、Excel、Power Point、PDF 的 Discord 入口为技术支持 Telegram，并修复全部相关帮助与安装元数据链接。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.1-arm64.zip",
-    "sha256": "355ebc1698fdee83042abfca67a6c8453bd448a30dc6f1306e177fdc8d52233a",
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.2/MyAI-Office-0.5.2-arm64.zip",
+    "sha256": "503ef4c1a9327660759c2c62912cabb2f12b57a425ae11ae9eba73d327bf38d7",
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.1-arm64.dmg",
-    "sha256": "f5e0e0f83f6f93452942ddd240e41d4f822ed524a320abfc4ffa93b0374f0217"
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.2/MyAI-Office-0.5.2-arm64.dmg",
+    "sha256": "b3e3dc2223167b562e9e49bb8f4e7d7bc3d818e517ef0a96b30dbe728fbbca23"
   },
   "deltas": [
     {
-      "baseVersion": "0.5.0",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.1/MyAI-Office-0.5.0-to-0.5.1-arm64.delta.zip",
-      "sha256": "e61f667b0535b13d42d28f48c4cfb1fa87d840c177719f6368a3a1704addf935"
+      "baseVersion": "0.5.1",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.2/MyAI-Office-0.5.1-to-0.5.2-arm64.delta.zip",
+      "sha256": "27d095d384de585a04bba3ec9e9ced4ae4e57ee2e1028f492d350d9ffa70face"
     }
   ]
 }
