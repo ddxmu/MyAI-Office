@@ -1,21 +1,21 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.5.2",
-  "releaseNotes": "统一 Word、Excel、Power Point、PDF 的技术支持入口，并修复全部相关帮助与安装元数据链接。",
+  "latestVersion": "0.5.3",
+  "releaseNotes": "新增版本检测红点和升级入口；点击升级后自动下载、校验、安装并重启。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.2/MyAI-Office-0.5.2-arm64.zip",
-    "sha256": "503ef4c1a9327660759c2c62912cabb2f12b57a425ae11ae9eba73d327bf38d7",
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.3/MyAI-Office-0.5.3-arm64.zip",
+    "sha256": "1e11b69887844e9595af6a6604403eac9027d529982761a48b129545b2ff3058",
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.2/MyAI-Office-0.5.2-arm64.dmg",
-    "sha256": "b3e3dc2223167b562e9e49bb8f4e7d7bc3d818e517ef0a96b30dbe728fbbca23"
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.3/MyAI-Office-0.5.3-arm64.dmg",
+    "sha256": "f15c8c9acada8951c006b3f2c8af3bdcdda880911f3f07732965d1809baac4ef"
   },
   "deltas": [
     {
-      "baseVersion": "0.5.1",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.2/MyAI-Office-0.5.1-to-0.5.2-arm64.delta.zip",
-      "sha256": "27d095d384de585a04bba3ec9e9ced4ae4e57ee2e1028f492d350d9ffa70face"
+      "baseVersion": "0.5.2",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.3/MyAI-Office-0.5.2-to-0.5.3-arm64.delta.zip",
+      "sha256": "b3bc726e6fbdcbf3c72983afa17ef9a58e9dd4486cd0f5a18b7400a46dcd56fe"
     }
   ]
 }

@@ -41,6 +41,15 @@ private struct MyAIOfficeUpdateManifest: Decodable {
     let deltas: [MyAIOfficeUpdateAsset]
 }
 
+enum MyAIOfficeUpdateState {
+    case idle
+    case checking
+    case available(version: String, notes: String)
+    case downloading(version: String)
+    case installing(version: String)
+    case failed(message: String)
+}
+
 private enum MyAIOfficeUpdateError: LocalizedError {
     case invalidResponse
     case checksumMismatch
@@ -66,10 +75,34 @@ final class MyAIOfficeUpdateManager: NSObject {
     private weak var presentingWindow: NSWindow?
     private var downloadTask: URLSessionDownloadTask?
     private var downloadAlert: NSAlert?
+    private var pendingAsset: MyAIOfficeUpdateAsset?
+    private var pendingVersion: String?
+    private var stateObserver: ((MyAIOfficeUpdateState) -> Void)?
+    private(set) var state: MyAIOfficeUpdateState = .idle
 
     private var manifestURL: URL? {
         guard let value = Bundle.main.object(forInfoDictionaryKey: "MyAIUpdateManifestURL") as? String else { return nil }
         return URL(string: value)
+    }
+
+    func observe(_ observer: @escaping (MyAIOfficeUpdateState) -> Void) {
+        stateObserver = observer
+        let currentState = state
+        if Thread.isMainThread {
+            observer(currentState)
+        } else {
+            DispatchQueue.main.async { observer(currentState) }
+        }
+    }
+
+    func startPendingUpdate() {
+        guard let asset = pendingAsset, let version = pendingVersion else { return }
+        switch state {
+        case .available, .failed:
+            download(asset, targetVersion: version)
+        default:
+            break
+        }
     }
 
     func checkForUpdates(presenting window: NSWindow?) {
@@ -77,6 +110,7 @@ final class MyAIOfficeUpdateManager: NSObject {
         hasChecked = true
         presentingWindow = window
         guard let manifestURL else { return }
+        setState(.checking)
 
         var request = URLRequest(url: manifestURL)
         request.cachePolicy = .reloadIgnoringLocalCacheData
@@ -108,24 +142,15 @@ final class MyAIOfficeUpdateManager: NSObject {
 
         let delta = manifest.deltas.first { $0.baseVersion == Self.currentVersion }
         let asset = delta ?? manifest.full
-        let packageDescription = delta == nil ? "完整更新包" : "增量更新包"
         let notes = manifest.releaseNotes.isEmpty ? "包含功能改进和问题修复。" : manifest.releaseNotes
-
-        let alert = NSAlert()
-        alert.alertStyle = .informational
-        alert.messageText = "发现 MyAI Office 新版本 \(manifest.latestVersion)"
-        alert.informativeText = "当前版本：\(Self.currentVersion)\n\(notes)\n将下载\(packageDescription)，完成后自动重启。"
-        alert.addButton(withTitle: "升级并重启")
-        alert.addButton(withTitle: "稍后")
-
-        present(alert) { [weak self] response in
-            guard response == .alertFirstButtonReturn else { return }
-            self?.download(asset, targetVersion: manifest.latestVersion)
-        }
+        pendingAsset = asset
+        pendingVersion = manifest.latestVersion
+        setState(.available(version: manifest.latestVersion, notes: notes))
     }
 
     private func download(_ asset: MyAIOfficeUpdateAsset, targetVersion: String) {
         guard downloadTask == nil else { return }
+        setState(.downloading(version: targetVersion))
 
         let alert = NSAlert()
         alert.alertStyle = .informational
@@ -159,6 +184,7 @@ final class MyAIOfficeUpdateManager: NSObject {
 
                 DispatchQueue.main.async {
                     self.downloadTask = nil
+                    self.setState(.installing(version: targetVersion))
                     self.dismissDownloadAlert {
                         self.launchUpdater(package: localURL, targetVersion: targetVersion)
                     }
@@ -167,6 +193,7 @@ final class MyAIOfficeUpdateManager: NSObject {
                 DispatchQueue.main.async {
                     self.downloadTask = nil
                     self.dismissDownloadAlert {
+                        self.setState(.failed(message: error.localizedDescription))
                         self.showFailure(error)
                     }
                 }
@@ -181,6 +208,7 @@ final class MyAIOfficeUpdateManager: NSObject {
             .appendingPathComponent("Helpers", isDirectory: true)
             .appendingPathComponent("myai-office-updater")
         guard FileManager.default.isExecutableFile(atPath: updater.path) else {
+            setState(.failed(message: MyAIOfficeUpdateError.updaterMissing.localizedDescription))
             showFailure(MyAIOfficeUpdateError.updaterMissing)
             return
         }
@@ -198,7 +226,21 @@ final class MyAIOfficeUpdateManager: NSObject {
             try task.run()
             NSApp.terminate(nil)
         } catch {
+            setState(.failed(message: error.localizedDescription))
             showFailure(error)
+        }
+    }
+
+    private func setState(_ newState: MyAIOfficeUpdateState) {
+        let apply = { [weak self] in
+            guard let self else { return }
+            self.state = newState
+            self.stateObserver?(newState)
+        }
+        if Thread.isMainThread {
+            apply()
+        } else {
+            DispatchQueue.main.async(execute: apply)
         }
     }
 

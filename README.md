@@ -26,7 +26,7 @@ MyAI PDF 使用 PdfCraft 作为套件内的 PDF 工作台。三个编辑器各�
 
 ## 自动升级与发版
 
-应用启动后会读取 `Info.plist` 中的 `MyAIUpdateManifestURL`，从 GitHub 获取 `updates/latest.json`。如果发现新版本，会先匹配当前版本对应的增量包；没有匹配项时使用完整 ZIP。下载后会校验 SHA-256，内置升级助手会替换应用并自动重启。
+应用启动后会读取 `Info.plist` 中的 `MyAIUpdateManifestURL`，从 GitHub 获取 `updates/latest.json`。如果发现新版本，主界面右下角版本号旁会出现红点和“升级”按钮；点击后会先匹配当前版本对应的增量包，没有匹配项时使用完整 ZIP。下载后会校验 SHA-256，内置升级助手会替换应用并自动重启。
 
 版本规则：小修复使用 `patch`，新增大功能使用 `minor`，不兼容变更使用 `major`。例如：
 

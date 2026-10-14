@@ -461,6 +461,9 @@ final class SettingsWindowController: NSWindowController {
 
 final class SuiteWindowController: NSWindowController, NSWindowDelegate {
     private let statusLabel = NSTextField(labelWithString: "请选择一个模块，或直接打开已有文件")
+    private let versionLabel = NSTextField(labelWithString: "MyAI Office \(MyAIOfficeUpdateManager.currentVersion)")
+    private let updateDot = NSView()
+    private let upgradeButton = NSButton(title: "升级", target: nil, action: nil)
     private var settingsController: SettingsWindowController?
 
     init() {
@@ -479,6 +482,9 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         super.init(window: window)
         window.delegate = self
         buildUI()
+        MyAIOfficeUpdateManager.shared.observe { [weak self] state in
+            self?.renderUpdateState(state)
+        }
     }
 
     required init?(coder: NSCoder) { nil }
@@ -641,10 +647,33 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         let footerSpacer = NSView()
         footerSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         footer.addArrangedSubview(footerSpacer)
-        let version = NSTextField(labelWithString: "MyAI Office \(MyAIOfficeUpdateManager.currentVersion)")
-        version.font = NSFont.systemFont(ofSize: 11)
-        version.textColor = NSColor.tertiaryLabelColor
-        footer.addArrangedSubview(version)
+        versionLabel.font = NSFont.systemFont(ofSize: 11)
+        versionLabel.textColor = NSColor.tertiaryLabelColor
+        versionLabel.setAccessibilityLabel("当前版本 \(MyAIOfficeUpdateManager.currentVersion)")
+
+        updateDot.wantsLayer = true
+        updateDot.layer?.cornerRadius = 4
+        updateDot.layer?.backgroundColor = NSColor.systemRed.cgColor
+        updateDot.isHidden = true
+        updateDot.widthAnchor.constraint(equalToConstant: 8).isActive = true
+        updateDot.heightAnchor.constraint(equalToConstant: 8).isActive = true
+        updateDot.toolTip = "有新版本可升级"
+        updateDot.setAccessibilityLabel("有新版本可升级")
+
+        upgradeButton.target = self
+        upgradeButton.action = #selector(startUpdate)
+        upgradeButton.bezelStyle = .rounded
+        upgradeButton.controlSize = .small
+        upgradeButton.contentTintColor = NSColor(calibratedRed: 0.03, green: 0.42, blue: 0.45, alpha: 1)
+        upgradeButton.isHidden = true
+        upgradeButton.setAccessibilityLabel("升级 MyAI Office")
+        upgradeButton.toolTip = "升级 MyAI Office"
+
+        let versionCluster = NSStackView(views: [versionLabel, updateDot, upgradeButton])
+        versionCluster.orientation = .horizontal
+        versionCluster.alignment = .centerY
+        versionCluster.spacing = 7
+        footer.addArrangedSubview(versionCluster)
         body.addArrangedSubview(footer)
 
         let bottomSpacer = NSView()
@@ -655,6 +684,43 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
 
     @objc private func openSettings() {
         showSettings()
+    }
+
+    @objc private func startUpdate() {
+        MyAIOfficeUpdateManager.shared.startPendingUpdate()
+    }
+
+    private func renderUpdateState(_ state: MyAIOfficeUpdateState) {
+        switch state {
+        case .available(let version, let notes):
+            updateDot.isHidden = false
+            upgradeButton.isHidden = false
+            upgradeButton.isEnabled = true
+            upgradeButton.title = "升级"
+            upgradeButton.toolTip = notes.isEmpty ? "升级到 MyAI Office \(version)" : "升级到 MyAI Office \(version)：\(notes)"
+        case .downloading(let version):
+            updateDot.isHidden = false
+            upgradeButton.isHidden = false
+            upgradeButton.isEnabled = false
+            upgradeButton.title = "下载中…"
+            upgradeButton.toolTip = "正在下载 MyAI Office \(version)"
+        case .installing(let version):
+            updateDot.isHidden = false
+            upgradeButton.isHidden = false
+            upgradeButton.isEnabled = false
+            upgradeButton.title = "安装中…"
+            upgradeButton.toolTip = "正在安装 MyAI Office \(version)，完成后自动重启"
+        case .failed(let message):
+            updateDot.isHidden = false
+            upgradeButton.isHidden = false
+            upgradeButton.isEnabled = true
+            upgradeButton.title = "重试"
+            upgradeButton.toolTip = message
+        case .idle, .checking:
+            updateDot.isHidden = true
+            upgradeButton.isHidden = true
+            upgradeButton.isEnabled = false
+        }
     }
 
     func showSettings() {
