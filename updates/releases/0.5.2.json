@@ -1,7 +1,7 @@
 {
   "app": "MyAI Office",
   "latestVersion": "0.5.2",
-  "releaseNotes": "统一 Word、Excel、Power Point、PDF 的 Discord 入口为技术支持 Telegram，并修复全部相关帮助与安装元数据链接。",
+  "releaseNotes": "统一 Word、Excel、Power Point、PDF 的技术支持入口，并修复全部相关帮助与安装元数据链接。",
   "full": {
     "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.2/MyAI-Office-0.5.2-arm64.zip",
     "sha256": "503ef4c1a9327660759c2c62912cabb2f12b57a425ae11ae9eba73d327bf38d7",
