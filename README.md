@@ -58,6 +58,8 @@ python3 -m pip install -r Tools/requirements-release.txt
 
 `bsdiff4` 仅用于发版构建，可通过 `MYAI_RELEASE_PYTHON` 指定发版 Python。`QA/verify-update.py` 用客户端同一份安装代码验证完整包、两种差分格式、逐文件内容/权限、修改过的基线和不安全路径；`QA/verify-update-ui.py` 通过隔离副本与本地限速服务器验证手动检查、失败重试、取消、百分比、真实替换和自动重启，不覆盖用户的应用。
 
+`QA/verify-update-scheduler.swift` 与更新器源码共同编译，验证实际四小时间隔、自动检查开关与计时器去重，不必等待四个小时，也不写入用户设置。
+
 构建脚本会用 `ThirdParty/craft-fonts` 的开放字体作为可选构建输入，以改善中文、日文等文档的显示与 PDF 嵌入；同时打包对应署名文件。没有使用或打包 LibreOffice。后续 AI 功能会在套件入口和各编辑器中逐步加入。
 
 ## 许可证
