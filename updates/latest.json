@@ -1,21 +1,21 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.5.6",
-  "releaseNotes": "修复 PowerPoint 中文占位框编辑与中文排版；补齐 Word、Excel、Power Point 中文界面和系统中文字体候选。",
+  "latestVersion": "0.6.0",
+  "releaseNotes": "重做蓝绿玻璃风格首页与图标，增加圆角卡片、悬停和柔光动效；修复 PPT 点击编辑、输入法焦点、中文提示对齐及字体选择后继续输入；修复 Word 字体列表方框、常用中文字体排序及字体字号框样式；编辑器改用独立 macOS 应用包启动。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.6/MyAI-Office-0.5.6-arm64.zip",
-    "sha256": "7ed19e54729c08a385919c1d434df6de636b45d53113c8dd8a2ba37ccaf22922",
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.0/MyAI-Office-0.6.0-arm64.zip",
+    "sha256": "ffb8ba84c8b7b6c0934eab7c86febb454ca7aeb0e80feafcf3e8e122bcb6f5d5",
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.6/MyAI-Office-0.5.6-arm64.dmg",
-    "sha256": "d517419dd5017030b9b7cde630a024e09f02ff8f51e898b6febc80e3e9440e83"
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.0/MyAI-Office-0.6.0-arm64.dmg",
+    "sha256": "ae3debff0b001de2835bf380d5ce4e21977596cebff0c5c00183f8adffab335e"
   },
   "deltas": [
     {
-      "baseVersion": "0.5.5",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.6/MyAI-Office-0.5.5-to-0.5.6-arm64.delta.zip",
-      "sha256": "d858f1313506b0f4b7c01189d8e9f7f735b745d493a6dd246c40389048804819"
+      "baseVersion": "0.5.6",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.0/MyAI-Office-0.5.6-to-0.6.0-arm64.delta.zip",
+      "sha256": "993774738f005380e9a2f3d504e19c5ccd5b382371c8d6421a59f8732db8b63a"
     }
   ]
 }
