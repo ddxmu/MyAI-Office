@@ -1,21 +1,21 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.6.0",
-  "releaseNotes": "重做蓝绿玻璃风格首页与图标，增加圆角卡片、悬停和柔光动效；修复 PPT 点击编辑、输入法焦点、中文提示对齐及字体选择后继续输入；修复 Word 字体列表方框、常用中文字体排序及字体字号框样式；编辑器改用独立 macOS 应用包启动。",
+  "latestVersion": "0.6.1",
+  "releaseNotes": "修复 DOC 表格错行、列宽、边框、底色、页眉横线和中文字体；补全 XLS 字体、底色、边框、对齐及主题色导入。老格式请另存为 DOCX/XLSX，图表等高级对象仍有兼容限制。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.0/MyAI-Office-0.6.0-arm64.zip",
-    "sha256": "ffb8ba84c8b7b6c0934eab7c86febb454ca7aeb0e80feafcf3e8e122bcb6f5d5",
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.1/MyAI-Office-0.6.1-arm64.zip",
+    "sha256": "952f459ee0c769374bd83dd2b12d97a5092baddcbe598063a6902e1a42714d28",
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.0/MyAI-Office-0.6.0-arm64.dmg",
-    "sha256": "ae3debff0b001de2835bf380d5ce4e21977596cebff0c5c00183f8adffab335e"
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.1/MyAI-Office-0.6.1-arm64.dmg",
+    "sha256": "bf85ada9ec2122001515a5f7400a6e83c8a06b6086b978e014c2160c7e0f5aa7"
   },
   "deltas": [
     {
-      "baseVersion": "0.5.6",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.0/MyAI-Office-0.5.6-to-0.6.0-arm64.delta.zip",
-      "sha256": "993774738f005380e9a2f3d504e19c5ccd5b382371c8d6421a59f8732db8b63a"
+      "baseVersion": "0.6.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.1/MyAI-Office-0.6.0-to-0.6.1-arm64.delta.zip",
+      "sha256": "c434038c4f3db46580244783b551b3ffd689346a0442ca7e6d030812fcb31bd9"
     }
   ]
 }
