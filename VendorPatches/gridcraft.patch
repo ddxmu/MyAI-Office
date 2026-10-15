@@ -1,0 +1,390 @@
+diff --git a/README.md b/README.md
+index 678495f..fff8dbb 100644
+--- a/README.md
++++ b/README.md
+@@ -27,7 +27,7 @@
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <p align="center">
+@@ -46,7 +46,7 @@
+ > [!NOTE]
+ > **ArtCraft is a community of artists from all walks of life.** Painters, photographers,
+ > filmmakers, illustrators, designers, animators, hobbyists, and people who picked up a pencil
+-> last week. If you make things, you're one of us. **[Come say hi on Discord](https://discord.gg/artcraft).**
++> last week. If you make things, you're one of us. **[Get technical support](https://t.me/+uEp8JOn7Oic0MDdl).**
+ 
+ <p align="center">
+   <a href="#a-look-around">A look around</a> ·
+@@ -298,20 +298,20 @@ And [**ArtCraft**](https://getartcraft.com/) itself, our AI image and video stud
+ <br>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <h3 align="center">Come make things with us</h3>
+ 
+ <p align="center">
+-  Our Discord is where artists of every kind hang out: people who paint, shoot, draw, cut film,
++  Our support channel is where artists of every kind hang out: people who paint, shoot, draw, cut film,
+   set type, and people still figuring out what they like to make. Share what you're working on,
+   ask for help, tell us what's broken, or tell us what you wish these tools could do.
+   Whatever your medium and however long you've been at it, you're welcome here.
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><b>discord.gg/artcraft</b></a> ·
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><b>t.me/+uEp8JOn7Oic0MDdl</b></a> ·
+   <a href="https://getartcraft.com/">getartcraft.com</a> ·
+   <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
+   <a href="https://getartcraft.com/apps/gridcraft">GridCraft</a>
+diff --git a/apps/gridcraft/src/main.rs b/apps/gridcraft/src/main.rs
+index 7c0eb04..5230651 100644
+--- a/apps/gridcraft/src/main.rs
++++ b/apps/gridcraft/src/main.rs
+@@ -32,7 +32,7 @@ impl eframe::App for App {
+         #[cfg(target_os = "macos")]
+         {
+             if self.1.is_none() && std::env::var_os("GRIDCRAFT_NO_NATIVE_MENU").is_none() {
+-                self.1 = Some(native_menu::NativeMenu::install(ctx));
++                self.1 = Some(native_menu::NativeMenu::install(ctx, self.0.ui.language));
+             }
+             if let Some(m) = &self.1 {
+                 m.poll(&mut self.0, ctx);
+@@ -92,6 +92,10 @@ fn prefs_enabled() -> bool {
+     std::env::var_os("GRIDCRAFT_NO_PREFS").is_none()
+ }
+ 
++fn myai_chinese_ui() -> bool {
++    std::env::var("MYAI_OFFICE_LANGUAGE").map(|value| matches!(value.to_ascii_lowercase().as_str(), "zh" | "zh-cn" | "zh-hans")).unwrap_or(false)
++}
++
+ /// Where the log files live: `logs` in the settings folder, next to `ui.json` (see `logging`).
+ fn log_dir() -> Option<std::path::PathBuf> {
+     Some(config_dir()?.join("logs"))
+@@ -221,12 +225,7 @@ fn open_with_system(target: &str) {
+ }
+ 
+ fn icon() -> Option<egui::IconData> {
+-    #[cfg(target_os = "macos")]
+-    let bytes = include_bytes!("../../../assets/app-icon/gridcraft-macos-512.png");
+-    #[cfg(not(target_os = "macos"))]
+-    let bytes = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/ai.storyteller.gridcraft.png");
+-    let img = image::load_from_memory(bytes).ok()?.to_rgba8();
+-    Some(egui::IconData { width: img.width(), height: img.height(), rgba: img.into_raw() })
++    None
+ }
+ 
+ fn main() -> eframe::Result<()> {
+@@ -302,6 +301,9 @@ fn main() -> eframe::Result<()> {
+     app.after_engine(); // Show warnings from the sample.
+     let control_port = control_port;
+     load_prefs(&mut app);
++    if myai_chinese_ui() {
++        app.ui.language = gridcraft_ui_egui::i18n::Language::Zh;
++    }
+     // Files named on the command line (a double-click on Windows and Linux) open as File › Open
+     // opens them: a password-protected one asks for its password, and errors are shown, not
+     // only logged. Each replaces the untouched blank Book1, as a file opened from Finder does.
+@@ -309,7 +311,7 @@ fn main() -> eframe::Result<()> {
+         app.open_path(f);
+     }
+     let mut viewport = egui::ViewportBuilder::default()
+-        .with_title("GridCraft")
++        .with_title("MyAI Excel")
+         .with_inner_size([1440.0, 900.0])
+         .with_min_inner_size([640.0, 420.0])
+         .with_app_id("ai.storyteller.gridcraft")
+@@ -344,7 +346,7 @@ fn main() -> eframe::Result<()> {
+     let pending = std::cell::Cell::new(Some(app));
+     let run = |options: eframe::NativeOptions| {
+         eframe::run_native(
+-            "GridCraft",
++            "MyAI Excel",
+             options,
+             Box::new(|cc| {
+                 let Some(mut app) = pending.take() else {
+diff --git a/apps/gridcraft/src/native_menu.rs b/apps/gridcraft/src/native_menu.rs
+index 6985af3..1ce37cf 100644
+--- a/apps/gridcraft/src/native_menu.rs
++++ b/apps/gridcraft/src/native_menu.rs
+@@ -4,7 +4,7 @@
+ use std::str::FromStr;
+ use std::sync::mpsc::{Receiver, channel};
+ 
+-use gridcraft_ui_egui::SheetApp;
++use gridcraft_ui_egui::{SheetApp, i18n::Language};
+ use muda::accelerator::Accelerator;
+ use muda::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu};
+ use serde_json::{Value, json};
+@@ -175,7 +175,7 @@ fn tree() -> Vec<(&'static str, Vec<Entry>)> {
+                 ("Agent Control (MCP)…", "dialog:agents", None),
+                 ("Contributors…", "dialog:about:Contributors", None),
+                 ("GridCraft on getartcraft.com", "url:https://getartcraft.com/apps/gridcraft", None),
+-                ("Join the ArtCraft Discord…", "url:https://discord.gg/artcraft", None),
++                ("技术支持…", "url:https://t.me/+uEp8JOn7Oic0MDdl", None),
+             ],
+         ),
+     ]
+@@ -199,10 +199,11 @@ fn select_theme(app: &mut SheetApp, id: &str) -> bool {
+ }
+ 
+ impl NativeMenu {
+-    pub fn install(ctx: &egui::Context) -> NativeMenu {
++    pub fn install(ctx: &egui::Context, language: Language) -> NativeMenu {
+         let menu = Menu::new();
+-        let app_menu = Submenu::new("GridCraft", true);
+-        let about = MenuItem::with_id("dialog:about", "About GridCraft", true, None);
++        let app_name = if language == Language::Zh { "MyAI Excel" } else { "GridCraft" };
++        let app_menu = Submenu::new(app_name, true);
++        let about = MenuItem::with_id("dialog:about", language.tr("About GridCraft"), true, None);
+         let _ = app_menu.append_items(&[
+             &about,
+             &PredefinedMenuItem::separator(),
+@@ -218,16 +219,16 @@ impl NativeMenu {
+         let mut theme_items = Vec::new();
+         let mut window_menu = None;
+         for (title, entries) in tree() {
+-            let sub = Submenu::new(title, true);
++            let sub = Submenu::new(language.tr(title), true);
+             for (label, id, acc) in entries {
+                 if label == "-" {
+                     let _ = sub.append(&PredefinedMenuItem::separator());
+                     continue;
+                 }
+                 if id == "view.theme" {
+-                    let themes = Submenu::new(label, true);
++                    let themes = Submenu::new(language.tr(label), true);
+                     for (mode, label) in [("system", "System"), ("light", "Light"), ("dark", "Dark")] {
+-                        let item = CheckMenuItem::with_id(format!("theme:{mode}"), label, true, false, None);
++                        let item = CheckMenuItem::with_id(format!("theme:{mode}"), language.tr(label), true, false, None);
+                         let _ = themes.append(&item);
+                         theme_items.push((mode, item));
+                     }
+@@ -235,7 +236,7 @@ impl NativeMenu {
+                     continue;
+                 }
+                 let accel = acc.and_then(|a| Accelerator::from_str(a).ok());
+-                let item = MenuItem::with_id(id, label, true, accel);
++                let item = MenuItem::with_id(id, language.tr(label), true, accel);
+                 let _ = sub.append(&item);
+             }
+             let _ = menu.append(&sub);
+diff --git a/apps/gridcraft/tests/mac_menu_appkit.rs b/apps/gridcraft/tests/mac_menu_appkit.rs
+index e713f66..c0c8581 100644
+--- a/apps/gridcraft/tests/mac_menu_appkit.rs
++++ b/apps/gridcraft/tests/mac_menu_appkit.rs
+@@ -20,7 +20,7 @@ fn main() {
+     nsapp.finishLaunching();
+ 
+     let ctx = egui::Context::default();
+-    let _menu = native_menu::NativeMenu::install(&ctx);
++    let _menu = native_menu::NativeMenu::install(&ctx, gridcraft_ui_egui::i18n::Language::En);
+ 
+     let bar = nsapp.mainMenu().expect("a main menu");
+     let tops: Vec<String> = (0..bar.numberOfItems()).filter_map(|i| bar.itemAtIndex(i)?.submenu()).map(|m| m.title().to_string()).collect();
+diff --git a/crates/engine/src/cmd/file.rs b/crates/engine/src/cmd/file.rs
+index 7291ee8..dc7d59f 100644
+--- a/crates/engine/src/cmd/file.rs
++++ b/crates/engine/src/cmd/file.rs
+@@ -81,15 +81,9 @@ fn open(s: &mut Session, p: &Json) -> Result<Json> {
+         doc.content_kind = Some(crate::io::FileKind::Xlsx);
+     }
+     let i = s.add_document(doc);
+-    // The decrypted-workbook notice is for the info bar, not a message box.
+-    let shown: Vec<&str> = warnings.iter().map(String::as_str).filter(|w| *w != crate::io::DECRYPTED_NOTICE).collect();
+-    if !shown.is_empty() {
+-        let mut message = shown.iter().take(5).copied().collect::<Vec<_>>().join("\n\n");
+-        if shown.len() > 5 {
+-            message.push_str(&format!("\n\n{} additional import warnings.", shown.len() - 5));
+-        }
+-        s.ui_requests.push(crate::UiRequest::Message(message));
+-    }
++    // Successful imports report their limitations in the returned warning list. The UI turns
++    // those into a non-blocking compatibility notice; a message box here makes an opened
++    // legacy workbook look like it failed and prevents the user from working in it.
+     let d = s.doc()?;
+     Ok(
+         json!({"index": i, "title": d.display_title(), "sheets": d.wb.sheets.iter().map(|s| s.name.clone()).collect::<Vec<_>>(), "warnings": warnings}),
+diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
+index ae499a1..f5d3201 100644
+--- a/crates/engine/src/tests.rs
++++ b/crates/engine/src/tests.rs
+@@ -1654,7 +1654,7 @@ fn ods_import_keeps_cached_values_and_reports_limits() {
+         let mut s = s();
+         let r = s.execute("file.open", json!({"name": name, "base64": crate::io::base64_encode(&bytes)})).unwrap();
+         assert!(!r["warnings"].as_array().unwrap().is_empty());
+-        assert!(s.take_ui_requests().iter().any(|r| matches!(r, crate::UiRequest::Message(_))));
++        assert!(s.take_ui_requests().is_empty(), "import limits belong in the non-blocking notice");
+         assert!(s.doc().unwrap().path.is_none());
+         assert!(s.doc().unwrap().display_title().ends_with(".xlsx"));
+         assert_eq!(v(&s, "A1"), Value::Number(42.0));
+@@ -2395,7 +2395,7 @@ fn xlsb_import_keeps_cached_values_and_reports_limits() {
+         let mut s = s();
+         let r = s.execute("file.open", json!({"name": name, "base64": crate::io::base64_encode(&bytes)})).unwrap();
+         assert!(!r["warnings"].as_array().unwrap().is_empty());
+-        assert!(s.take_ui_requests().iter().any(|r| matches!(r, crate::UiRequest::Message(_))));
++        assert!(s.take_ui_requests().is_empty(), "import limits belong in the non-blocking notice");
+         assert!(s.doc().unwrap().path.is_none());
+         assert!(s.doc().unwrap().display_title().ends_with(".xlsx"));
+         assert_eq!(v(&s, "A1"), Value::Number(42.0));
+diff --git a/crates/ui-egui/src/dialogs.rs b/crates/ui-egui/src/dialogs.rs
+index fb899c7..418763b 100644
+--- a/crates/ui-egui/src/dialogs.rs
++++ b/crates/ui-egui/src/dialogs.rs
+@@ -1488,7 +1488,7 @@ fn about(ui: &mut egui::Ui, d: &mut Dialog) {
+             ui.add_space(4.0);
+             ui.label("A clean-room, open-source, Rust-native spreadsheet. Part of ArtCraft.");
+             ui.hyperlink_to("getartcraft.com/apps/gridcraft", "https://getartcraft.com/apps/gridcraft");
+-            ui.hyperlink_to("Join the ArtCraft Discord", "https://discord.gg/artcraft");
++            ui.hyperlink_to("技术支持", "https://t.me/+uEp8JOn7Oic0MDdl");
+         }
+     }
+ }
+diff --git a/crates/ui-egui/src/i18n/pt.rs b/crates/ui-egui/src/i18n/pt.rs
+index fb9236c..ee707bf 100644
+--- a/crates/ui-egui/src/i18n/pt.rs
++++ b/crates/ui-egui/src/i18n/pt.rs
+@@ -661,7 +661,6 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+         "Contributors" => "Colaboradores",
+         "Models" => "Modelos",
+         "Version {version}" => "Versão {version}",
+-        "Join the ArtCraft Discord" => "Participe do Discord da ArtCraft",
+         "This workbook has no scripts or macros." => "Esta pasta de trabalho não tem scripts nem macros.",
+         "(unnamed)" => "(sem nome)",
+         "— VBA project (preserved, not run)" => "— Projeto VBA (preservado, não executado)",
+diff --git a/crates/ui-egui/src/i18n/zh.rs b/crates/ui-egui/src/i18n/zh.rs
+index 0017592..4c5dafa 100644
+--- a/crates/ui-egui/src/i18n/zh.rs
++++ b/crates/ui-egui/src/i18n/zh.rs
+@@ -402,6 +402,63 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+         "Workbook calculation" => "工作簿计算",
+         "Enable iterative calculation" => "启用迭代计算",
+         "Calculation settings are saved with the workbook." => "计算设置随工作簿一起保存。",
++        "Tools" => "工具",
++        "Window" => "窗口",
++        "Help" => "帮助",
++        "New Workbook" => "新建工作簿",
++        "New from Sample…" => "根据示例新建…",
++        "Open…" => "打开…",
++        "Save As…" => "另存为…",
++        "Export as PDF…" => "导出为 PDF…",
++        "Export as CSV…" => "导出为 CSV…",
++        "Save as Web Page…" => "另存为网页…",
++        "Print…" => "打印…",
++        "Properties…" => "属性…",
++        "Undo" => "撤销",
++        "Redo" => "重做",
++        "Fill Down" => "向下填充",
++        "Fill Right" => "向右填充",
++        "Series…" => "序列…",
++        "Delete…" => "删除…",
++        "Delete Sheet" => "删除工作表",
++        "Page Break Preview" => "分页预览",
++        "Zoom…" => "缩放…",
++        "Zoom to Selection" => "缩放到所选区域",
++        "Display Theme" => "显示主题",
++        "Collapse Ribbon" => "折叠功能区",
++        "Cells…" => "单元格…",
++        "Rows" => "行",
++        "Columns" => "列",
++        "Sheet" => "工作表",
++        "Chart" => "图表",
++        "Sparklines…" => "迷你图…",
++        "Function…" => "函数…",
++        "Name…" => "名称…",
++        "New Comment" => "新建批注",
++        "Picture…" => "图片…",
++        "Text Box" => "文本框",
++        "Link…" => "链接…",
++        "Conditional Formatting…" => "条件格式…",
++        "Format as Table" => "套用表格格式",
++        "Spelling…" => "拼写检查…",
++        "Workbook Statistics" => "工作簿统计信息",
++        "Check Accessibility" => "检查辅助功能",
++        "Error Checking…" => "错误检查…",
++        "Evaluate Formula…" => "公式求值…",
++        "Record Actions" => "录制操作",
++        "Command Palette…" => "命令面板…",
++        "Sort…" => "排序…",
++        "Clear Filter" => "清除筛选",
++        "Text to Columns…" => "分列…",
++        "Remove Duplicates…" => "删除重复项…",
++        "Subtotal…" => "分类汇总…",
++        "New Window" => "新建窗口",
++        "Next Sheet" => "下一工作表",
++        "Previous Sheet" => "上一工作表",
++        "Agent Control (MCP)…" => "智能体控制（MCP）…",
++        "Contributors…" => "贡献者…",
++        "GridCraft on getartcraft.com" => "GridCraft 官方网站",
++        "About GridCraft" => "关于 MyAI Excel",
+         _ => return None,
+     })
+ }
+diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
+index f96cdac..70bee50 100644
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -798,6 +798,14 @@ impl SheetApp {
+             self.notice = None;
+             return;
+         }
++        if msgs.iter().any(|m| m.contains("Excel 97-2003") || m.contains(".xls")) {
++            self.notice = Some(Notice {
++                text: "Opened in compatibility mode. Legacy .xls data was imported; save as .xlsx. Some legacy formatting, pictures, charts and comments may not carry over.".into(),
++                kind: NoticeKind::Info,
++                action: None,
++            });
++            return;
++        }
+         let vba: Vec<&str> = msgs.iter().copied().filter(|m| m.to_lowercase().contains("macro") || m.contains("VBA")).collect();
+         if !vba.is_empty() {
+             self.notice = Some(Notice {
+diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
+index 9c6d89e..0f6d426 100644
+--- a/crates/ui-egui/src/ribbon.rs
++++ b/crates/ui-egui/src/ribbon.rs
+@@ -1090,6 +1090,11 @@ pub const FONTS: &[&str] = &[
+     "Times New Roman",
+     "Trebuchet MS",
+     "Verdana",
++    "宋体",
++    "仿宋",
++    "黑体",
++    "微软雅黑",
++    "楷体",
+ ];
+ 
+ fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+diff --git a/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in
+index 3cde6f9..9122253 100644
+--- a/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in
++++ b/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in
+@@ -27,7 +27,7 @@
+   <url type="homepage">https://getartcraft.com/apps/gridcraft</url>
+   <url type="bugtracker">https://github.com/storytold/gridcraft/issues</url>
+   <url type="help">https://github.com/storytold/gridcraft</url>
+-  <url type="contact">https://discord.gg/artcraft</url>
++  <url type="contact">https://t.me/+uEp8JOn7Oic0MDdl</url>
+   <categories>
+     <category>Office</category>
+     <category>Spreadsheet</category>
+diff --git a/packaging/windows/gridcraft.wxs b/packaging/windows/gridcraft.wxs
+index 9a64b61..5aa11e8 100644
+--- a/packaging/windows/gridcraft.wxs
++++ b/packaging/windows/gridcraft.wxs
+@@ -32,7 +32,7 @@
+     <Property Id="ARPPRODUCTICON" Value="GridcraftIcon.ico" />
+     <Property Id="ARPURLINFOABOUT" Value="https://getartcraft.com/apps/gridcraft" />
+     <Property Id="ARPURLUPDATEINFO" Value="https://getartcraft.com/apps/gridcraft" />
+-    <Property Id="ARPHELPLINK" Value="https://discord.gg/artcraft" />
++    <Property Id="ARPHELPLINK" Value="https://t.me/+uEp8JOn7Oic0MDdl" />
+ 
+     <!-- An explicit command-line value wins. Otherwise retain the previous installation's
+          choice, defaulting to off for a fresh install. Run only in the first sequence so the

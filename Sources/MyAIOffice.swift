@@ -54,50 +54,68 @@ enum OfficeModule: CaseIterable {
 }
 
 final class GradientView: NSView {
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+        layer?.cornerRadius = 28
+        layer?.masksToBounds = true
+    }
+
+    required init?(coder: NSCoder) { nil }
+
     override func draw(_ dirtyRect: NSRect) {
         let gradient = NSGradient(colors: [
-            NSColor(calibratedRed: 0.04, green: 0.24, blue: 0.68, alpha: 1),
-            NSColor(calibratedRed: 0.02, green: 0.60, blue: 0.58, alpha: 1)
+            NSColor(calibratedRed: 0.06, green: 0.18, blue: 0.43, alpha: 1),
+            NSColor(calibratedRed: 0.04, green: 0.38, blue: 0.56, alpha: 1),
+            NSColor(calibratedRed: 0.02, green: 0.59, blue: 0.53, alpha: 1)
         ])
-        gradient?.draw(in: bounds, angle: 18)
+        gradient?.draw(in: bounds, angle: 12)
+        let glow = NSGradient(starting: NSColor.white.withAlphaComponent(0.16), ending: .clear)
+        glow?.draw(fromCenter: NSPoint(x: bounds.width * 0.78, y: bounds.height * 0.95), radius: 0,
+                   toCenter: NSPoint(x: bounds.width * 0.78, y: bounds.height * 0.95), radius: bounds.width * 0.4,
+                   options: [.drawsBeforeStartingLocation, .drawsAfterEndingLocation])
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard window != nil, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+        let shimmer = CABasicAnimation(keyPath: "opacity")
+        shimmer.fromValue = 0.90
+        shimmer.toValue = 1.0
+        shimmer.duration = 4
+        shimmer.autoreverses = true
+        shimmer.repeatCount = .infinity
+        layer?.add(shimmer, forKey: "ambient-light")
     }
 }
 
 final class LogoView: NSView {
-    override var intrinsicContentSize: NSSize { NSSize(width: 52, height: 52) }
+    override var intrinsicContentSize: NSSize { NSSize(width: 78, height: 78) }
 
     override func draw(_ dirtyRect: NSRect) {
-        let rect = bounds.insetBy(dx: 1, dy: 1)
-        let path = NSBezierPath(roundedRect: rect, xRadius: 15, yRadius: 15)
-        let gradient = NSGradient(colors: [
-            NSColor(calibratedRed: 0.02, green: 0.15, blue: 0.48, alpha: 1),
-            NSColor(calibratedRed: 0.10, green: 0.84, blue: 0.67, alpha: 1)
-        ])
-        gradient?.draw(in: path, angle: 42)
-
-        NSColor.white.withAlphaComponent(0.96).setStroke()
-        let mark = NSBezierPath()
-        mark.lineWidth = 5
-        mark.lineCapStyle = .round
-        mark.move(to: NSPoint(x: bounds.minX + 15, y: bounds.minY + 15))
-        mark.line(to: NSPoint(x: bounds.maxX - 15, y: bounds.maxY - 15))
-        mark.move(to: NSPoint(x: bounds.minX + 15, y: bounds.maxY - 15))
-        mark.line(to: NSPoint(x: bounds.maxX - 15, y: bounds.minY + 15))
-        mark.stroke()
+        guard let url = Bundle.main.url(forResource: "MyAIOffice", withExtension: "png"),
+              let image = NSImage(contentsOf: url) else { return }
+        NSGraphicsContext.current?.imageInterpolation = .high
+        image.draw(in: bounds.insetBy(dx: 1, dy: 1))
     }
 }
 
 final class ModuleIconView: NSView {
     private let module: OfficeModule
     private let imageView = NSImageView()
+    private let gradient = CAGradientLayer()
 
     init(module: OfficeModule) {
         self.module = module
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         wantsLayer = true
-        layer?.cornerRadius = 15
-        layer?.backgroundColor = module.accentColor.cgColor
+        layer?.cornerRadius = 18
+        layer?.masksToBounds = true
+        gradient.colors = [module.accentColor.blended(withFraction: 0.18, of: .white)?.cgColor ?? module.accentColor.cgColor, module.accentColor.cgColor]
+        gradient.startPoint = CGPoint(x: 0, y: 1)
+        gradient.endPoint = CGPoint(x: 1, y: 0)
+        layer?.addSublayer(gradient)
 
         imageView.image = NSImage(systemSymbolName: module.symbolName, accessibilityDescription: module.title)
         imageView.imageScaling = .scaleProportionallyUpOrDown
@@ -105,8 +123,8 @@ final class ModuleIconView: NSView {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(imageView)
         NSLayoutConstraint.activate([
-            widthAnchor.constraint(equalToConstant: 56),
-            heightAnchor.constraint(equalToConstant: 56),
+            widthAnchor.constraint(equalToConstant: 62),
+            heightAnchor.constraint(equalToConstant: 62),
             imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
             imageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             imageView.widthAnchor.constraint(equalToConstant: 27),
@@ -115,11 +133,17 @@ final class ModuleIconView: NSView {
     }
 
     required init?(coder: NSCoder) { nil }
+
+    override func layout() {
+        super.layout()
+        gradient.frame = bounds
+    }
 }
 
 final class ModuleCard: NSView {
     let module: OfficeModule
     let action: () -> Void
+    private var hoverTracking: NSTrackingArea?
 
     init(module: OfficeModule, action: @escaping () -> Void) {
         self.module = module
@@ -127,26 +151,50 @@ final class ModuleCard: NSView {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         wantsLayer = true
-        layer?.cornerRadius = 16
+        layer?.cornerRadius = 22
         layer?.borderWidth = 1
-        layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.22).cgColor
+        layer?.borderColor = NSColor(calibratedRed: 0.85, green: 0.89, blue: 0.94, alpha: 0.65).cgColor
         layer?.backgroundColor = NSColor.white.withAlphaComponent(0.98).cgColor
-        layer?.shadowColor = NSColor.black.withAlphaComponent(0.11).cgColor
-        layer?.shadowOpacity = 1
-        layer?.shadowRadius = 12
-        layer?.shadowOffset = CGSize(width: 0, height: -3)
-        heightAnchor.constraint(equalToConstant: 142).isActive = true
+        layer?.shadowColor = NSColor(calibratedRed: 0.12, green: 0.22, blue: 0.38, alpha: 1).cgColor
+        layer?.shadowOpacity = 0.06
+        layer?.shadowRadius = 18
+        layer?.shadowOffset = CGSize(width: 0, height: -5)
+        heightAnchor.constraint(equalToConstant: 154).isActive = true
         build()
+        setAccessibilityRole(.button)
+        setAccessibilityLabel("打开 \(module.title)")
     }
 
     required init?(coder: NSCoder) { nil }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let hoverTracking { removeTrackingArea(hoverTracking) }
+        let tracking = NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self)
+        addTrackingArea(tracking)
+        hoverTracking = tracking
+    }
+
+    override func mouseEntered(with event: NSEvent) { setHovered(true) }
+    override func mouseExited(with event: NSEvent) { setHovered(false) }
+    override func mouseDown(with event: NSEvent) { action() }
+
+    private func setHovered(_ hovered: Bool) {
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.18)
+        layer?.borderColor = hovered ? module.accentColor.withAlphaComponent(0.5).cgColor : NSColor(calibratedRed: 0.85, green: 0.89, blue: 0.94, alpha: 0.65).cgColor
+        layer?.backgroundColor = hovered ? module.accentColor.blended(withFraction: 0.97, of: .white)?.cgColor : NSColor.white.cgColor
+        layer?.shadowOpacity = hovered ? 0.14 : 0.06
+        layer?.transform = CATransform3DMakeTranslation(0, hovered ? 3 : 0, 0)
+        CATransaction.commit()
+    }
 
     private func build() {
         let root = NSStackView()
         root.orientation = .horizontal
         root.alignment = .centerY
-        root.spacing = 14
-        root.edgeInsets = NSEdgeInsets(top: 18, left: 18, bottom: 18, right: 16)
+        root.spacing = 16
+        root.edgeInsets = NSEdgeInsets(top: 22, left: 24, bottom: 22, right: 20)
         root.translatesAutoresizingMaskIntoConstraints = false
         addSubview(root)
         NSLayoutConstraint.activate([
@@ -166,7 +214,7 @@ final class ModuleCard: NSView {
         details.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         let title = NSTextField(labelWithString: module.title)
-        title.font = NSFont.systemFont(ofSize: 18, weight: .semibold)
+        title.font = NSFont.systemFont(ofSize: 17, weight: .semibold)
         title.textColor = NSColor(calibratedWhite: 0.11, alpha: 1)
         title.lineBreakMode = .byTruncatingTail
         details.addArrangedSubview(title)
@@ -178,7 +226,7 @@ final class ModuleCard: NSView {
         subtitle.lineBreakMode = .byTruncatingTail
         details.addArrangedSubview(subtitle)
 
-        let status = NSTextField(labelWithString: "已内置")
+        let status = NSTextField(labelWithString: "本地编辑 · 随时开始")
         status.font = NSFont.systemFont(ofSize: 11, weight: .medium)
         status.textColor = module.accentColor
         details.addArrangedSubview(status)
@@ -468,14 +516,17 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
 
     init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 1020, height: 720),
+            contentRect: NSRect(x: 0, y: 0, width: 1060, height: 790),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
         window.title = "MyAI Office"
         window.center()
-        window.minSize = NSSize(width: 860, height: 620)
+        window.minSize = NSSize(width: 960, height: 760)
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.backgroundColor = NSColor(calibratedRed: 0.96, green: 0.975, blue: 0.99, alpha: 1)
         window.isRestorable = false
         window.restorationClass = nil
         window.identifier = nil
@@ -492,11 +543,13 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
     private func buildUI() {
         guard let content = window?.contentView else { return }
         content.wantsLayer = true
-        content.layer?.backgroundColor = NSColor(calibratedRed: 0.95, green: 0.97, blue: 0.98, alpha: 1).cgColor
+        content.layer?.backgroundColor = NSColor(calibratedRed: 0.96, green: 0.975, blue: 0.99, alpha: 1).cgColor
 
         let root = NSStackView()
         root.orientation = .vertical
-        root.spacing = 0
+        root.alignment = .width
+        root.spacing = 20
+        root.edgeInsets = NSEdgeInsets(top: 20, left: 28, bottom: 18, right: 28)
         root.translatesAutoresizingMaskIntoConstraints = false
         content.addSubview(root)
         NSLayoutConstraint.activate([
@@ -508,13 +561,13 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
 
         let header = GradientView()
         header.translatesAutoresizingMaskIntoConstraints = false
-        header.heightAnchor.constraint(equalToConstant: 144).isActive = true
+        header.heightAnchor.constraint(equalToConstant: 156).isActive = true
 
         let headerStack = NSStackView()
         headerStack.orientation = .horizontal
         headerStack.alignment = .centerY
         headerStack.spacing = 15
-        headerStack.edgeInsets = NSEdgeInsets(top: 22, left: 32, bottom: 22, right: 32)
+        headerStack.edgeInsets = NSEdgeInsets(top: 24, left: 28, bottom: 24, right: 28)
         headerStack.translatesAutoresizingMaskIntoConstraints = false
         header.addSubview(headerStack)
         NSLayoutConstraint.activate([
@@ -531,10 +584,10 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         heading.alignment = .leading
         heading.spacing = 4
         let brand = NSTextField(labelWithString: "MyAI Office")
-        brand.font = NSFont.systemFont(ofSize: 29, weight: .bold)
+        brand.font = NSFont.systemFont(ofSize: 30, weight: .bold)
         brand.textColor = .white
         heading.addArrangedSubview(brand)
-        let tagline = NSTextField(labelWithString: "一套入口，办公与 AI 工作流")
+        let tagline = NSTextField(labelWithString: "让灵感，从这里开始。")
         tagline.font = NSFont.systemFont(ofSize: 14)
         tagline.textColor = NSColor.white.withAlphaComponent(0.88)
         heading.addArrangedSubview(tagline)
@@ -544,7 +597,7 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         headerSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         headerStack.addArrangedSubview(headerSpacer)
 
-        let aiBadge = NSTextField(labelWithString: "AI 助手 · 即将加入")
+        let aiBadge = NSTextField(labelWithString: "你的智能办公空间")
         aiBadge.font = NSFont.systemFont(ofSize: 12, weight: .medium)
         aiBadge.textColor = NSColor.white.withAlphaComponent(0.94)
         aiBadge.alignment = .center
@@ -589,23 +642,23 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         let body = NSStackView()
         body.orientation = .vertical
         body.alignment = .width
-        body.spacing = 16
-        body.edgeInsets = NSEdgeInsets(top: 27, left: 32, bottom: 22, right: 32)
+        body.spacing = 20
+        body.edgeInsets = NSEdgeInsets(top: 4, left: 0, bottom: 0, right: 0)
         body.setContentHuggingPriority(.defaultLow, for: .vertical)
 
         let intro = NSStackView()
         intro.orientation = .vertical
         intro.alignment = .leading
         intro.spacing = 5
-        let eyebrow = NSTextField(labelWithString: "WORKSPACE")
+        let eyebrow = NSTextField(labelWithString: "我的工作台")
         eyebrow.font = NSFont.systemFont(ofSize: 11, weight: .bold)
         eyebrow.textColor = NSColor(calibratedRed: 0.04, green: 0.47, blue: 0.49, alpha: 1)
         intro.addArrangedSubview(eyebrow)
-        let welcome = NSTextField(labelWithString: "选择你的工作模块")
-        welcome.font = NSFont.systemFont(ofSize: 23, weight: .semibold)
+        let welcome = NSTextField(labelWithString: "今天，创造点什么？")
+        welcome.font = NSFont.systemFont(ofSize: 25, weight: .semibold)
         welcome.textColor = NSColor(calibratedWhite: 0.10, alpha: 1)
         intro.addArrangedSubview(welcome)
-        let hint = NSTextField(labelWithString: "编辑源文件，或打开已有文档继续工作。导出的 PDF 可交给 MyAI PDF 继续整理。")
+        let hint = NSTextField(labelWithString: "文字、表格、演示与 PDF，在一个空间里流畅完成。")
         hint.font = NSFont.systemFont(ofSize: 13)
         hint.textColor = NSColor.secondaryLabelColor
         intro.addArrangedSubview(hint)
@@ -620,8 +673,8 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         infoBox.spacing = 12
         infoBox.edgeInsets = NSEdgeInsets(top: 11, left: 14, bottom: 11, right: 14)
         infoBox.wantsLayer = true
-        infoBox.layer?.cornerRadius = 12
-        infoBox.layer?.backgroundColor = NSColor(calibratedRed: 0.88, green: 0.96, blue: 0.95, alpha: 1).cgColor
+        infoBox.layer?.cornerRadius = 16
+        infoBox.layer?.backgroundColor = NSColor(calibratedRed: 0.90, green: 0.96, blue: 0.96, alpha: 1).cgColor
 
         let infoImage = NSImageView(image: NSImage(systemSymbolName: "sparkles", accessibilityDescription: "AI") ?? NSImage())
         infoImage.contentTintColor = NSColor(calibratedRed: 0.05, green: 0.48, blue: 0.45, alpha: 1)
@@ -630,7 +683,7 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         infoImage.heightAnchor.constraint(equalToConstant: 20).isActive = true
         infoBox.addArrangedSubview(infoImage)
 
-        let info = NSTextField(labelWithString: "PDF 工作台已内嵌。DOCX / XLSX / PPTX 使用各自原生排版引擎导出 PDF，AI 功能将在后续版本加入。")
+        let info = NSTextField(labelWithString: "安心在本地编辑。导出 PDF 后，可直接在 MyAI PDF 中阅读、批注和整理。")
         info.font = NSFont.systemFont(ofSize: 12)
         info.textColor = NSColor(calibratedRed: 0.05, green: 0.32, blue: 0.34, alpha: 1)
         info.maximumNumberOfLines = 2
@@ -680,6 +733,12 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         bottomSpacer.setContentHuggingPriority(.defaultLow, for: .vertical)
         body.addArrangedSubview(bottomSpacer)
         root.addArrangedSubview(body)
+        NSLayoutConstraint.activate([
+            header.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -56),
+            body.widthAnchor.constraint(equalTo: header.widthAnchor),
+            intro.widthAnchor.constraint(equalTo: body.widthAnchor),
+            footer.widthAnchor.constraint(equalTo: body.widthAnchor)
+        ])
     }
 
     @objc private func openSettings() {
@@ -780,6 +839,29 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
     }
 
     private func launch(_ module: OfficeModule, url: URL? = nil) {
+        let moduleApp = Bundle.main.bundleURL
+            .appendingPathComponent("Contents/Helpers", isDirectory: true)
+            .appendingPathComponent("\(module.title).app", isDirectory: true)
+        if FileManager.default.fileExists(atPath: moduleApp.path) {
+            // Launch Services gives each editor its own application identity and key window.
+            // Executing a bare helper from the suite process could show a window without
+            // handing it macOS keyboard/input-method focus.
+            let configuration = NSWorkspace.OpenConfiguration()
+            configuration.activates = true
+            configuration.createsNewApplicationInstance = true
+            configuration.arguments = url.map { [$0.path] } ?? []
+            configuration.environment = ["MYAI_OFFICE_LANGUAGE": "zh-hans"]
+            NSWorkspace.shared.openApplication(at: moduleApp, configuration: configuration) { [weak self] _, error in
+                DispatchQueue.main.async {
+                    if let error {
+                        self?.showError(title: "无法打开模块", message: error.localizedDescription)
+                    } else {
+                        self?.statusLabel.stringValue = "已打开 \(module.title)"
+                    }
+                }
+            }
+            return
+        }
         let helper = helperURL(for: module)
         guard FileManager.default.isExecutableFile(atPath: helper.path) else {
             showError(
@@ -827,6 +909,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller?.showWindow(nil)
         controller?.window?.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: true)
+        if ProcessInfo.processInfo.environment["MYAI_OFFICE_QA"] == "1" { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             FileAssociationManager.shared.configureOnFirstLaunch()
         }

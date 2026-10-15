@@ -1,0 +1,644 @@
+diff --git a/README.md b/README.md
+index 2929018..1f8b556 100644
+--- a/README.md
++++ b/README.md
+@@ -28,7 +28,7 @@
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <p align="center">
+@@ -47,7 +47,7 @@
+ > [!NOTE]
+ > **ArtCraft is a community of artists from all walks of life.** Painters, photographers,
+ > filmmakers, illustrators, designers, animators, hobbyists, and people who picked up a pencil
+-> last week. If you make things, you're one of us. **[Come say hi on Discord](https://discord.gg/artcraft).**
++> last week. If you make things, you're one of us. **[Get technical support](https://t.me/+uEp8JOn7Oic0MDdl).**
+ 
+ <p align="center">
+   <a href="#a-tour">A tour</a> ·
+@@ -323,20 +323,20 @@ And [**ArtCraft**](https://getartcraft.com/) itself, our AI image and video stud
+ <br>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <h3 align="center">Come make things with us</h3>
+ 
+ <p align="center">
+-  Our Discord is where artists of every kind hang out: people who paint, shoot, draw, cut film,
++  Our support channel is where artists of every kind hang out: people who paint, shoot, draw, cut film,
+   set type, and people still figuring out what they like to make. Share what you're working on,
+   ask for help, tell us what's broken, or tell us what you wish these tools could do.
+   Whatever your medium and however long you've been at it, you're welcome here.
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><b>discord.gg/artcraft</b></a> ·
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><b>t.me/+uEp8JOn7Oic0MDdl</b></a> ·
+   <a href="https://getartcraft.com/">getartcraft.com</a> ·
+   <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
+   <a href="https://getartcraft.com/apps/wordcraft">WordCraft</a>
+diff --git a/apps/wordcraft/src/main.rs b/apps/wordcraft/src/main.rs
+index 62b51d4..11d4f6e 100644
+--- a/apps/wordcraft/src/main.rs
++++ b/apps/wordcraft/src/main.rs
+@@ -150,6 +150,10 @@ fn prefs_enabled() -> bool {
+     std::env::var_os("WORDCRAFT_NO_PREFS").is_none()
+ }
+ 
++fn myai_chinese_ui() -> bool {
++    std::env::var("MYAI_OFFICE_LANGUAGE").map(|value| matches!(value.to_ascii_lowercase().as_str(), "zh" | "zh-cn" | "zh-hans")).unwrap_or(false)
++}
++
+ fn load_prefs(app: &mut WordApp) {
+     if !prefs_enabled() {
+         return;
+@@ -221,11 +225,7 @@ fn services(file_dialog: file_dialogs::Hook, ctx: &egui::Context) -> Services {
+ 
+ /// Window, Dock and taskbar icon.
+ fn app_icon() -> Option<egui::IconData> {
+-    #[cfg(target_os = "macos")]
+-    let png: &[u8] = include_bytes!("../../../assets/app-icon/wordcraft-macos-512.png");
+-    #[cfg(not(target_os = "macos"))]
+-    let png: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/ai.storyteller.wordcraft.png");
+-    eframe::icon_data::from_png_bytes(png).map_err(|e| log::warn!("app icon: {e}")).ok()
++    None
+ }
+ 
+ /// The commit the build came from (short), or `dev`.
+@@ -268,7 +268,7 @@ fn main() -> eframe::Result {
+     }
+     let mut options = eframe::NativeOptions {
+         viewport: egui::ViewportBuilder::default()
+-            .with_title("WordCraft")
++            .with_title("MyAI Word")
+             .with_app_id("ai.storyteller.wordcraft")
+             .with_inner_size([1440.0, 920.0])
+             .with_min_inner_size([760.0, 480.0])
+@@ -308,7 +308,7 @@ fn main() -> eframe::Result {
+     #[cfg(target_os = "macos")]
+     let apple_events = &apple_events;
+     eframe::run_native(
+-        "WordCraft",
++        "MyAI Word",
+         options,
+         Box::new(move |cc| {
+             // The system region picks the new document's paper, the units and the decimal
+@@ -320,6 +320,9 @@ fn main() -> eframe::Result {
+             session.system_region = region;
+             let mut app = WordApp::new(session, services(file_dialog, &cc.egui_ctx));
+             load_prefs(&mut app);
++            if myai_chinese_ui() {
++                app.ui.language = "zh-hans".into();
++            }
+             load_user_dictionary(&mut app);
+             // A region chosen in File › Options replaces the system's for the first blank
+             // document too (#838).
+diff --git a/crates/docbin/src/lib.rs b/crates/docbin/src/lib.rs
+index 9ff4386..7d20f3f 100644
+--- a/crates/docbin/src/lib.rs
++++ b/crates/docbin/src/lib.rs
+@@ -392,19 +392,25 @@ fn walk(ctx: &WalkCtx, cp_start: u32, cp_end: u32, pics: &mut media::Pictures) -
+                 }
+                 let fc = ctx.pieces.fc_of_cp(cp).unwrap_or(0);
+                 pb.mark = char_props(ctx.chpx_bins.chpx(ctx.word, fc), ctx.fonts, &CharProps::default());
++                // Word/WPS often stores a cached TOC as one field spread over a run of
++                // otherwise empty paragraphs. Those paragraphs are layout scaffolding, not
++                // visible content; keeping them creates the blank page before the TOC.
++                let toc_scaffolding = field.as_ref().is_some_and(|f| is_toc_instruction(&f.instr)) && pb.text.is_empty() && pb.objects.is_empty();
+                 let done = std::mem::take(&mut pb);
+-                out.push(ParaOut {
+-                    para: Paragraph {
+-                        text: done.text,
+-                        runs: done.runs,
+-                        props: done.props,
+-                        mark: done.mark,
+-                        objects: done.objects,
+-                        ..Default::default()
+-                    },
+-                    end_cp: cp.saturating_add(1),
+-                    row,
+-                });
++                if !toc_scaffolding {
++                    out.push(ParaOut {
++                        para: Paragraph {
++                            text: done.text,
++                            runs: done.runs,
++                            props: done.props,
++                            mark: done.mark,
++                            objects: done.objects,
++                            ..Default::default()
++                        },
++                        end_cp: cp.saturating_add(1),
++                        row,
++                    });
++                }
+             }
+             // Field begin/separator/end ([MS-DOC] §2.9.84 Plcfld).
+             '\u{13}' => {
+@@ -520,10 +526,59 @@ fn finish_field(pb: &mut ParaBuild, f: FieldBuild) {
+         }
+         return;
+     }
++    if is_toc_instruction(&instr)
++        && let Some(text) = toc_cached_text(&result_text)
++    {
++        for c in text.chars() {
++            pb.push(c, CharProps::default());
++        }
++        return;
++    }
+     pb.push('\u{FFFC}', CharProps::default());
+     pb.objects.push(InlineObject::Field { instr, result: result_text, locked: false, code: false });
+ }
+ 
++fn is_toc_instruction(instr: &str) -> bool {
++    instr.split_whitespace().next().is_some_and(|name| name.eq_ignore_ascii_case("TOC"))
++}
++
++/// Word 97-2003 files commonly cache a TOC as nested HYPERLINK/PAGEREF fields. The legacy
++/// walker intentionally flattens nested fields, so normalize that cached result back into
++/// readable TOC lines instead of exposing the field instructions as document text.
++fn toc_cached_text(result: &str) -> Option<String> {
++    if !result.contains("HYPERLINK") || !result.contains("PAGEREF") {
++        return None;
++    }
++    let mut rest = result;
++    let mut lines = Vec::new();
++    while let Some(start) = rest.find("HYPERLINK") {
++        rest = &rest[start..];
++        let end = rest.find(" HYPERLINK").unwrap_or(rest.len());
++        let entry = &rest[..end];
++        let Some((left, right)) = entry.split_once('\t') else {
++            if end == rest.len() {
++                break;
++            }
++            rest = &rest[end + 1..];
++            continue;
++        };
++        let mut parts = left.trim().splitn(4, |c: char| c.is_whitespace());
++        let Some(name) = parts.next() else { break };
++        let Some(switch) = parts.next() else { break };
++        let Some(_bookmark) = parts.next() else { break };
++        let Some(title) = parts.next().map(str::trim).filter(|title| !title.is_empty()) else { break };
++        let Some(page) = right.split_whitespace().last().filter(|page| !page.is_empty()) else { break };
++        if name.eq_ignore_ascii_case("HYPERLINK") && switch == "\\l" {
++            lines.push(format!("{title}\t{page}"));
++        }
++        if end == rest.len() {
++            break;
++        }
++        rest = &rest[end + 1..];
++    }
++    (!lines.is_empty()).then(|| lines.join("\n"))
++}
++
+ /// `HYPERLINK "url"` / `HYPERLINK url \l "bookmark"` → the model link target
+ /// (`#bookmark` for internal links); `None` when not a hyperlink.
+ fn hyperlink_target(instr: &str) -> Option<String> {
+diff --git a/crates/docbin/src/tests.rs b/crates/docbin/src/tests.rs
+index acad986..95867ab 100644
+--- a/crates/docbin/src/tests.rs
++++ b/crates/docbin/src/tests.rs
+@@ -1352,6 +1352,12 @@ fn fields_and_hyperlinks() {
+     assert_eq!(result, "3");
+ }
+ 
++#[test]
++fn cached_nested_toc_fields_become_readable_lines() {
++    let raw = " HYPERLINK \\l _Toc1 1. Introduction\t PAGEREF _Toc1 \\h 4 HYPERLINK \\l _Toc2 2. Details\t PAGEREF _Toc2 \\h 5";
++    assert_eq!(super::toc_cached_text(raw).as_deref(), Some("1. Introduction\t4\n2. Details\t5"));
++}
++
+ #[test]
+ fn bookmarks_become_objects() {
+     let text = "Hello world\r";
+diff --git a/crates/fonts/src/word.rs b/crates/fonts/src/word.rs
+index b3c5965..e100abd 100644
+--- a/crates/fonts/src/word.rs
++++ b/crates/fonts/src/word.rs
+@@ -27,6 +27,11 @@ pub struct Resolved {
+ fn substitutes(family: &str) -> &'static [&'static str] {
+     const SANS: &[&str] = &["Carlito", "Helvetica Neue", "Arial", "Liberation Sans", "Noto Sans", "DejaVu Sans", "Source Sans 3"];
+     const SERIF: &[&str] = &["Caladea", "Times New Roman", "Liberation Serif", "Georgia", "Noto Serif", "DejaVu Serif", "Source Serif 4"];
++    const SONGTI: &[&str] = &["Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"];
++    const FANGSONG: &[&str] = &["STFangsong", "FangSong", "Songti SC", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"];
++    const HEITI: &[&str] = &["PingFang SC", "Hiragino Sans GB", "STHeiti", "SimHei", "Noto Sans CJK SC", "Noto Sans", "Inter"];
++    const YAHEI: &[&str] = &["Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans", "Inter"];
++    const KAITI: &[&str] = &["STKaiti", "Kaiti SC", "Songti SC", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"];
+     const MONO: &[&str] = &["Courier New", "Liberation Mono", "Menlo", "Consolas", "DejaVu Sans Mono", "JetBrains Mono"];
+     const ARIAL: &[&str] = &["Liberation Sans", "Helvetica", "Helvetica Neue", "Arimo", "Source Sans 3"];
+     const TIMES: &[&str] = &["Liberation Serif", "Times", "Tinos", "Source Serif 4"];
+@@ -64,6 +69,11 @@ fn substitutes(family: &str) -> &'static [&'static str] {
+         return ARABIC_SANS;
+     }
+     match f.as_str() {
++        "宋体" | "simsun" | "songti sc" | "stsong" => SONGTI,
++        "仿宋" | "fangsong" | "stfangsong" => FANGSONG,
++        "黑体" | "simhei" | "heiti sc" | "stheiti" => HEITI,
++        "微软雅黑" | "microsoft yahei" | "yahei" => YAHEI,
++        "楷体" | "kaiti" | "stkaiti" => KAITI,
+         "palatino linotype" | "book antiqua" | "palatino" => PALATINO,
+         "arial" | "helvetica" | "arial nova" => ARIAL,
+         "times new roman" | "times" => TIMES,
+@@ -313,6 +323,15 @@ mod tests {
+         }
+     }
+ 
++    #[test]
++    fn chinese_font_aliases_prefer_installed_cjk_faces() {
++        assert_eq!(substitutes("宋体").first(), Some(&"Songti SC"));
++        assert_eq!(substitutes("仿宋").first(), Some(&"STFangsong"));
++        assert_eq!(substitutes("黑体").first(), Some(&"PingFang SC"));
++        assert_eq!(substitutes("微软雅黑").first(), Some(&"Microsoft YaHei"));
++        assert_eq!(substitutes("楷体").first(), Some(&"STKaiti"));
++    }
++
+     #[test]
+     fn resolves_weights_named_as_their_own_family() {
+         // Word stores a Medium face as the family "Inter Medium" (#219).
+diff --git a/crates/mcp/src/server.rs b/crates/mcp/src/server.rs
+index 63f6764..f781411 100644
+--- a/crates/mcp/src/server.rs
++++ b/crates/mcp/src/server.rs
+@@ -135,7 +135,7 @@ impl Server {
+                     "capabilities": {"tools": {}, "resources": {}},
+                     "serverInfo": {"name": "wordcraft", "title": "WordCraft", "version": env!("CARGO_PKG_VERSION"), "websiteUrl": "https://getartcraft.com/apps/wordcraft"},
+                     "instructions": format!(
+-                        "{INSTRUCTIONS} Backend: {}. Community: https://discord.gg/artcraft · https://getartcraft.com/apps/wordcraft · https://github.com/storytold/wordcraft",
++                        "{INSTRUCTIONS} Backend: {}. Technical support: https://t.me/+uEp8JOn7Oic0MDdl · https://getartcraft.com/apps/wordcraft · https://github.com/storytold/wordcraft",
+                         self.backend.describe()
+                     ),
+                 }))
+diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
+index 28dc72f..6f9e5f3 100644
+--- a/crates/ui-egui/src/backstage.rs
++++ b/crates/ui-egui/src/backstage.rs
+@@ -111,7 +111,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+                 }
+             }
+             ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
+-                for (label, id) in [("About", "about"), ("Discord community", "discord")] {
++                for (label, id) in [("About", "about"), ("技术支持", "discord")] {
+                     let (r, resp) = ui.allocate_exact_size(vec2(200.0, 32.0), Sense::click());
+                     resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(label)));
+                     if resp.hovered() {
+diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
+index 7e7483a..dcb18a2 100644
+--- a/crates/ui-egui/src/chrome.rs
++++ b/crates/ui-egui/src/chrome.rs
+@@ -269,12 +269,12 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
+                         icons::paint(
+                             ui.painter(),
+                             Rect::from_center_size(pos2(r.min.x + 13.0, r.center().y), vec2(14.0, 14.0)),
+-                            "discord",
++                            "help",
+                             t.on_accent,
+                             t.on_accent,
+                         );
+-                        ui.painter().text(pos2(r.min.x + 24.0, r.center().y), Align2::LEFT_CENTER, tl!("Discord"), medium(11.5), t.on_accent);
+-                        if resp.on_hover_text(tl!("Join the ArtCraft community on Discord")).clicked() {
++                        ui.painter().text(pos2(r.min.x + 24.0, r.center().y), Align2::LEFT_CENTER, "技术支持", medium(11.5), t.on_accent);
++                        if resp.on_hover_text("技术支持").clicked() {
+                             let _ = app.run("ui.discord", json!({}));
+                         }
+                         ui.add_space(8.0);
+diff --git a/crates/ui-egui/src/dialogs.rs b/crates/ui-egui/src/dialogs.rs
+index 975ff90..675919a 100644
+--- a/crates/ui-egui/src/dialogs.rs
++++ b/crates/ui-egui/src/dialogs.rs
+@@ -2332,7 +2332,7 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                     ));
+                     ui.add_space(6.0);
+                     ui.hyperlink_to(tl!("getartcraft.com/apps/wordcraft"), "https://getartcraft.com/apps/wordcraft");
+-                    ui.hyperlink_to(tl!("Join us on Discord: discord.gg/artcraft"), "https://discord.gg/artcraft");
++                    ui.hyperlink_to("技术支持", "https://t.me/+uEp8JOn7Oic0MDdl");
+                     ui.hyperlink_to(tl!("Source code: github.com/storytold/wordcraft"), "https://github.com/storytold/wordcraft");
+                     ui.add_space(6.0);
+                     ui.label(
+diff --git a/crates/ui-egui/src/i18n/audit.rs b/crates/ui-egui/src/i18n/audit.rs
+index de25080..ef5203f 100644
+--- a/crates/ui-egui/src/i18n/audit.rs
++++ b/crates/ui-egui/src/i18n/audit.rs
+@@ -154,7 +154,7 @@ impl Exempt {
+             || plain.starts_with('@') // contributor handles
+             || plain.starts_with("Style") || plain.starts_with("Table Style ") // a new style's default name
+             || plain.contains('┬') || plain.contains('\u{2061}') // equation input (UnicodeMath), drawn as math
+-            || matches!(plain, "WordCraft" | "WordCraft User" | "Discord" | "https://" | "auto" | "I. II. III." | "i. ii. iii.")
++            || matches!(plain, "WordCraft" | "WordCraft User" | "https://" | "auto" | "I. II. III." | "i. ii. iii.")
+             || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
+             || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
+     }
+diff --git a/crates/ui-egui/src/i18n/zh-hans.tsv b/crates/ui-egui/src/i18n/zh-hans.tsv
+index 9eab713..2ce2878 100644
+--- a/crates/ui-egui/src/i18n/zh-hans.tsv
++++ b/crates/ui-egui/src/i18n/zh-hans.tsv
+@@ -292,7 +292,7 @@
+ 	Comment	批注
+ 	Comments	批注
+ 	Comments Pane	批注窗格
+-	Community\nDiscord	社区\nDiscord
++	Community\nDiscord	技术支持
+ 	Compact	紧凑
+ 	Compare	比较
+ 	Compress Pictures	压缩图片
+@@ -347,8 +347,8 @@
+ 	Dictate	听写
+ 	Different First Page	首页不同
+ 	Different Odd & Even Pages	奇偶页不同
+-	Discord	Discord
+-	Discord community	Discord 社区
++	Discord	技术支持
++	Discord community	技术支持
+ 	Display	显示
+ 	Display for Review	显示以供审阅
+ 	Distribute Columns	平均分布各列
+@@ -507,8 +507,8 @@
+ 	Inspect Document	检查文档
+ 	Interface language:	界面语言：
+ 	Italic	倾斜
+-	Join the ArtCraft community on Discord	加入 Discord 上的 ArtCraft 社区
+-	Join us on Discord: discord.gg/artcraft	在 Discord 上加入我们：discord.gg/artcraft
++	Join the ArtCraft community on Discord	获取技术支持
++	Join us on Discord: discord.gg/artcraft	技术支持
+ 	Justify	两端对齐
+ 	Keep Lines Together	段中不分页
+ 	Keep lines together	段中不分页
+diff --git a/crates/ui-egui/src/i18n/zh-hant.tsv b/crates/ui-egui/src/i18n/zh-hant.tsv
+index 0b968cc..c546f14 100644
+--- a/crates/ui-egui/src/i18n/zh-hant.tsv
++++ b/crates/ui-egui/src/i18n/zh-hant.tsv
+@@ -281,7 +281,7 @@
+ 	Comment	註解
+ 	Comments	註解
+ 	Comments Pane	註解窗格
+-	Community\nDiscord	社群\nDiscord
++	Community\nDiscord	技術支援
+ 	Compact	緊密
+ 	Compare	比較
+ 	Compress Pictures	壓縮圖片
+@@ -336,8 +336,8 @@
+ 	Dictate	聽寫
+ 	Different First Page	首頁不同
+ 	Different Odd & Even Pages	奇偶頁不同
+-	Discord	Discord
+-	Discord community	Discord 社群
++	Discord	技術支援
++	Discord community	技術支援
+ 	Display	顯示
+ 	Display for Review	顯示以供檢閱
+ 	Distribute Columns	平均分配欄寬
+@@ -496,8 +496,8 @@
+ 	Inspect Document	檢查文件
+ 	Interface language:	介面語言：
+ 	Italic	斜體
+-	Join the ArtCraft community on Discord	加入 Discord 上的 ArtCraft 社群
+-	Join us on Discord: discord.gg/artcraft	在 Discord 上加入我們：discord.gg/artcraft
++	Join the ArtCraft community on Discord	取得技術支援
++	Join us on Discord: discord.gg/artcraft	技術支援
+ 	Justify	左右對齊
+ 	Keep Lines Together	段落中不分頁
+ 	Keep lines together	段落中不分頁
+diff --git a/crates/ui-egui/src/keytips.rs b/crates/ui-egui/src/keytips.rs
+index c50ebd4..d6f95c2 100644
+--- a/crates/ui-egui/src/keytips.rs
++++ b/crates/ui-egui/src/keytips.rs
+@@ -335,7 +335,7 @@ fn controls(tab: &str) -> Vec<Control> {
+             c("Split", "view.split"),
+             c("Macros", "tools.macros"),
+         ],
+-        "Help" => vec![d("Help", "about"), c("Community Discord", "ui.discord"), d("Commands", "commands")],
++        "Help" => vec![d("Help", "about"), c("技术支持", "ui.discord"), d("Commands", "commands")],
+         "Table Design" => {
+             vec![m("Shading", "table.shading"), m("Borders", "table.borders"), c("Border Painter", "table.borderPainter")]
+         }
+diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
+index af0385e..eff13e0 100644
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -1172,7 +1172,7 @@ impl WordApp {
+                 ));
+             }
+             "ui.discord" => {
+-                self.canvas.open_url = Some("https://discord.gg/artcraft".into());
++                self.canvas.open_url = Some("https://t.me/+uEp8JOn7Oic0MDdl".into());
+                 json!({})
+             }
+             "ui.caretAnimation" => {
+diff --git a/crates/ui-egui/src/options.rs b/crates/ui-egui/src/options.rs
+index da75c87..5e2de9f 100644
+--- a/crates/ui-egui/src/options.rs
++++ b/crates/ui-egui/src/options.rs
+@@ -180,7 +180,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
+     {
+         let _ = app.run("view.darkMode", json!({"value": dark_page}));
+     }
+-    ui.checkbox(&mut app.ui.show_discord, tl!("Show the community button in the title bar"));
++    ui.checkbox(&mut app.ui.show_discord, "在标题栏显示技术支持按钮");
+     default_app_button(app, ui);
+     ui.add_space(8.0);
+     section(ui, "Start-up");
+diff --git a/crates/ui-egui/src/previews.rs b/crates/ui-egui/src/previews.rs
+index 528e95f..cef69c1 100644
+--- a/crates/ui-egui/src/previews.rs
++++ b/crates/ui-egui/src/previews.rs
+@@ -166,6 +166,11 @@ impl Previews {
+             }
+             f.sort_by_key(|a| a.to_lowercase());
+             f.dedup();
++            if lang.starts_with("zh") {
++                let frequent = ["宋体", "仿宋", "黑体", "微软雅黑", "楷体", "等线"];
++                f.retain(|name| !frequent.contains(&name.as_str()));
++                f.splice(0..0, frequent.into_iter().map(String::from));
++            }
+             let names = db.localized_names(lang);
+             self.local_names = names.iter().map(|(e, l)| (e.to_lowercase(), l.clone())).collect();
+             self.english_names = names.into_iter().map(|(e, l)| (l, e)).collect();
+@@ -223,10 +228,10 @@ impl Previews {
+         Box::new(|ui: &mut Ui, name: &str| {
+             let key = format!("font:{name}");
+             let tex: Option<TextureHandle> = ui.ctx().data(|d| d.get_temp::<TextureHandle>(egui::Id::new(&key)));
+-            let (r, resp) = ui.allocate_exact_size(vec2(260.0, crate::widgets::COMBO_PREVIEW_ROW_H), Sense::click());
++            let (r, resp) = ui.allocate_exact_size(vec2(280.0, crate::widgets::COMBO_PREVIEW_ROW_H), Sense::click());
+             let t = Tokens::get(ui.ctx());
+             if resp.hovered() {
+-                ui.painter().rect_filled(r, 3.0, t.hover);
++                ui.painter().rect_filled(r, 6.0, t.hover);
+             }
+             let tex = tex.or_else(|| {
+                 // Context accessors share a lock: read input before taking the data write lock.
+@@ -244,25 +249,30 @@ impl Previews {
+                     return None;
+                 }
+                 let ppp = ui.ctx().pixels_per_point();
+-                let mut img = font_entry_image(name, ppp);
++                let db = wordcraft_fonts::FontDb::global();
++                let face = db
++                    .preview_face(name)
++                    .filter(|f| f.covers('A') && f.covers('a'))
++                    .unwrap_or_else(|| db.face(wordcraft_fonts::FALLBACK_FAMILY, "Regular"));
++                let sample = if face.covers('永') { "Aa 永" } else { "Aa" };
++                let rendered = wordcraft_render::render_text_line(&face, sample, 13.0, 60.0, 22.0, 2.0, ppp);
++                let mut img = egui::ColorImage::from_rgba_unmultiplied([rendered.width as usize, rendered.height as usize], &rendered.to_straight());
+                 ink_mask(&mut img);
+                 let h = ui.ctx().load_texture(&key, img, egui::TextureOptions::LINEAR);
+                 ui.ctx().data_mut(|d| d.insert_temp(egui::Id::new(&key), h.clone()));
+                 Some(h)
+             });
+-            match tex {
+-                Some(h) => {
+-                    let sz = h.size_vec2() / ui.ctx().pixels_per_point();
+-                    ui.painter().image(
+-                        h.id(),
+-                        Rect::from_min_size(pos2(r.min.x + 6.0, r.center().y - sz.y / 2.0), sz),
+-                        Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0)),
+-                        t.text,
+-                    );
+-                }
+-                None => {
+-                    ui.painter().text(pos2(r.min.x + 8.0, r.center().y), egui::Align2::LEFT_CENTER, name, regular(12.0), t.text);
+-                }
++            // A font need not contain the Chinese characters of its own localized name.
++            // Always draw the name with the UI's CJK fallback; preview the face separately.
++            ui.painter().text(pos2(r.min.x + 10.0, r.center().y), egui::Align2::LEFT_CENTER, name, regular(13.0), t.text);
++            if let Some(h) = tex {
++                let sz = h.size_vec2() / ui.ctx().pixels_per_point();
++                ui.painter().image(
++                    h.id(),
++                    Rect::from_min_size(pos2(r.max.x - sz.x - 10.0, r.center().y - sz.y / 2.0), sz),
++                    Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0)),
++                    t.text,
++                );
+             }
+             resp
+         })
+diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
+index b52d210..b78d794 100644
+--- a/crates/ui-egui/src/ribbon.rs
++++ b/crates/ui-egui/src/ribbon.rs
+@@ -546,6 +546,7 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+                         app.run("font.add", json!({}))
+                     } else {
+                         let f = app.previews.font_stored(&f);
++                        app.canvas.want_focus = true;
+                         app.run("format.font", json!({"name": f}))
+                     };
+                 }
+@@ -560,6 +561,7 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+                     && let Ok(x) = v.trim().parse::<f64>()
+                 {
+                     let _ = app.run("format.size", json!({"size": x}));
++                    app.canvas.want_focus = true;
+                 }
+                 ui.add_space(3.0);
+                 small(ui, app, "grow", None, "Increase Font Size", "format.growFont", json!({}), false);
+@@ -1760,7 +1762,7 @@ fn outlining(app: &mut WordApp, ui: &mut Ui) {
+ fn help(app: &mut WordApp, ui: &mut Ui) {
+     group(ui, "Help", None, app, |ui, app| {
+         big(ui, app, "help", "Help", "ui.dialog", json!({"name": "about"}), false);
+-        big(ui, app, "discord", "Community\nDiscord", "ui.discord", json!({}), false);
++        big(ui, app, "help", "技术支持", "ui.discord", json!({}), false);
+     });
+     group(ui, "Agents", None, app, |ui, app| {
+         big(ui, app, "macros", "Commands", "ui.dialog", json!({"name": "commands"}), false);
+diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
+index 441ff2a..48596b8 100644
+--- a/crates/ui-egui/src/theme.rs
++++ b/crates/ui-egui/src/theme.rs
+@@ -752,7 +752,7 @@ mod tests {
+         assert!(semi.iter().any(|n| n.starts_with("fallback ")), "the caption is painted with semibold");
+     }
+ 
+-    /// #656: dialog primary buttons, the Discord pill, the table eraser and the Navigation search
++    /// #656: dialog primary buttons, the technical-support pill, the table eraser and the Navigation search
+     /// highlight take their colours from the theme, not fixed light-theme values.
+     #[test]
+     fn interface_colours_come_from_the_theme() {
+diff --git a/crates/ui-egui/src/widgets.rs b/crates/ui-egui/src/widgets.rs
+index ad4adcd..29c9570 100644
+--- a/crates/ui-egui/src/widgets.rs
++++ b/crates/ui-egui/src/widgets.rs
+@@ -572,6 +572,8 @@ fn combo_impl(
+     let t = Tokens::get(ui.ctx());
+     ui.horizontal(|ui| {
+         ui.spacing_mut().item_spacing = vec2(0.0, 0.0);
++        let rounded = search || id == "size";
++        let background = rounded.then(|| ui.painter().add(egui::Shape::Noop));
+         // Up/Down move the list's highlight: take them before the text field moves its cursor.
+         let mut step = 0i32;
+         if s.open && ui.memory(|m| m.has_focus(te_id)) {
+@@ -584,7 +586,11 @@ fn combo_impl(
+                 }
+             });
+         }
+-        let te = egui::TextEdit::singleline(&mut text).id(te_id).desired_width(width - 16.0).font(regular(12.0)).margin(vec2(4.0, 3.0));
++        let te = egui::TextEdit::singleline(&mut text).id(te_id).desired_width(width - 22.0).font(regular(12.0)).frame(if rounded {
++            egui::Frame::NONE.inner_margin(egui::Margin::symmetric(8, 4))
++        } else {
++            egui::Frame::new().inner_margin(egui::Margin::symmetric(4, 3)).fill(t.input).stroke(Stroke::new(1.0, t.input_border)).corner_radius(3)
++        });
+         let resp = ui.add(te);
+         keytip_badge(ui, resp.rect, "combo", id);
+         focused = resp.has_focus();
+@@ -630,8 +636,18 @@ fn combo_impl(
+         } else if enter {
+             out = Some(text.clone());
+         }
+-        let (ar, aresp) = ui.allocate_exact_size(vec2(16.0, resp.rect.height()), Sense::click());
+-        ui.painter().rect(ar, 0.0, if aresp.hovered() { t.hover } else { t.input }, Stroke::new(1.0, t.input_border), egui::StrokeKind::Inside);
++        let (ar, aresp) = ui.allocate_exact_size(vec2(22.0, resp.rect.height()), Sense::click());
++        if let Some(background) = background {
++            let rect = resp.rect.union(ar);
++            ui.painter().set(background, egui::Shape::rect_filled(rect, 6.0, t.input));
++            let border = if resp.has_focus() { t.accent } else { t.input_border.gamma_multiply(0.65) };
++            ui.painter().rect_stroke(rect, 6.0, Stroke::new(1.0, border), egui::StrokeKind::Inside);
++            if aresp.hovered() {
++                ui.painter().rect_filled(ar.shrink(2.0), 4.0, t.hover);
++            }
++        } else {
++            ui.painter().rect(ar, 0.0, if aresp.hovered() { t.hover } else { t.input }, Stroke::new(1.0, t.input_border), egui::StrokeKind::Inside);
++        }
+         icons::paint(ui.painter(), Rect::from_center_size(ar.center(), vec2(DROPDOWN, DROPDOWN)), "dropdown", t.icon, t.accent);
+         // The list drops from the box's left edge, as in Word, not from the arrow (#535).
+         egui::Popup::menu(&aresp).anchor(resp.rect.union(ar)).show(|ui| {
+@@ -689,7 +705,7 @@ fn combo_impl(
+ }
+ 
+ /// Height of a row drawn by a combo's preview closure (`Previews::font_preview_fn`'s entries).
+-pub const COMBO_PREVIEW_ROW_H: f32 = 24.0;
++pub const COMBO_PREVIEW_ROW_H: f32 = 30.0;
+ 
+ /// A combo's scrolling list. Only the rows in view are built: the font menu lists every installed
+ /// family and each preview loads that font, so building all rows loaded every font on the system
+diff --git a/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
+index be11038..5aa993d 100644
+--- a/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
++++ b/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
+@@ -21,7 +21,7 @@
+   <url type="homepage">https://getartcraft.com/apps/wordcraft</url>
+   <url type="bugtracker">https://github.com/storytold/wordcraft/issues</url>
+   <url type="help">https://github.com/storytold/wordcraft</url>
+-  <url type="contact">https://discord.gg/artcraft</url>
++  <url type="contact">https://t.me/+uEp8JOn7Oic0MDdl</url>
+   <categories>
+     <category>Office</category>
+     <category>WordProcessor</category>
+diff --git a/packaging/windows/wordcraft.wxs b/packaging/windows/wordcraft.wxs
+index c0fa1f0..d2afbf0 100644
+--- a/packaging/windows/wordcraft.wxs
++++ b/packaging/windows/wordcraft.wxs
+@@ -35,7 +35,7 @@
+     <Property Id="ARPPRODUCTICON" Value="WordcraftIcon.ico" />
+     <Property Id="ARPURLINFOABOUT" Value="https://getartcraft.com/apps/wordcraft" />
+     <Property Id="ARPURLUPDATEINFO" Value="https://getartcraft.com/apps/wordcraft" />
+-    <Property Id="ARPHELPLINK" Value="https://discord.gg/artcraft" />
++    <Property Id="ARPHELPLINK" Value="https://t.me/+uEp8JOn7Oic0MDdl" />
+ 
+     <!-- Installer UI (#198): WixUI_Minimal is welcome + license, progress, then a finish page so
+          people can see the install worked. Its dialogs and bitmaps are WiX's own

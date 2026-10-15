@@ -83,6 +83,8 @@ trap cleanup EXIT
 
 if [ -n "$PREVIOUS_APP" ]; then
     [ -d "$PREVIOUS_APP" ] || { echo "找不到 previous app：$PREVIOUS_APP" >&2; exit 1; }
+    PREVIOUS_VERSION="$(plutil -extract CFBundleShortVersionString raw -o - "$PREVIOUS_APP/Contents/Info.plist")"
+    [ "$PREVIOUS_VERSION" != "$TARGET_VERSION" ] || { echo "增量包基线不能与目标版本相同：$TARGET_VERSION" >&2; exit 1; }
     cp -R "$PREVIOUS_APP" "$WORK_DIR/previous.app"
 elif [ -d "$APP" ]; then
     EXISTING_BUILD_VERSION="$(plutil -extract CFBundleShortVersionString raw -o - "$APP/Contents/Info.plist" 2>/dev/null || true)"
@@ -103,6 +105,11 @@ FULL_ZIP="$PROJECT_ROOT/MyAI-Office-${TARGET_VERSION}-arm64.zip"
 DMG="$PROJECT_ROOT/MyAI-Office-${TARGET_VERSION}-arm64.dmg"
 rm -f "$FULL_ZIP"
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$FULL_ZIP"
+# Older installed updaters require metadata even for a complete application ZIP.
+FULL_METADATA="$WORK_DIR/full-metadata"
+mkdir -p "$FULL_METADATA"
+printf '%s\n' "{\"format\":1,\"kind\":\"full\",\"baseVersion\":null,\"targetVersion\":\"$TARGET_VERSION\"}" > "$FULL_METADATA/metadata.json"
+(cd "$FULL_METADATA" && /usr/bin/zip -q "$FULL_ZIP" metadata.json)
 
 DELTA_ZIP=""
 BASE_VERSION=""
@@ -187,16 +194,22 @@ if [ "$PUBLISH" -eq 1 ]; then
         echo "$REPO 是私有仓库，应用无法免登录读取升级清单；请改为公开仓库或提供专用更新服务。" >&2
         exit 1
     }
-    git add Info.plist README.md Sources build-suite.sh package-dmg.sh release.sh updates
+    git add .gitignore Info.plist MyAIOffice-icon.png README.md Sources THIRD-PARTY-NOTICES.md Assets QA SourceLock.json VendorPatches prepare-sources.sh build-suite.sh package-dmg.sh release.sh
     git commit -m "Release MyAI Office $TARGET_VERSION"
     git push origin main
+    SOURCE_REVISION="$(git rev-parse HEAD)"
     if [ -n "$DELTA_ZIP" ]; then
         gh release create "v$TARGET_VERSION" "$DMG" "$FULL_ZIP" "$DELTA_ZIP" \
-            --title "MyAI Office $TARGET_VERSION" --notes "$NOTES"
+            --draft --target "$SOURCE_REVISION" --title "MyAI Office $TARGET_VERSION" --notes "$NOTES"
     else
         gh release create "v$TARGET_VERSION" "$DMG" "$FULL_ZIP" \
-            --title "MyAI Office $TARGET_VERSION" --notes "$NOTES"
+            --draft --target "$SOURCE_REVISION" --title "MyAI Office $TARGET_VERSION" --notes "$NOTES"
     fi
+    gh release edit "v$TARGET_VERSION" --draft=false --latest
+    # Publish the update feed only after every downloadable asset is available.
+    git add updates
+    git commit -m "Publish update manifest for $TARGET_VERSION"
+    git push origin main
 fi
 
 RELEASE_OK=1

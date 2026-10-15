@@ -1,0 +1,426 @@
+diff --git a/README.md b/README.md
+index b20179f..ec0859b 100644
+--- a/README.md
++++ b/README.md
+@@ -24,7 +24,7 @@
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <p align="center">
+@@ -43,7 +43,7 @@
+ 
+ > [!NOTE]
+ > **ArtCraft is a community of artists from all walks of life.** Digital, generative, music,
+-> games &mdash; if you make things, you're one of us. **[Come say hi on Discord](https://discord.gg/artcraft).**
++> games &mdash; if you make things, you're one of us. **[Get technical support](https://t.me/+uEp8JOn7Oic0MDdl).**
+ 
+ <p align="center">
+   <a href="#highlights">Highlights</a> ·
+@@ -68,7 +68,7 @@
+ 
+ PdfCraft is part of [ArtCraft](https://getartcraft.com). Come say hello, get help and follow development:
+ 
+-- **Discord: [discord.gg/artcraft](https://discord.gg/artcraft)**. This is the fastest way to get help and share feedback. The app has a Discord button in its title bar.
++- **Technical support: [t.me/+uEp8JOn7Oic0MDdl](https://t.me/+uEp8JOn7Oic0MDdl)**. Use this channel to get help and share feedback. The app has a 技术支持 button in its title bar.
+ - **Web page:** [getartcraft.com/apps/pdfcraft](https://getartcraft.com/apps/pdfcraft)
+ - **Source:** [github.com/storytold/pdfcraft](https://github.com/storytold/pdfcraft)
+ 
+@@ -520,20 +520,20 @@ And [**ArtCraft**](https://getartcraft.com/) itself, our AI image and video stud
+ <br>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <h3 align="center">Come make things with us</h3>
+ 
+ <p align="center">
+-  Our Discord is where artists of every kind hang out: people who paint, shoot, draw, cut film,
++  Our support channel is where artists of every kind hang out: people who paint, shoot, draw, cut film,
+   set type, and people still figuring out what they like to make. Share what you're working on,
+   ask for help, tell us what's broken, or tell us what you wish these tools could do.
+   Whatever your medium and however long you've been at it, you're welcome here.
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><b>discord.gg/artcraft</b></a> ·
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><b>t.me/+uEp8JOn7Oic0MDdl</b></a> ·
+   <a href="https://getartcraft.com/">getartcraft.com</a> ·
+   <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
+   <a href="https://getartcraft.com/apps/pdfcraft">PdfCraft</a>
+diff --git a/ROADMAP.md b/ROADMAP.md
+index b4ab4ea..6d2ec25 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -385,7 +385,7 @@ Newest first: the date, what moved, and the new overall estimate.
+   - Bookmark editing and page numbering (Number pages), with undo, agent tools and UI.
+   - A render watchdog: pathological pages are skipped after 20 s instead of spinning forever.
+   - The agent control channel no longer reports success when the window is hidden.
+-  - Community links: Discord button in the title bar, plus Home, About, Help menu, CLI and README.
++  - Community links: technical support button in the title bar, plus Home, About, Help menu, CLI and README.
+   - Overall ≈ 10%.
+ - **2026-10-01 (session 6):**
+   - UI control channel: agents can inspect the widget tree, click, type, press keys, run commands and take screenshots of the running app. Off unless the app is started with `--control`; loopback only, token-authenticated.
+diff --git a/apps/pdfcraft-cli/src/main.rs b/apps/pdfcraft-cli/src/main.rs
+index 190cb3d..c720739 100644
+--- a/apps/pdfcraft-cli/src/main.rs
++++ b/apps/pdfcraft-cli/src/main.rs
+@@ -70,7 +70,7 @@ pdfcraft-cli run    --script steps.json [--root DIR]      [{\"tool\": \"doc_open
+     "\
+ pdfcraft-cli ui     --control FILE <method> [key=value …] [--out shot.png]
+                                                            drive a running app started with --control FILE
+-help and feedback: https://discord.gg/artcraft"
++技术支持: https://t.me/+uEp8JOn7Oic0MDdl"
+ );
+ 
+ fn main() -> ExitCode {
+@@ -149,7 +149,7 @@ fn stdout_line(line: std::fmt::Arguments<'_>) -> Result<(), CliError> {
+ 
+ fn version() -> Result<(), CliError> {
+     stdout_line(format_args!("pdfcraft-cli {}", pdfcraft_engine::build_info::version()))?;
+-    stdout_line(format_args!("Discord: {}  (help and feedback)", pdfcraft_engine::links::DISCORD))?;
++    stdout_line(format_args!("技术支持: {}", pdfcraft_engine::links::SUPPORT))?;
+     stdout_line(format_args!("Web:     {}", pdfcraft_engine::links::APP_PAGE))?;
+     stdout_line(format_args!("Source:  {}", pdfcraft_engine::links::GITHUB))?;
+     Ok(())
+diff --git a/apps/pdfcraft/src/main.rs b/apps/pdfcraft/src/main.rs
+index a1d2ad9..448bc08 100644
+--- a/apps/pdfcraft/src/main.rs
++++ b/apps/pdfcraft/src/main.rs
+@@ -47,13 +47,6 @@ mod windows_manifest;
+ /// Freedesktop app id: the `.desktop` file name and the hicolor icon name.
+ const APP_ID: &str = "ai.storyteller.pdfcraft";
+ 
+-/// The app icon (assets/app-icon/README.md). macOS gets the version on Apple's icon grid, with a
+-/// transparent margin; Windows and Linux get the full-bleed tile.
+-#[cfg(target_os = "macos")]
+-const APP_ICON_PNG: &[u8] = include_bytes!("../../../assets/app-icon/pdfcraft-1024.png");
+-#[cfg(not(target_os = "macos"))]
+-const APP_ICON_PNG: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/ai.storyteller.pdfcraft.png");
+-
+ /// The app was called PrintCraft before; settings saved then are under this key.
+ const LEGACY_STORAGE_KEY: &str = "printcraft";
+ 
+@@ -232,7 +225,7 @@ fn main() -> eframe::Result {
+     let started = Rc::new(Cell::new(false));
+     let first = if choice == RendererChoice::Gl { eframe::Renderer::Glow } else { eframe::Renderer::Wgpu };
+     let result = eframe::run_native(
+-        "PdfCraft",
++        "MyAI PDF",
+         native_options(launch.integrated, launch.window_controls.is_some(), first),
+         app_creator(
+             launch.clone(),
+@@ -250,7 +243,7 @@ fn main() -> eframe::Result {
+             // usually still works there, so that's better than quitting.
+             log::error!("the GPU renderer (wgpu) didn't start: {e}. Starting with OpenGL instead; set PDFCRAFT_RENDERER=gl to skip wgpu.");
+             eframe::run_native(
+-                "PdfCraft",
++                "MyAI PDF",
+                 native_options(launch.integrated, launch.window_controls.is_some(), eframe::Renderer::Glow),
+                 app_creator(
+                     launch,
+@@ -293,17 +286,12 @@ fn retry_with_gl(choice: RendererChoice, app_started: bool) -> bool {
+ /// The window and renderer settings for one run.
+ fn native_options(integrated: bool, app_frame: bool, renderer: eframe::Renderer) -> eframe::NativeOptions {
+     let mut viewport = egui::ViewportBuilder::default()
+-        .with_title("PdfCraft")
++        .with_title("MyAI PDF")
+         .with_inner_size([1440.0, 920.0])
+         .with_min_inner_size([820.0, 520.0])
+         .with_drag_and_drop(true)
+         // Wayland app id: matches packaging/linux/ai.storyteller.pdfcraft.desktop.
+         .with_app_id(APP_ID);
+-    // Dock, taskbar, Alt-Tab and launcher icon when running unbundled.
+-    match eframe::icon_data::from_png_bytes(APP_ICON_PNG) {
+-        Ok(icon) => viewport = viewport.with_icon(icon),
+-        Err(e) => log::warn!("app icon: {e}"),
+-    }
+     if integrated {
+         viewport = viewport.with_fullsize_content_view(true).with_titlebar_shown(false).with_title_shown(false);
+     }
+diff --git a/crates/engine/src/commands.rs b/crates/engine/src/commands.rs
+index cf40386..0ffbd62 100644
+--- a/crates/engine/src/commands.rs
++++ b/crates/engine/src/commands.rs
+@@ -362,7 +362,7 @@ pub const COMMANDS: &[CommandSpec] = &[
+     c("page.split", "Split document…", PAGES, None, Assembly, "scissors"),
+     c("page.number", "Number pages…", PAGES, None, Assembly, "hash"),
+     c("help.shortcuts", "Keyboard shortcuts", HELP, None, Nothing, "circle-help"),
+-    c("help.discord", "Join the ArtCraft Discord", HELP, None, Nothing, "messages-square"),
++    c("help.support", "技术支持", HELP, None, Nothing, "circle-help"),
+     c("help.app_page", "PdfCraft web page", HELP, None, Nothing, "globe"),
+     c("help.github", "PdfCraft on GitHub", HELP, None, Nothing, "code-xml"),
+     c("help.website", "ArtCraft website", HELP, None, Nothing, "external-link"),
+diff --git a/crates/engine/src/links.rs b/crates/engine/src/links.rs
+index 5dd9aff..39a5d7c 100644
+--- a/crates/engine/src/links.rs
++++ b/crates/engine/src/links.rs
+@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
+ /// The app's name in ArtCraft URLs (`getartcraft.com/apps/{APP}`, `github.com/storytold/{APP}`).
+ pub const APP: &str = "pdfcraft";
+ 
+-pub const DISCORD: &str = "https://discord.gg/artcraft";
++pub const SUPPORT: &str = "https://t.me/+uEp8JOn7Oic0MDdl";
+ pub const WEBSITE: &str = "https://getartcraft.com";
+ pub const APP_PAGE: &str = "https://getartcraft.com/apps/pdfcraft";
+ pub const GITHUB: &str = "https://github.com/storytold/pdfcraft";
+@@ -22,9 +22,9 @@ pub struct Link {
+     pub icon: &'static str,
+ }
+ 
+-/// In the order they are shown. Discord comes first: it is where people get help fastest.
++/// In the order they are shown. Technical support comes first so help is one click away.
+ pub const LINKS: &[Link] = &[
+-    Link { command: "help.discord", label: "Join the ArtCraft Discord", url: DISCORD, icon: "messages-square" },
++    Link { command: "help.support", label: "技术支持", url: SUPPORT, icon: "circle-help" },
+     Link { command: "help.app_page", label: "PdfCraft web page", url: APP_PAGE, icon: "globe" },
+     Link { command: "help.github", label: "PdfCraft on GitHub", url: GITHUB, icon: "code-xml" },
+     Link { command: "help.website", label: "ArtCraft website", url: WEBSITE, icon: "external-link" },
+diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
+index 9617bf6..2d33750 100644
+--- a/crates/ui-egui/src/chrome.rs
++++ b/crates/ui-egui/src/chrome.rs
+@@ -66,8 +66,8 @@ pub fn tab_strip(app: &mut PdfCraftApp, ui: &mut egui::Ui) {
+                     app.active = None;
+                     app.combine_tab.focused = false;
+                 }
+-                // Keep the two icon buttons, Discord's text/padding and three gaps outside the scrolling tabs.
+-                let controls_width = ui.fonts_mut(|f| f.layout_no_wrap("Discord".into(), theme::medium(13.0), t.text).size().x)
++                // Keep the two icon buttons, the support label/padding and three gaps outside the scrolling tabs.
++                let controls_width = ui.fonts_mut(|f| f.layout_no_wrap("技术支持".into(), theme::medium(13.0), t.text).size().x)
+                     + 2.0 * button
+                     + 50.0
+                     + window_controls::width(&controls.right);
+@@ -290,8 +290,9 @@ pub fn tab_strip(app: &mut PdfCraftApp, ui: &mut egui::Ui) {
+                         app.dialog = Some(Dialog::Shortcuts);
+                     }
+                     // One click to the community, from anywhere in the app.
+-                    if widgets::ghost_button_sized(ui, "messages-square", "Discord", tab_h).on_hover_text(pdfcraft_engine::links::DISCORD).clicked() {
+-                        app.execute("help.discord");
++                    if widgets::ghost_button_sized(ui, "circle-help", "技术支持", tab_h).on_hover_text(pdfcraft_engine::links::SUPPORT).clicked()
++                    {
++                        app.execute("help.support");
+                     }
+                 });
+             });
+diff --git a/crates/ui-egui/src/home.rs b/crates/ui-egui/src/home.rs
+index 3e70f34..2229241 100644
+--- a/crates/ui-egui/src/home.rs
++++ b/crates/ui-egui/src/home.rs
+@@ -28,26 +28,6 @@ pub fn show(app: &mut PdfCraftApp, ui: &mut egui::Ui) {
+                     .color(t.text_muted)
+                     .font(theme::regular(14.0)),
+             );
+-            ui.add_space(14.0);
+-            egui::Frame::NONE
+-                .fill(t.card)
+-                .stroke(Stroke::new(1.0, t.border))
+-                .corner_radius(CornerRadius::same(12))
+-                .inner_margin(egui::Margin::same(14))
+-                .show(ui, |ui| {
+-                    ui.set_width(ui.available_width());
+-                    ui.horizontal(|ui| {
+-                        widgets::artcraft_mark(ui, 28.0);
+-                        ui.vertical(|ui| {
+-                            ui.label(egui::RichText::new(tl!("Join the ArtCraft community")).font(theme::semibold(15.0)));
+-                            ui.label(egui::RichText::new(tl!("Get help, share feedback and follow development on Discord.")).color(t.text_muted));
+-                        });
+-                    });
+-                    ui.add_space(8.0);
+-                    if let Some(cmd) = widgets::community_links(ui) {
+-                        app.execute(cmd);
+-                    }
+-                });
+             ui.add_space(22.0);
+ 
+             egui::Frame::NONE
+diff --git a/crates/ui-egui/src/i18n/zh-hans.tsv b/crates/ui-egui/src/i18n/zh-hans.tsv
+index d13078e..1d7a36a 100644
+--- a/crates/ui-egui/src/i18n/zh-hans.tsv
++++ b/crates/ui-egui/src/i18n/zh-hans.tsv
+@@ -1822,10 +1822,10 @@
+ 	Split document…	拆分文档…
+ 	Number pages…	页面编号…
+ 	Keyboard shortcuts	键盘快捷键
+-	Join the ArtCraft Discord	加入 ArtCraft Discord
++	Join the ArtCraft Discord	技术支持
+ 	Join the ArtCraft community	加入 ArtCraft 社区
+-	Get help, share feedback and follow development on Discord.	在 Discord 上获取帮助、分享反馈并关注开发动态。
+-	Join our Discord	加入我们的 Discord
++	Get help, share feedback and follow development on Discord.	获取技术支持、分享反馈并关注开发动态。
++	Join our Discord	技术支持
+ 	PdfCraft web page	PdfCraft 网页
+ 	PdfCraft on GitHub	GitHub 上的 PdfCraft
+ 	ArtCraft website	ArtCraft 官网
+diff --git a/crates/ui-egui/src/i18n/zh-hant.tsv b/crates/ui-egui/src/i18n/zh-hant.tsv
+index 9f8856a..8662043 100644
+--- a/crates/ui-egui/src/i18n/zh-hant.tsv
++++ b/crates/ui-egui/src/i18n/zh-hant.tsv
+@@ -1766,10 +1766,10 @@
+ 	Split document…	分割文件…
+ 	Number pages…	編訂頁碼…
+ 	Keyboard shortcuts	鍵盤快速鍵
+-	Join the ArtCraft Discord	加入 ArtCraft Discord
++	Join the ArtCraft Discord	技術支援
+ 	Join the ArtCraft community	加入 ArtCraft 社群
+-	Get help, share feedback and follow development on Discord.	在 Discord 取得協助、提供意見並追蹤開發進度。
+-	Join our Discord	加入 Discord 社群
++	Get help, share feedback and follow development on Discord.	取得技術支援、提供意見並追蹤開發進度。
++	Join our Discord	技術支援
+ 	PdfCraft web page	PdfCraft 網頁
+ 	PdfCraft on GitHub	GitHub 上的 PdfCraft
+ 	ArtCraft website	ArtCraft 網站
+diff --git a/crates/ui-egui/src/widgets.rs b/crates/ui-egui/src/widgets.rs
+index 4f5aaa7..bf303f9 100644
+--- a/crates/ui-egui/src/widgets.rs
++++ b/crates/ui-egui/src/widgets.rs
+@@ -519,14 +519,14 @@ pub fn artcraft_mark(ui: &mut egui::Ui, size: f32) -> Response {
+     )
+ }
+ 
+-/// Buttons for every community link (`pdfcraft_engine::links`), Discord first and prominent.
++/// Buttons for every community link (`pdfcraft_engine::links`), with technical support first and prominent.
+ /// Returns the registry command of the one clicked.
+ pub fn community_links(ui: &mut egui::Ui) -> Option<&'static str> {
+     let mut clicked = None;
+     ui.horizontal_wrapped(|ui| {
+         ui.spacing_mut().item_spacing = vec2(8.0, 8.0);
+         for (i, l) in pdfcraft_engine::links::LINKS.iter().enumerate() {
+-            let resp = if i == 0 { icon_pill(ui, l.icon, tl!("Join our Discord"), true) } else { icon_pill(ui, l.icon, tl!(l.label), false) };
++            let resp = if i == 0 { icon_pill(ui, l.icon, "技术支持", true) } else { icon_pill(ui, l.icon, tl!(l.label), false) };
+             if resp.on_hover_text(l.url).clicked() {
+                 clicked = Some(l.command);
+             }
+diff --git a/crates/ui-egui/tests/ui.rs b/crates/ui-egui/tests/ui.rs
+index 4c1bdff..d4fb17f 100644
+--- a/crates/ui-egui/tests/ui.rs
++++ b/crates/ui-egui/tests/ui.rs
+@@ -330,8 +330,8 @@ fn tabs_shrink_to_fit_then_arrows_step_through_them_and_open_stays_in_sight() {
+         }
+     });
+     let open = h.get_by_label("Open").rect();
+-    let discord = h.get_by_label("Discord").rect();
+-    assert!(open.right() <= discord.left(), "Open {open:?} must not run under Discord {discord:?}");
++    let support = h.get_by_label("技术支持").rect();
++    assert!(open.right() <= support.left(), "Open {open:?} must not run under 技术支持 {support:?}");
+     let mut previous_right = f32::MIN;
+     for i in 0..5 {
+         let tab = h.get_by_label(&name(i)).rect();
+@@ -355,15 +355,15 @@ fn tabs_shrink_to_fit_then_arrows_step_through_them_and_open_stays_in_sight() {
+     assert_eq!(enabled(&h, "Scroll tabs right"), Some(true), "and then there is more to the right");
+     let open = h.get_by_label("Open").rect();
+     let right = h.get_by_label("Scroll tabs right").rect();
+-    assert!(right.right() <= open.left() + 0.5 && open.right() <= h.get_by_label("Discord").rect().left());
+-    // Twenty: Open stays in sight left of Discord.
++    assert!(right.right() <= open.left() + 0.5 && open.right() <= h.get_by_label("技术支持").rect().left());
++    // Twenty: Open stays in sight left of 技术支持.
+     for i in 0..13 {
+         h.state_mut().open_bytes(&format!("more-{i:02}.pdf"), None, FIXTURE.to_vec()).unwrap();
+     }
+     h.run_steps(4);
+     let open = h.get_by_label("Open").rect();
+-    let discord = h.get_by_label("Discord").rect();
+-    assert!(open.left() > 0.0 && open.right() <= discord.left(), "Open {open:?} stays in sight left of Discord {discord:?}");
++    let support = h.get_by_label("技术支持").rect();
++    assert!(open.left() > 0.0 && open.right() <= support.left(), "Open {open:?} stays in sight left of 技术支持 {support:?}");
+ }
+ 
+ /// macOS (#789): with the integrated title bar, the strip is the 28 pt band AppKit centres the
+@@ -376,7 +376,7 @@ fn the_integrated_title_bar_is_the_traffic_light_band() {
+         app.open_bytes("band.pdf", None, FIXTURE.to_vec()).unwrap();
+     });
+     let band = 28.0;
+-    for label in ["Home", "band.pdf", "Open", "Discord", "Keyboard shortcuts"] {
++    for label in ["Home", "band.pdf", "Open", "技术支持", "Keyboard shortcuts"] {
+         let r = h.get_by_label(label).rect();
+         assert!(r.top() >= 0.0 && r.bottom() <= band, "{label}: {r:?} inside the {band} pt title bar");
+         assert!(r.height() >= 24.0, "{label}: {r:?} stays clickable");
+diff --git a/crates/ui-egui/tests/ui_group/links.rs b/crates/ui-egui/tests/ui_group/links.rs
+index b08036b..e511eb3 100644
+--- a/crates/ui-egui/tests/ui_group/links.rs
++++ b/crates/ui-egui/tests/ui_group/links.rs
+@@ -1,4 +1,4 @@
+-//! Community links: the Discord button is one click away everywhere; Help menu, About dialog and
++//! Community links: the technical support button is one click away everywhere; Help menu, About dialog and
+ //! home screen open the ArtCraft and PdfCraft pages.
+ 
+ use egui_kittest::Harness;
+@@ -18,25 +18,29 @@ fn harness(setup: impl FnOnce(&mut PdfCraftApp) + 'static) -> Harness<'static, P
+ }
+ 
+ #[test]
+-fn discord_button_in_the_top_bar_opens_discord() {
++fn support_button_in_the_top_bar_opens_support() {
+     let mut h = harness(|_| {});
+-    h.get_by_label("Discord").click();
++    h.get_all_by_label("技术支持").next().unwrap().click();
+     h.run_steps(2);
+-    assert_eq!(h.state().last_opened_url.as_deref(), Some(links::DISCORD));
+-    assert_eq!(links::DISCORD, "https://discord.gg/artcraft");
++    assert_eq!(h.state().last_opened_url.as_deref(), Some(links::SUPPORT));
++    assert_eq!(links::SUPPORT, "https://t.me/+uEp8JOn7Oic0MDdl");
+ }
+ 
+ #[test]
+ fn home_screen_links() {
+     for (label, url) in [
+-        ("Join our Discord", links::DISCORD),
++        ("技术支持", links::SUPPORT),
+         ("PdfCraft web page", "https://getartcraft.com/apps/pdfcraft"),
+         ("PdfCraft on GitHub", "https://github.com/storytold/pdfcraft"),
+         ("ArtCraft website", "https://getartcraft.com"),
+     ] {
+         let mut h = harness(|_| {});
+         h.get_by_label("Join the ArtCraft community");
+-        h.get_by_label(label).click();
++        if label == "技术支持" {
++            h.get_all_by_label(label).last().unwrap().click();
++        } else {
++            h.get_by_label(label).click();
++        }
+         h.run_steps(2);
+         assert_eq!(h.state().last_opened_url.as_deref(), Some(url), "{label}");
+     }
+@@ -51,9 +55,9 @@ fn about_dialog_shows_the_brand_and_links() {
+         app.dialog = Some(Dialog::About);
+     });
+     assert!(h.query_all_by_label("ArtCraft").count() >= 2, "the mark and the wordmark (alt text)");
+-    h.get_by_label("Join our Discord").click();
++    h.get_all_by_label("技术支持").last().unwrap().click();
+     h.run_steps(2);
+-    assert_eq!(h.state().last_opened_url.as_deref(), Some(links::DISCORD));
++    assert_eq!(h.state().last_opened_url.as_deref(), Some(links::SUPPORT));
+ }
+ 
+ #[test]
+diff --git a/packaging/linux/ai.storyteller.pdfcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.pdfcraft.metainfo.xml.in
+index c8251ac..24c890b 100644
+--- a/packaging/linux/ai.storyteller.pdfcraft.metainfo.xml.in
++++ b/packaging/linux/ai.storyteller.pdfcraft.metainfo.xml.in
+@@ -22,7 +22,7 @@
+   <url type="homepage">https://getartcraft.com/apps/pdfcraft</url>
+   <url type="bugtracker">https://github.com/storytold/pdfcraft/issues</url>
+   <url type="help">https://github.com/storytold/pdfcraft</url>
+-  <url type="contact">https://discord.gg/artcraft</url>
++  <url type="contact">https://t.me/+uEp8JOn7Oic0MDdl</url>
+   <categories>
+     <category>Office</category>
+     <category>Viewer</category>
+diff --git a/packaging/windows/pdfcraft.wxs b/packaging/windows/pdfcraft.wxs
+index 3f29172..e687322 100644
+--- a/packaging/windows/pdfcraft.wxs
++++ b/packaging/windows/pdfcraft.wxs
+@@ -36,7 +36,7 @@
+     <Property Id="ARPPRODUCTICON" Value="PdfcraftIcon.ico" />
+     <Property Id="ARPURLINFOABOUT" Value="https://getartcraft.com/apps/pdfcraft" />
+     <Property Id="ARPURLUPDATEINFO" Value="https://getartcraft.com/apps/pdfcraft" />
+-    <Property Id="ARPHELPLINK" Value="https://discord.gg/artcraft" />
++    <Property Id="ARPHELPLINK" Value="https://t.me/+uEp8JOn7Oic0MDdl" />
+     <!-- Desktop shortcut (#143): on by default for a first install, a checkbox in the full-UI
+          welcome dialog, and INSTALLDESKTOPSHORTCUT=0 on the msiexec command line for unattended
+          installs. Secure, so the choice made in the (unelevated) UI reaches the elevated install.

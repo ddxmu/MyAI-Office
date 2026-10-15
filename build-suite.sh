@@ -32,8 +32,23 @@ install_helper() {
     name="$2"
     label="$3"
     require_executable "$source" "$label"
-    cp "$source" "$HELPERS/$name"
-    chmod 755 "$HELPERS/$name"
+    module_app="$HELPERS/$label.app"
+    mkdir -p "$module_app/Contents/MacOS" "$module_app/Contents/Resources"
+    cp "$source" "$module_app/Contents/MacOS/$name"
+    chmod 755 "$module_app/Contents/MacOS/$name"
+    cp "$RESOURCES/MyAIOffice.icns" "$module_app/Contents/Resources/MyAIOffice.icns"
+    module_info="$module_app/Contents/Info.plist"
+    plutil -create xml1 "$module_info"
+    plutil -insert CFBundleExecutable -string "$name" "$module_info"
+    plutil -insert CFBundleIdentifier -string "com.myai.office.$name" "$module_info"
+    plutil -insert CFBundleName -string "$label" "$module_info"
+    plutil -insert CFBundleDisplayName -string "$label" "$module_info"
+    plutil -insert CFBundlePackageType -string APPL "$module_info"
+    plutil -insert CFBundleIconFile -string MyAIOffice "$module_info"
+    plutil -insert CFBundleShortVersionString -string "$(plutil -extract CFBundleShortVersionString raw -o - "$ROOT/Info.plist")" "$module_info"
+    plutil -insert LSMinimumSystemVersion -string 13.0 "$module_info"
+    plutil -insert NSHighResolutionCapable -bool true "$module_info"
+    plutil -insert NSPrincipalClass -string NSApplication "$module_info"
 }
 
 echo "构建 MyAI Office 统一入口…"
@@ -62,6 +77,7 @@ for size in 16 32 128 256 512; do
     sips -z "$double" "$double" "$ICON_SOURCE" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
 done
 iconutil -c icns "$ICONSET" -o "$RESOURCES/MyAIOffice.icns"
+cp "$ICON_SOURCE" "$RESOURCES/MyAIOffice.png"
 rm -rf "$ICONSET"
 
 swiftc -O -target arm64-apple-macos13.0 \

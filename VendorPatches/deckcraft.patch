@@ -1,0 +1,2297 @@
+diff --git a/README.md b/README.md
+index f25aef2..e12fc93 100644
+--- a/README.md
++++ b/README.md
+@@ -28,7 +28,7 @@
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <p align="center">
+@@ -40,7 +40,7 @@
+ > [!NOTE]
+ > **ArtCraft is a community of artists from all walks of life.** Painters, photographers,
+ > filmmakers, illustrators, designers, animators, hobbyists, and people who picked up a pencil
+-> last week. If you make things, you're one of us. **[Come say hi on Discord](https://discord.gg/artcraft).**
++> last week. If you make things, you're one of us. **[Get technical support](https://t.me/+uEp8JOn7Oic0MDdl).**
+ 
+ <p align="center">
+   <img alt="DeckCraft editing a slide: ribbon, slide thumbnails with sections, a process diagram on the canvas, notes and status bar" src="docs/images/editor.png" width="900">
+@@ -243,20 +243,20 @@ And [**ArtCraft**](https://getartcraft.com/) itself, our AI image and video stud
+ <br>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><img alt="Join the ArtCraft community on Discord" src="https://img.shields.io/badge/Join%20us%20on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="40"></a>
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><img alt="Technical support" src="https://img.shields.io/badge/Technical%20support-0FAF9A?style=for-the-badge&logo=telegram&logoColor=white" height="40"></a>
+ </p>
+ 
+ <h3 align="center">Come make things with us</h3>
+ 
+ <p align="center">
+-  Our Discord is where artists of every kind hang out: people who paint, shoot, draw, cut film,
++  Our support channel is where artists of every kind hang out: people who paint, shoot, draw, cut film,
+   set type, and people still figuring out what they like to make. Share what you're working on,
+   ask for help, tell us what's broken, or tell us what you wish these tools could do.
+   Whatever your medium and however long you've been at it, you're welcome here.
+ </p>
+ 
+ <p align="center">
+-  <a href="https://discord.gg/artcraft"><b>discord.gg/artcraft</b></a> ·
++  <a href="https://t.me/+uEp8JOn7Oic0MDdl"><b>t.me/+uEp8JOn7Oic0MDdl</b></a> ·
+   <a href="https://getartcraft.com/">getartcraft.com</a> ·
+   <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
+   <a href="https://getartcraft.com/apps/deckcraft">DeckCraft</a>
+diff --git a/apps/deckcraft-cli/src/main.rs b/apps/deckcraft-cli/src/main.rs
+index fd1d96e..ef47022 100644
+--- a/apps/deckcraft-cli/src/main.rs
++++ b/apps/deckcraft-cli/src/main.rs
+@@ -74,12 +74,12 @@ fn main() -> ExitCode {
+         Some("mcp") => report(mcp(rest)),
+         Some("links") => {
+             use deckcraft_engine::links::*;
+-            outln!("Discord   {DISCORD}\nWebsite   {WEBSITE}\nApp page  {APP_PAGE}\nGitHub    {GITHUB}");
++            outln!("Support   {SUPPORT}\nWebsite   {WEBSITE}\nApp page  {APP_PAGE}\nGitHub    {GITHUB}");
+             ExitCode::SUCCESS
+         }
+         _ => {
+             eprintln!("{USAGE}");
+-            eprintln!("\nCommunity: {}  ·  {}", deckcraft_engine::links::DISCORD, deckcraft_engine::links::APP_PAGE);
++            eprintln!("\nTechnical support: {}  ·  {}", deckcraft_engine::links::SUPPORT, deckcraft_engine::links::APP_PAGE);
+             ExitCode::FAILURE
+         }
+     }
+diff --git a/apps/deckcraft/src/main.rs b/apps/deckcraft/src/main.rs
+index 7b5e48b..75e547c 100644
+--- a/apps/deckcraft/src/main.rs
++++ b/apps/deckcraft/src/main.rs
+@@ -130,11 +130,13 @@ fn services() -> Services {
+ const APP_ID: &str = "ai.storyteller.deckcraft";
+ 
+ fn app_icon() -> Option<egui::IconData> {
+-    let png: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/ai.storyteller.deckcraft.png");
+-    eframe::icon_data::from_png_bytes(png).map_err(|e| log::warn!("app icon: {e}")).ok()
++    None
+ }
+ 
+ fn main() -> eframe::Result {
++    // MyAI Office presents the bundled editor in Simplified Chinese.  The locale layer only
++    // changes display text; command ids and document data stay compatible with DeckCraft.
++    deckcraft_ui_egui::locale::enable_chinese();
+     // First, so every start-up record (and the engine's panic hook, installed with the first
+     // Session) is captured; see `logging`.
+     let logger = logging::install();
+@@ -170,7 +172,7 @@ fn main() -> eframe::Result {
+     }
+     let mut options = eframe::NativeOptions {
+         viewport: egui::ViewportBuilder::default()
+-            .with_title("DeckCraft")
++            .with_title("MyAI Power Point")
+             .with_inner_size([1440.0, 900.0])
+             .with_min_inner_size([900.0, 560.0])
+             .with_drag_and_drop(true)
+@@ -194,7 +196,7 @@ fn main() -> eframe::Result {
+     #[cfg(target_os = "windows")]
+     graphics::configure(&mut options, eframe::wgpu::Backends::from_env());
+     eframe::run_native(
+-        "DeckCraft",
++        "MyAI Power Point",
+         options,
+         Box::new(move |cc| {
+             let mut app = SlideApp::new(Session::new(), services());
+diff --git a/crates/engine/src/links.rs b/crates/engine/src/links.rs
+index ac0c787..f10e084 100644
+--- a/crates/engine/src/links.rs
++++ b/crates/engine/src/links.rs
+@@ -1,6 +1,6 @@
+ //! Community and project links (shown in Help, About, the CLI and MCP).
+ 
+-pub const DISCORD: &str = "https://discord.gg/artcraft";
++pub const SUPPORT: &str = "https://t.me/+uEp8JOn7Oic0MDdl";
+ pub const WEBSITE: &str = "https://getartcraft.com/";
+ pub const APPS: &str = "https://getartcraft.com/apps";
+ pub const APP_PAGE: &str = "https://getartcraft.com/apps/deckcraft";
+diff --git a/crates/fonts/src/fontdb.rs b/crates/fonts/src/fontdb.rs
+index 5425c02..561d694 100644
+--- a/crates/fonts/src/fontdb.rs
++++ b/crates/fonts/src/fontdb.rs
+@@ -31,6 +31,17 @@ pub fn bundled() -> Vec<&'static [u8]> {
+ /// where one exists), tried in order after the family itself.
+ pub fn substitutes(family: &str) -> &'static [&'static str] {
+     match family.to_ascii_lowercase().as_str() {
++        "宋体" | "simsun" | "songti sc" | "stsong" => {
++            &["Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4", "PingFang SC"]
++        }
++        "仿宋" | "fangsong" | "stfangsong" => &["STFangsong", "FangSong", "Songti SC", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"],
++        "黑体" | "simhei" | "heiti sc" | "stheiti" => {
++            &["PingFang SC", "Hiragino Sans GB", "STHeiti", "SimHei", "Noto Sans CJK SC", "Noto Sans", "Inter"]
++        }
++        "微软雅黑" | "microsoft yahei" | "yahei" => {
++            &["Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans", "Inter"]
++        }
++        "楷体" | "kaiti" | "stkaiti" => &["STKaiti", "Kaiti SC", "Songti SC", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"],
+         "calibri" | "calibri light" => &["Carlito", "Liberation Sans", "Arial", "Inter"],
+         "cambria" | "cambria math" => &["Caladea", "Liberation Serif", "Times New Roman", "Merriweather"],
+         "arial" | "helvetica" | "helvetica neue" | "arial nova" => &["Liberation Sans", "Arial", "Helvetica Neue", "Helvetica", "Inter"],
+@@ -342,9 +353,11 @@ const SYSTEM_FALLBACKS: &[&str] = &[
+     "Segoe UI",
+     "Noto Sans",
+     "DejaVu Sans",
++    "Hiragino Sans GB",
+     "PingFang SC",
+     "Hiragino Sans",
+     "Hiragino Kaku Gothic ProN",
++    "AppleGothic",
+     "Apple SD Gothic Neo",
+     "Heiti SC",
+     "STHeiti",
+@@ -881,6 +894,12 @@ impl FontDb {
+     /// see `office_twin`); any other missing family is drawn in Calibri (or Carlito).
+     /// DeckCraft's own default family keeps [`FontDb::face`]'s fallbacks.
+     pub fn document_face(&self, family: &str, style: &str) -> Arc<FontFace> {
++        if matches!(
++            family.to_ascii_lowercase().as_str(),
++            "宋体" | "simsun" | "仿宋" | "fangsong" | "黑体" | "simhei" | "微软雅黑" | "microsoft yahei" | "楷体" | "kaiti"
++        ) {
++            return self.face(family, style);
++        }
+         if family.eq_ignore_ascii_case(FALLBACK_FAMILY) || has_metric_twin(family) || is_office_cloud_font(family) || self.has_family(family) {
+             return self.face(family, style);
+         }
+@@ -1027,7 +1046,12 @@ impl FontDb {
+     fn loaded_fallback(&self, c: char, exclude: u32) -> Option<Arc<FontFace>> {
+         let faces = self.read_faces();
+         let mut order: Vec<&Arc<FontFace>> = faces.iter().filter(|f| f.id != exclude).collect();
+-        order.sort_by_key(|f| (!f.family.eq_ignore_ascii_case(FALLBACK_FAMILY), f.italic, (f.weight - 400.0).abs() as i32));
++        // Prefer a compact installed face when several system fallbacks cover the same glyph.
++        // macOS's Songti collection is large enough that egui intentionally will not borrow it
++        // for interface text; a smaller Hiragino/PingFang face keeps the same glyphs usable there.
++        order.sort_by_key(|f| {
++            (!f.family.eq_ignore_ascii_case(FALLBACK_FAMILY), f.data().len() > 48 << 20, f.italic, (f.weight - 400.0).abs() as i32, f.data().len())
++        });
+         order.into_iter().find(|f| f.covers(c)).cloned()
+     }
+ 
+diff --git a/crates/mcp/src/server.rs b/crates/mcp/src/server.rs
+index 576e0b4..46b95c8 100644
+--- a/crates/mcp/src/server.rs
++++ b/crates/mcp/src/server.rs
+@@ -137,9 +137,9 @@ impl Server {
+                     "capabilities": {"tools": {}, "resources": {}},
+                     "serverInfo": {"name": "deckcraft", "title": "DeckCraft", "version": env!("CARGO_PKG_VERSION"), "websiteUrl": deckcraft_engine::links::APP_PAGE},
+                     "instructions": format!(
+-                        "{INSTRUCTIONS} Backend: {}. Community: {} (Discord), {} (app page), {} (source). The `app.links` command returns these links.",
++                        "{INSTRUCTIONS} Backend: {}. Technical support: {}, {} (app page), {} (source). The `app.links` command returns these links.",
+                         self.backend.describe(),
+-                        deckcraft_engine::links::DISCORD,
++                        deckcraft_engine::links::SUPPORT,
+                         deckcraft_engine::links::APP_PAGE,
+                         deckcraft_engine::links::GITHUB
+                     ),
+diff --git a/crates/model/src/lib.rs b/crates/model/src/lib.rs
+index 43561f9..d158510 100644
+--- a/crates/model/src/lib.rs
++++ b/crates/model/src/lib.rs
+@@ -138,18 +138,18 @@ impl PhType {
+     /// The prompt shown in an empty placeholder in Normal view.
+     pub fn prompt(self) -> &'static str {
+         match self {
+-            PhType::Title | PhType::CtrTitle => "Click to add title",
+-            PhType::SubTitle => "Click to add subtitle",
+-            PhType::Body | PhType::Obj => "Click to add text",
+-            PhType::Chart => "Click icon to add chart",
+-            PhType::Table => "Click icon to add table",
+-            PhType::Diagram => "Click icon to add SmartArt graphic",
+-            PhType::Media => "Click icon to add media",
+-            PhType::Picture | PhType::ClipArt => "Click icon to add picture",
+-            PhType::Date => "Date",
+-            PhType::Footer => "Footer",
++            PhType::Title | PhType::CtrTitle => "单击此处添加标题",
++            PhType::SubTitle => "单击此处添加副标题",
++            PhType::Body | PhType::Obj => "单击此处添加文本",
++            PhType::Chart => "单击图标添加图表",
++            PhType::Table => "单击图标添加表格",
++            PhType::Diagram => "单击图标添加 SmartArt 图形",
++            PhType::Media => "单击图标添加媒体",
++            PhType::Picture | PhType::ClipArt => "单击图标添加图片",
++            PhType::Date => "日期",
++            PhType::Footer => "页脚",
+             PhType::SlideNum => "‹#›",
+-            PhType::Header => "Header",
++            PhType::Header => "页眉",
+             PhType::SlideImage => "",
+         }
+     }
+diff --git a/crates/render/src/lib.rs b/crates/render/src/lib.rs
+index eb13955..880f93d 100644
+--- a/crates/render/src/lib.rs
++++ b/crates/render/src/lib.rs
+@@ -1183,7 +1183,15 @@ impl Renderer {
+                 let prompt_body = prompt_body(rctx, s, kind);
+                 if !prompt_body.is_empty() {
+                     let grey = Rgba::rgb(0x59, 0x59, 0x59);
+-                    draw_text(ctx, rctx, s, &prompt_body, tr, m, &f.fields, Some(grey));
++                    // Layout resolves body properties through the shape, not the temporary
++                    // prompt's text body. Apply its anchor to a drawing-only copy of the shape.
++                    let mut hint = s.clone();
++                    if let Some(anchor) = prompt_body.body.anchor
++                        && let Some(text) = hint.text.as_mut()
++                    {
++                        text.body.anchor = Some(anchor);
++                    }
++                    draw_text(ctx, rctx, &hint, &prompt_body, tr, m, &f.fields, Some(grey));
+                 }
+             }
+         }
+@@ -1831,6 +1839,11 @@ fn prompt_body(rctx: &Ctx, s: &Shape, kind: PhType) -> TextBody {
+         return TextBody::default();
+     }
+     let mut t = TextBody::from_text(txt);
++    if matches!(kind, PhType::Title | PhType::CtrTitle | PhType::SubTitle) {
++        // Prompts are editing hints, not document content. Centre the Chinese hint within its
++        // box instead of inheriting a title's bottom anchor and crowding the subtitle below it.
++        t.body.anchor = Some(deckcraft_model::text::Anchor::Middle);
++    }
+     if matches!(kind, PhType::Picture | PhType::Chart | PhType::Table | PhType::Media | PhType::Diagram | PhType::ClipArt) {
+         t.body.anchor = Some(deckcraft_model::text::Anchor::Bottom);
+         if let Some(p) = t.paragraphs.first_mut() {
+diff --git a/crates/render/src/tests.rs b/crates/render/src/tests.rs
+index 0de3d69..2032aa2 100644
+--- a/crates/render/src/tests.rs
++++ b/crates/render/src/tests.rs
+@@ -19,6 +19,22 @@ fn blank_slide_renders_white_background() {
+     assert_eq!(img.pixel(5, 5), [255, 255, 255, 255]);
+ }
+ 
++#[test]
++fn chinese_title_prompt_ink_is_centred_inside_the_placeholder() {
++    let p = Presentation::default();
++    let image = render_slide(&p, 0, &RenderOpts { scale: 1.0, edit: true, ..Default::default() });
++    let mut rows = Vec::new();
++    for y in 100..264 {
++        if (130..830).any(|x| image.pixel(x, y)[0] < 150) {
++            rows.push(y);
++        }
++    }
++    assert!(!rows.is_empty(), "the Chinese title hint is visible");
++    let centre = (rows[0] + rows[rows.len() - 1]) as f64 / 2.0;
++    assert!((centre - 182.0).abs() < 22.0, "hint ink centred vertically, at {centre}");
++    assert!(p.slides[0].shapes.iter().all(|s| s.text.as_ref().is_none_or(TextBody::is_empty)), "hints must not become saved document text");
++}
++
+ #[test]
+ fn shape_fill_uses_theme_accent() {
+     let sh = Shape {
+diff --git a/crates/text/src/lib.rs b/crates/text/src/lib.rs
+index d6bc66b..bc82888 100644
+--- a/crates/text/src/lib.rs
++++ b/crates/text/src/lib.rs
+@@ -517,6 +517,22 @@ fn face_chain(ctx: &Ctx, st: &Style, slot: FontSlot, script: Option<ScriptTag>)
+             push(f);
+         }
+     }
++    if script == Some(*b"Hani") {
++        // A CJK face explicitly selected by the author wins over the default Chinese fallback.
++        if st.face.covers('中') {
++            push(&st.face.family);
++        }
++        // New and older decks often leave a:ea empty. Use an installed Simplified-Chinese face
++        // as the primary run face so its metrics place and wrap Chinese text consistently with
++        // the glyphs drawn on screen. Load only the first available face: loading every system
++        // candidate here would retain several large CJK collections even when one is enough.
++        for family in ["Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", "Songti SC", "STSong"] {
++            if db.has_family(family) {
++                push(family);
++                break;
++            }
++        }
++    }
+     if !chain.iter().any(|c| Arc::ptr_eq(c, &st.face)) {
+         chain.push(st.face.clone());
+     }
+diff --git a/crates/text/src/tests.rs b/crates/text/src/tests.rs
+index 1e2be17..414da0e 100644
+--- a/crates/text/src/tests.rs
++++ b/crates/text/src/tests.rs
+@@ -45,6 +45,24 @@ fn bullets_are_drawn_for_body_text() {
+     assert_eq!(l.para_lines.len(), 2);
+ }
+ 
++#[test]
++fn an_explicit_chinese_font_is_not_replaced_by_the_default_cjk_face() {
++    let db = FontDb::global();
++    let Some(family) = ["Songti SC", "Microsoft YaHei", "Hiragino Sans GB"].into_iter().find(|f| db.has_family(f)) else { return };
++    let (p, mut sh) = setup("中文标题对齐", 600.0, 200.0);
++    let body = sh.text.as_mut().unwrap();
++    body.body.anchor = Some(Anchor::Middle);
++    body.paragraphs[0].props.bullet = Some(Bullet::None);
++    body.paragraphs[0].props.align = Some(Align::Center);
++    body.paragraphs[0].runs[0].props.font = Some(family.into());
++    body.paragraphs[0].runs[0].props.size = Some(36.0);
++    let text = lay(&p, &sh, 600.0, 200.0);
++    assert!(text.runs.iter().all(|r| r.face.family == family), "the author's CJK font must win: {:?}", text.runs);
++    let line = &text.lines[0];
++    assert!(((line.extent.0 + line.extent.1) / 2.0 - 300.0).abs() < 0.5, "centred Chinese text");
++    assert!(((line.top + line.bottom) / 2.0 - 100.0).abs() < 0.5, "vertically centred Chinese line box");
++}
++
+ /// Glyph count and width of `text` laid out in one line of `family` at 40 pt, kern threshold `kern`.
+ fn glyphs_and_width(family: &str, text: &str, kern: Option<f64>) -> (usize, f64) {
+     let (p, mut sh) = setup(text, 2000.0, 300.0);
+diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
+index f1d0fde..a11d955 100644
+--- a/crates/ui-egui/src/backstage.rs
++++ b/crates/ui-egui/src/backstage.rs
+@@ -16,6 +16,7 @@ use serde_json::{Value, json};
+ 
+ use crate::SlideApp;
+ use crate::icons::{self, Icon};
++use crate::locale;
+ use crate::theme::{self, Tokens};
+ 
+ /// Width of the side menu.
+@@ -63,7 +64,7 @@ impl Page {
+ 
+     /// Side-menu label and page heading.
+     pub fn label(self) -> &'static str {
+-        match self {
++        locale::tr(match self {
+             Page::Home => "Home",
+             Page::New => "New",
+             Page::Open => "Open",
+@@ -72,7 +73,7 @@ impl Page {
+             Page::Print => "Print",
+             Page::Export => "Export",
+             Page::Account => "Account",
+-        }
++        })
+     }
+ 
+     fn icon(self) -> Icon {
+@@ -105,12 +106,12 @@ pub enum Nav {
+ 
+ impl Nav {
+     fn label(self) -> &'static str {
+-        match self {
++        locale::tr(match self {
+             Nav::Page(p) => p.label(),
+             Nav::Save => "Save",
+             Nav::Close => "Close",
+             Nav::Options => "Options",
+-        }
++        })
+     }
+     fn icon(self) -> Icon {
+         match self {
+@@ -340,7 +341,7 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
+                 t.text,
+                 false,
+             );
+-            if resp.on_hover_text("Back (Esc)").clicked() {
++            if resp.on_hover_text(format!("{} (Esc)", locale::tr("Back"))).clicked() {
+                 out.close = true;
+             }
+         } else {
+@@ -448,31 +449,32 @@ fn separator(ui: &mut Ui, t: &Tokens) {
+ 
+ fn heading(ui: &mut Ui, text: &str) {
+     let t = Tokens::get(ui.ctx());
+-    ui.label(RichText::new(text).font(theme::bold(16.0)).color(t.text));
++    ui.label(RichText::new(locale::tr(text)).font(theme::bold(16.0)).color(t.text));
+     ui.add_space(8.0);
+ }
+ 
+ fn dim(ui: &mut Ui, text: &str) {
+     let t = Tokens::get(ui.ctx());
+-    ui.label(RichText::new(text).font(theme::font(12.5)).color(t.text_dim));
++    ui.label(RichText::new(locale::tr(text)).font(theme::font(12.5)).color(t.text_dim));
+ }
+ 
+ /// A link with an arrow (More themes →): true when clicked.
+ fn arrow_link(ui: &mut Ui, text: &str) -> bool {
+     let t = Tokens::get(ui.ctx());
+-    ui.add(egui::Label::new(RichText::new(format!("{text}  →")).font(theme::font(12.5)).color(t.accent)).sense(Sense::click()))
++    ui.add(egui::Label::new(RichText::new(format!("{}  →", locale::tr(text))).font(theme::font(12.5)).color(t.accent)).sense(Sense::click()))
+         .on_hover_cursor(egui::CursorIcon::PointingHand)
+         .clicked()
+ }
+ 
+ /// A search box; true when its text changed.
+ fn search(ui: &mut Ui, query: &mut String, hint: &str, width: f32) -> bool {
+-    ui.add(egui::TextEdit::singleline(query).hint_text(hint).desired_width(width)).changed()
++    ui.add(egui::TextEdit::singleline(query).hint_text(locale::tr(hint)).desired_width(width)).changed()
+ }
+ 
+ /// A new-presentation tile: a theme preview drawn in code (or a blank slide) over its name.
+ fn tile(ui: &mut Ui, label: &str, theme: Option<&deckcraft_model::Theme>, big: bool) -> egui::Response {
+     let t = Tokens::get(ui.ctx());
++    let label = locale::tr(label);
+     let thumb_w = if big { 200.0 } else { 160.0 };
+     let (rect, resp) = ui.allocate_exact_size(vec2(thumb_w + 16.0, thumb_w * 9.0 / 16.0 + 44.0), Sense::click());
+     resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, label));
+@@ -579,6 +581,7 @@ fn recent_list(app: &mut SlideApp, ui: &mut Ui, query: &str, limit: usize) {
+ /// A large square command button (Print, Create PDF, Check for Issues…).
+ fn square_button(ui: &mut Ui, icon: Icon, label: &str, enabled: bool) -> egui::Response {
+     let t = Tokens::get(ui.ctx());
++    let label = locale::tr(label);
+     let (rect, resp) = ui.allocate_exact_size(vec2(88.0, 80.0), if enabled { Sense::click() } else { Sense::hover() });
+     resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled, label));
+     let p = ui.painter();
+@@ -594,6 +597,7 @@ fn square_button(ui: &mut Ui, icon: Icon, label: &str, enabled: bool) -> egui::R
+ /// A row of a page's own list on the left (Open's places, Export's tasks).
+ fn place_row(ui: &mut Ui, icon: Icon, label: &str, selected: bool, width: f32) -> egui::Response {
+     let t = Tokens::get(ui.ctx());
++    let label = locale::tr(label);
+     let (rect, resp) = ui.allocate_exact_size(vec2(width, 44.0), Sense::click());
+     resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, true, selected, label));
+     let p = ui.painter();
+@@ -617,7 +621,7 @@ fn task(ui: &mut Ui, icon: Icon, button: &str, title: &str, detail: &str, enable
+         ui.add_space(12.0);
+         ui.vertical(|ui| {
+             ui.add_space(4.0);
+-            ui.label(RichText::new(title).font(theme::font(15.0)).color(t.text));
++            ui.label(RichText::new(locale::tr(title)).font(theme::font(15.0)).color(t.text));
+             dim(ui, detail);
+         });
+     });
+@@ -634,11 +638,11 @@ fn home(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage, out: &mut Outcome)
+     ui.horizontal(|ui| {
+         let (r, _) = ui.allocate_exact_size(vec2(36.0, 36.0), Sense::hover());
+         crate::dialogs::paint_logo(ui.painter(), r);
+-        ui.label(RichText::new("DeckCraft").font(theme::bold(24.0)).color(t.text));
++        ui.label(RichText::new("MyAI Power Point").font(theme::bold(24.0)).color(t.text));
+     });
+     ui.add_space(18.0);
+     ui.horizontal(|ui| {
+-        ui.label(RichText::new("New").font(theme::bold(16.0)).color(t.text));
++        ui.label(RichText::new(locale::tr("New")).font(theme::bold(16.0)).color(t.text));
+         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+             if arrow_link(ui, "More themes") {
+                 out.page = Some(Page::New);
+@@ -649,7 +653,7 @@ fn home(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage, out: &mut Outcome)
+     new_tiles(app, ui, "", 5, true);
+     ui.add_space(22.0);
+     ui.horizontal(|ui| {
+-        ui.label(RichText::new("Recent").font(theme::bold(16.0)).color(t.text));
++        ui.label(RichText::new(locale::tr("Recent")).font(theme::bold(16.0)).color(t.text));
+         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+             search(ui, &mut bs.query, "Search for a file", 280.0);
+         });
+@@ -665,7 +669,7 @@ fn home(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage, out: &mut Outcome)
+         });
+     }
+     ui.add_space(30.0);
+-    ui.hyperlink_to("Join the ArtCraft community on Discord", deckcraft_engine::links::DISCORD);
++    ui.hyperlink_to("技术支持", deckcraft_engine::links::SUPPORT);
+ }
+ 
+ /// New: a blank presentation, then every theme with a search box.
+@@ -692,12 +696,15 @@ fn open_page(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
+         ui.vertical(|ui| {
+             ui.set_width(230.0);
+             place_row(ui, Icon::Recent, "Recent", true, 220.0);
+-            if place_row(ui, Icon::OpenFolder, "Browse", false, 220.0).on_hover_text("Open a presentation from a folder (Ctrl+O)").clicked() {
++            if place_row(ui, Icon::OpenFolder, "Browse", false, 220.0)
++                .on_hover_text(format!("{} (Ctrl+O)", locale::tr("Open a presentation from a folder")))
++                .clicked()
++            {
+                 let _ = app.run("app.openDialog", json!({}));
+             }
+             if app.session.recovery_dir.is_some() {
+                 ui.add_space(24.0);
+-                if ui.button("Recover Unsaved Presentations").clicked() {
++                if ui.button(locale::tr("Recover Unsaved Presentations")).clicked() {
+                     match app.run("file.recovery.open", json!({})) {
+                         Ok(v) if v.get("opened").and_then(Value::as_array).is_some_and(|a| a.is_empty()) => {
+                             app.set_status("There are no unsaved presentations to recover");
+@@ -740,13 +747,13 @@ fn info(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
+     if let Some(p) = &path {
+         ui.add_space(8.0);
+         ui.horizontal(|ui| {
+-            if ui.button("Copy path").clicked() {
++            if ui.button(locale::tr("Copy path")).clicked() {
+                 ui.ctx().copy_text(p.clone());
+                 app.set_status("Copied the path");
+             }
+             #[cfg(not(target_arch = "wasm32"))]
+             if let Some(dir) = std::path::Path::new(p).parent().and_then(|d| d.to_str())
+-                && ui.button("Open file location").clicked()
++                && ui.button(locale::tr("Open file location")).clicked()
+             {
+                 app.open_url(&format!("file:///{}", dir.replace('\\', "/").trim_start_matches('/')));
+             }
+@@ -794,7 +801,7 @@ fn info(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
+                 for (i, (key, label, hint)) in PROPERTIES.iter().enumerate() {
+                     let saved = props.get(*key).and_then(Value::as_str).unwrap_or("").to_string();
+                     let Some(draft) = bs.props.get_mut(i) else { continue };
+-                    let l = ui.label(RichText::new(*label).color(t.text_dim));
++                    let l = ui.label(RichText::new(locale::tr(label)).color(t.text_dim));
+                     let id = ui.make_persistent_id(("backstage_prop", *key));
+                     // Show the presentation's value unless the field is being edited (undo…).
+                     if !ui.ctx().memory(|m| m.has_focus(id)) {
+@@ -833,17 +840,17 @@ fn save_as(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage, out: &mut Outcom
+     ui.add_space(14.0);
+     let current = SAVE_TYPES.iter().find(|s| s.0 == bs.file_type).map_or(SAVE_TYPES[0].1, |s| s.1);
+     ui.horizontal(|ui| {
+-        egui::ComboBox::from_id_salt("backstage_save_type").width(340.0).selected_text(current).show_ui(ui, |ui| {
++        egui::ComboBox::from_id_salt("backstage_save_type").width(340.0).selected_text(locale::tr(current)).show_ui(ui, |ui| {
+             for (id, label, _) in SAVE_TYPES {
+-                if ui.selectable_label(bs.file_type == id, label).clicked() {
++                if ui.selectable_label(bs.file_type == id, locale::tr(label)).clicked() {
+                     bs.file_type = id;
+                 }
+             }
+         });
+         let web = app.services.pick_save.is_none();
+-        let label = if web { "Download" } else { "Save" };
++        let label = if web { locale::tr("Download") } else { locale::tr("Save") };
+         let save = ui.add(egui::Button::new(RichText::new(label).color(t.accent_text)).fill(t.accent).min_size(vec2(84.0, 26.0)));
+-        if save.on_hover_text(if web { "Download the file" } else { "Choose where to save" }).clicked() {
++        if save.on_hover_text(if web { locale::tr("Download the file") } else { locale::tr("Choose where to save") }).clicked() {
+             let fmt = bs.file_type;
+             let done = if matches!(fmt, "pptx" | "deckcraft") {
+                 let before = app.session.active().map(|d| (d.path.clone(), d.is_dirty()));
+@@ -937,11 +944,11 @@ fn print(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
+                 PrintScope::Current => "Print Current Slide",
+                 PrintScope::Custom => "Custom Range",
+             };
+-            egui::ComboBox::from_id_salt("backstage_print_scope").width(240.0).selected_text(scope).show_ui(ui, |ui| {
++            egui::ComboBox::from_id_salt("backstage_print_scope").width(240.0).selected_text(locale::tr(scope)).show_ui(ui, |ui| {
+                 for (s, label) in
+                     [(PrintScope::All, "Print All Slides"), (PrintScope::Current, "Print Current Slide"), (PrintScope::Custom, "Custom Range")]
+                 {
+-                    if ui.selectable_label(bs.print_scope == s, label).clicked() {
++                    if ui.selectable_label(bs.print_scope == s, locale::tr(label)).clicked() {
+                         bs.print_scope = s;
+                         bs.preview_page = 0;
+                     }
+@@ -949,8 +956,8 @@ fn print(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
+             });
+             ui.add_space(4.0);
+             ui.horizontal(|ui| {
+-                let l = ui.label("Slides:");
+-                let r = ui.add(egui::TextEdit::singleline(&mut bs.print_range).hint_text("e.g. 1-3, 5").desired_width(176.0)).labelled_by(l.id);
++                let l = ui.label(locale::tr("Slides:"));
++                let r = ui.add(egui::TextEdit::singleline(&mut bs.print_range).hint_text("例如：1-3、5").desired_width(176.0)).labelled_by(l.id);
+                 if r.changed() {
+                     // Typing a range picks Custom Range, as in PowerPoint.
+                     bs.print_scope = if bs.print_range.trim().is_empty() { PrintScope::All } else { PrintScope::Custom };
+@@ -961,17 +968,17 @@ fn print(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
+             let layout = LAYOUTS.iter().find(|l| l.0 == bs.print_layout).map_or("Full Page Slides", |l| l.1);
+             egui::ComboBox::from_id_salt("backstage_print_layout").width(240.0).selected_text(layout).show_ui(ui, |ui| {
+                 for (id, label) in LAYOUTS {
+-                    if ui.selectable_label(bs.print_layout == id, label).clicked() {
++                    if ui.selectable_label(bs.print_layout == id, locale::tr(label)).clicked() {
+                         bs.print_layout = id;
+                         bs.preview_page = 0;
+                     }
+                 }
+             });
+             ui.add_space(4.0);
+-            if ui.checkbox(&mut bs.print_hidden, "Print Hidden Slides").changed() {
++            if ui.checkbox(&mut bs.print_hidden, locale::tr("Print Hidden Slides")).changed() {
+                 bs.preview_page = 0;
+             }
+-            ui.checkbox(&mut bs.print_frame, "Frame Slides");
++            ui.checkbox(&mut bs.print_frame, locale::tr("Frame Slides"));
+             ui.add_space(6.0);
+             if ui.link("Edit Header & Footer").clicked() {
+                 let _ = app.run("app.dialog", json!({"id": "headerFooter"}));
+@@ -1096,7 +1103,7 @@ fn icon_button(ui: &mut Ui, icon: Icon, label: &str, enabled: bool) -> bool {
+         ui.painter().rect_filled(r, CornerRadius::same(3), t.hover);
+     }
+     icons::paint(ui.painter(), r.shrink(3.0), icon, t.text, !enabled);
+-    resp.on_hover_text(label).clicked()
++    resp.on_hover_text(locale::tr(label)).clicked()
+ }
+ 
+ /// Export: tasks on the left (Create PDF Document, Create Handouts, Change File Type), the chosen
+@@ -1124,50 +1131,54 @@ fn export(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
+             ui.set_max_width(560.0);
+             match bs.export {
+                 ExportTask::Pdf => {
+-                    ui.label(RichText::new("Create a PDF Document").font(theme::font(16.0)).color(t.text));
++                    ui.label(RichText::new(locale::tr("Create a PDF Document")).font(theme::font(16.0)).color(t.text));
+                     bullets(
+                         ui,
+                         &["Keeps the layout, fonts and pictures", "Opens on any device with a PDF viewer", "The presentation keeps its own file"],
+                     );
+-                    ui.checkbox(&mut bs.pdf_hidden, "Include hidden slides");
++                    ui.checkbox(&mut bs.pdf_hidden, locale::tr("Include hidden slides"));
+                     ui.add_space(10.0);
+                     if square_button(ui, Icon::File, "Create PDF", true).clicked() {
+                         app.export_as("pdf", json!({"includeHidden": bs.pdf_hidden}));
+                     }
+                 }
+                 ExportTask::Handouts => {
+-                    ui.label(RichText::new("Create Handouts").font(theme::font(16.0)).color(t.text));
++                    ui.label(RichText::new(locale::tr("Create Handouts")).font(theme::font(16.0)).color(t.text));
+                     bullets(ui, &["Several slides on each page of a PDF", "Three a page leaves lines for notes", "Print them for your audience"]);
+-                    egui::ComboBox::from_id_salt("backstage_handouts")
+-                        .width(240.0)
+-                        .selected_text(format!("{} slides per page", bs.handouts_per_page))
+-                        .show_ui(ui, |ui| {
+-                            for n in [1u8, 2, 3, 4, 6, 9] {
+-                                if ui.selectable_label(bs.handouts_per_page == n, format!("{n} slides per page")).clicked() {
+-                                    bs.handouts_per_page = n;
+-                                }
++                    let per_page = |n: u8| if locale::enabled() { format!("每页 {n} 张幻灯片") } else { format!("{n} slides per page") };
++                    egui::ComboBox::from_id_salt("backstage_handouts").width(240.0).selected_text(per_page(bs.handouts_per_page)).show_ui(ui, |ui| {
++                        for n in [1u8, 2, 3, 4, 6, 9] {
++                            if ui.selectable_label(bs.handouts_per_page == n, per_page(n)).clicked() {
++                                bs.handouts_per_page = n;
+                             }
+-                        });
++                        }
++                    });
+                     ui.add_space(10.0);
+                     if square_button(ui, Icon::Notes, "Create Handouts", true).clicked() {
+                         app.export_as("pdf", json!({"layout": "handouts", "perPage": bs.handouts_per_page}));
+                     }
+                 }
+                 ExportTask::FileType => {
+-                    ui.label(RichText::new("Change File Type").font(theme::font(16.0)).color(t.text));
++                    ui.label(RichText::new(locale::tr("Change File Type")).font(theme::font(16.0)).color(t.text));
+                     ui.add_space(8.0);
+                     for (id, label, detail) in SAVE_TYPES.iter().filter(|s| s.0 != "pdf") {
+                         let selected = bs.file_type == *id;
+                         let (rect, resp) = ui.allocate_exact_size(vec2(520.0, 46.0), Sense::click());
+-                        resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, true, selected, *label));
++                        resp.widget_info(|| egui::WidgetInfo::selected(egui::WidgetType::Button, true, selected, locale::tr(label)));
+                         let p = ui.painter();
+                         if selected {
+                             p.rect_filled(rect, CornerRadius::same(2), t.selected);
+                         } else if resp.hovered() {
+                             p.rect_filled(rect, CornerRadius::same(2), t.hover);
+                         }
+-                        p.text(pos2(rect.left() + 12.0, rect.center().y - 8.0), Align2::LEFT_CENTER, *label, theme::font(13.0), t.text);
+-                        p.text(pos2(rect.left() + 12.0, rect.center().y + 9.0), Align2::LEFT_CENTER, *detail, theme::font(11.5), t.text_dim);
++                        p.text(pos2(rect.left() + 12.0, rect.center().y - 8.0), Align2::LEFT_CENTER, locale::tr(label), theme::font(13.0), t.text);
++                        p.text(
++                            pos2(rect.left() + 12.0, rect.center().y + 9.0),
++                            Align2::LEFT_CENTER,
++                            locale::tr(detail),
++                            theme::font(11.5),
++                            t.text_dim,
++                        );
+                         if resp.clicked() {
+                             bs.file_type = id;
+                         }
+@@ -1187,7 +1198,7 @@ fn bullets(ui: &mut Ui, items: &[&str]) {
+     for b in items {
+         ui.horizontal(|ui| {
+             ui.add_space(6.0);
+-            ui.label(RichText::new(format!("•  {b}")).font(theme::font(12.5)));
++            ui.label(RichText::new(format!("•  {}", locale::tr(b))).font(theme::font(12.5)));
+         });
+     }
+     ui.add_space(10.0);
+@@ -1234,7 +1245,7 @@ fn account(app: &mut SlideApp, ui: &mut Ui) {
+             ) {
+                 let _ = app.run("app.about", json!({}));
+             }
+-            ui.hyperlink_to("Join our community on Discord", deckcraft_engine::links::DISCORD);
++            ui.hyperlink_to("技术支持", deckcraft_engine::links::SUPPORT);
+             ui.hyperlink_to("Source on GitHub", deckcraft_engine::links::GITHUB);
+         });
+     });
+diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
+index 253765b..6620496 100644
+--- a/crates/ui-egui/src/canvas.rs
++++ b/crates/ui-egui/src/canvas.rs
+@@ -15,6 +15,10 @@ use serde_json::json;
+ use crate::SlideApp;
+ use crate::theme::{self, Tokens};
+ 
++pub fn focus_id() -> egui::Id {
++    egui::Id::new("slide-canvas-keyboard")
++}
++
+ /// Slide-to-screen mapping.
+ #[derive(Clone, Copy, Debug)]
+ pub struct Xf {
+@@ -60,7 +64,7 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
+     let Some(st) = app.session.active() else { return };
+     if st.doc.slides.is_empty() && st.selection.target == Target::Slides {
+         let resp = ui.allocate_rect(avail, Sense::click());
+-        ui.painter().text(avail.center(), Align2::CENTER_CENTER, "Click to add first slide", theme::font(22.0), t.text_dim);
++        ui.painter().text(avail.center(), Align2::CENTER_CENTER, "单击此处添加第一张幻灯片", theme::font(22.0), t.text_dim);
+         if resp.clicked() {
+             let _ = app.run("slide.new", json!({"layout": "title"}));
+         }
+@@ -71,7 +75,7 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
+     let scroll_id = ui.id().with("canvas_scroll");
+     let mut offset: egui::Vec2 = ui.data_mut(|d| d.get_temp(scroll_id).unwrap_or_default());
+     let overflow = vec2((content_rect.width() + 56.0 - avail.width()).max(0.0), (content_rect.height() + 56.0 - avail.height()).max(0.0));
+-    let resp = ui.allocate_rect(avail, Sense::click_and_drag());
++    let resp = ui.interact(avail, focus_id(), Sense::click_and_drag());
+     let (wheel, zoom_delta, pinch_pos) = ui.input(|i| (i.smooth_scroll_delta, i.zoom_delta(), i.pointer.hover_pos()));
+     if resp.hovered() {
+         if (zoom_delta - 1.0).abs() > 1e-3 {
+@@ -216,7 +220,11 @@ pub fn ime_area(app: &SlideApp, xf: Xf) -> Option<Rect> {
+ /// separate jamo (ㅇ ㅏ ㄴ) instead of syllables. A focused text field sets its own.
+ fn ime_output(app: &SlideApp, ui: &Ui, xf: Xf) {
+     let ctx = ui.ctx();
+-    if ctx.memory(|m| m.focused().is_some()) || app.dialog.as_ref().is_some_and(|d| d.modal()) || app.palette.is_some() || app.backstage_open() {
++    if ctx.memory(|m| m.focused().is_some_and(|id| id != focus_id()))
++        || app.dialog.as_ref().is_some_and(|d| d.modal())
++        || app.palette.is_some()
++        || app.backstage_open()
++    {
+         return;
+     }
+     let Some(r) = ime_area(app, xf) else { return };
+@@ -373,6 +381,13 @@ fn pointer(app: &mut SlideApp, ui: &Ui, resp: &egui::Response, xf: Xf) {
+     let p = xf.to_slide(pos);
+     let ev = |kind| PointerEvent { kind, x: p.x, y: p.y, mods: m, tol };
+     let primary = ui.input(|i| i.pointer.primary_pressed());
++    let canvas_press = primary && resp.hovered() && !resp.secondary_clicked() && ui.input(|i| i.pointer.button_pressed(egui::PointerButton::Primary));
++    if canvas_press || resp.clicked() || resp.drag_started() {
++        // The canvas owns keyboard focus through the mouse release as well as the press.
++        // A release must not leave a ribbon control or the canvas's focusable response blocking
++        // the editor's Text/IME events on the following frame.
++        resp.request_focus();
++    }
+     if resp.hovered() && !app.session.tool.dragging() {
+         let _ = app.session.pointer(ev(PointerKind::Move));
+     }
+@@ -380,7 +395,7 @@ fn pointer(app: &mut SlideApp, ui: &Ui, resp: &egui::Response, xf: Xf) {
+         app.session.pointer(ev(PointerKind::TripleClick))
+     } else if resp.double_clicked() {
+         app.session.pointer(ev(PointerKind::DoubleClick))
+-    } else if primary && resp.hovered() && !resp.secondary_clicked() && ui.input(|i| i.pointer.button_pressed(egui::PointerButton::Primary)) {
++    } else if canvas_press {
+         app.session.pointer(ev(PointerKind::Down))
+     } else if resp.dragged_by(egui::PointerButton::Primary) || (app.session.tool.dragging() && ui.input(|i| i.pointer.primary_down())) {
+         app.session.pointer(ev(PointerKind::Drag))
+@@ -624,52 +639,52 @@ fn context_menu(app: &mut SlideApp, resp: &egui::Response) {
+     resp.context_menu(|ui| {
+         let has_sel = app.session.active().is_some_and(|d| !d.selection.shapes.is_empty());
+         for (l, id) in [("Cut", "edit.cut"), ("Copy", "edit.copy"), ("Paste", "edit.paste")] {
+-            if ui.add_enabled(crate::ribbon::enabled(app, id), egui::Button::new(l)).clicked() {
++            if ui.add_enabled(crate::ribbon::enabled(app, id), egui::Button::new(crate::locale::tr(l))).clicked() {
+                 let _ = app.run(id, json!({}));
+                 ui.close();
+             }
+         }
+         ui.separator();
+         if has_sel {
+-            if ui.button("Edit Text").clicked() {
++            if ui.button(crate::locale::tr("Edit Text")).clicked() {
+                 let _ = app.run("text.edit", json!({}));
+                 ui.close();
+             }
+-            ui.menu_button("Bring to Front", |ui| {
++            ui.menu_button(crate::locale::tr("Bring to Front"), |ui| {
+                 crate::ribbon::menu_item(app, ui, crate::icons::Icon::BringToFront, "Bring to Front", "arrange.bringToFront", json!({}));
+                 crate::ribbon::menu_item(app, ui, crate::icons::Icon::BringForward, "Bring Forward", "arrange.bringForward", json!({}));
+             });
+-            ui.menu_button("Send to Back", |ui| {
++            ui.menu_button(crate::locale::tr("Send to Back"), |ui| {
+                 crate::ribbon::menu_item(app, ui, crate::icons::Icon::SendToBack, "Send to Back", "arrange.sendToBack", json!({}));
+                 crate::ribbon::menu_item(app, ui, crate::icons::Icon::SendBackward, "Send Backward", "arrange.sendBackward", json!({}));
+             });
+-            ui.menu_button("Group", |ui| {
++            ui.menu_button(crate::locale::tr("Group"), |ui| {
+                 crate::ribbon::menu_item(app, ui, crate::icons::Icon::Group, "Group", "arrange.group", json!({}));
+                 crate::ribbon::menu_item(app, ui, crate::icons::Icon::Ungroup, "Ungroup", "arrange.ungroup", json!({}));
+             });
+             let locked = app.session.active().is_some_and(|d| d.selected_shapes().iter().all(|s| s.locked));
+-            if ui.button(if locked { "Unlock" } else { "Lock" }).clicked() {
++            if ui.button(crate::locale::tr(if locked { "Unlock" } else { "Lock" })).clicked() {
+                 let _ = app.run("shape.lock", json!({"locked": !locked}));
+                 ui.close();
+             }
+-            if ui.button("Link…").clicked() {
++            if ui.button(crate::locale::tr("Link…")).clicked() {
+                 app.dialog = Some(crate::dialogs::Dialog::new("hyperlink"));
+                 ui.close();
+             }
+-            if ui.button("Edit Alt Text…").clicked() {
++            if ui.button(crate::locale::tr("Edit Alt Text…")).clicked() {
+                 app.dialog = Some(crate::dialogs::Dialog::new("altText"));
+                 ui.close();
+             }
+-            if ui.button("Set as Default Shape").clicked() {
++            if ui.button(crate::locale::tr("Set as Default Shape")).clicked() {
+                 let _ = app.run("shape.setDefault", json!({}));
+                 ui.close();
+             }
+-            if ui.button("Format Shape…").clicked() {
++            if ui.button(crate::locale::tr("Format Shape…")).clicked() {
+                 let _ = app.run("view.pane", json!({"pane": "format"}));
+                 ui.close();
+             }
+         } else {
+-            ui.menu_button("Layout", |ui| {
++            ui.menu_button(crate::locale::tr("Layout"), |ui| {
+                 let layouts: Vec<(String, u32)> = app
+                     .session
+                     .active()
+@@ -682,15 +697,15 @@ fn context_menu(app: &mut SlideApp, resp: &egui::Response) {
+                     }
+                 }
+             });
+-            if ui.button("Reset Slide").clicked() {
++            if ui.button(crate::locale::tr("Reset Slide")).clicked() {
+                 let _ = app.run("slide.reset", json!({}));
+                 ui.close();
+             }
+-            if ui.button("Format Background…").clicked() {
++            if ui.button(crate::locale::tr("Format Background…")).clicked() {
+                 let _ = app.run("view.pane", json!({"pane": "background"}));
+                 ui.close();
+             }
+-            if ui.button("New Comment").clicked() {
++            if ui.button(crate::locale::tr("New Comment")).clicked() {
+                 app.dialog = Some(crate::dialogs::Dialog::new("comment"));
+                 ui.close();
+             }
+diff --git a/crates/ui-egui/src/control.rs b/crates/ui-egui/src/control.rs
+index d344d91..7558a7b 100644
+--- a/crates/ui-egui/src/control.rs
++++ b/crates/ui-egui/src/control.rs
+@@ -72,6 +72,8 @@ pub fn inspect(app: &SlideApp, ctx: &egui::Context) -> Value {
+         "canvasRect": app.canvas_rect.map(|c| json!([c.left(), c.top(), c.width(), c.height()])),
+         "slideRect": app.slide_rect.map(|c| json!([c.left(), c.top(), c.width(), c.height()])),
+         "canvasScale": app.canvas_scale,
++        "canvasFocused": ctx.memory(|m| m.has_focus(crate::canvas::focus_id())),
++        "windowFocused": ctx.input(|i| i.focused),
+         "dialog": app.dialog.as_ref().map(|d| d.id.clone()),
+         "home": app.backstage_open(),
+         "backstage": app.backstage.as_ref().map(|b| b.page.id()),
+@@ -134,19 +136,25 @@ pub fn handle(app: &mut SlideApp, ctx: &egui::Context, req: &ControlRequest) ->
+         }
+         "ui.key" => {
+             let Some(k) = s("key") else { return err("missing `key`") };
+-            if let Some(show) = app.show.as_ref()
+-                && !show.ended
+-                && let Some(key) = key_from(k)
+-            {
+-                app.synthetic.push(egui::Event::Key { key, physical_key: None, pressed: true, repeat: false, modifiers: egui::Modifiers::NONE });
+-                app.synthetic.push(egui::Event::Key { key, physical_key: None, pressed: false, repeat: false, modifiers: egui::Modifiers::NONE });
+-                return ok(json!({"show": true}));
+-            }
+-            wrap(app.session.key(k, mods_from(p)).map_err(|e| e.to_string()))
++            let Some(key) = key_from(k) else { return err("unknown key") };
++            let mods = mods_from(p);
++            let modifiers = egui::Modifiers {
++                shift: mods.shift,
++                alt: mods.alt,
++                ctrl: mods.cmd && !cfg!(target_os = "macos"),
++                mac_cmd: mods.cmd && cfg!(target_os = "macos"),
++                command: mods.cmd,
++            };
++            app.synthetic.push(egui::Event::Key { key, physical_key: None, pressed: true, repeat: false, modifiers });
++            app.synthetic.push(egui::Event::Key { key, physical_key: None, pressed: false, repeat: false, modifiers });
++            ctx.request_repaint();
++            ok(json!({"queued": true}))
+         }
+         "ui.text" => {
+             let Some(t) = s("text") else { return err("missing `text`") };
+-            wrap(app.session.type_text(t).map_err(|e| e.to_string()))
++            app.synthetic.push(egui::Event::Text(t.into()));
++            ctx.request_repaint();
++            ok(json!({"queued": true}))
+         }
+         "ui.ime" => {
+             // An input method's event, through egui like a real one: it reaches the slide's text
+diff --git a/crates/ui-egui/src/dialogs.rs b/crates/ui-egui/src/dialogs.rs
+index d1934be..a35a5af 100644
+--- a/crates/ui-egui/src/dialogs.rs
++++ b/crates/ui-egui/src/dialogs.rs
+@@ -5,6 +5,7 @@ use egui::{Align2, Color32, CornerRadius, Rect, Sense, Stroke, Ui, pos2, vec2};
+ use serde_json::{Value, json};
+ 
+ use crate::SlideApp;
++use crate::locale;
+ use crate::theme::{self, Tokens};
+ 
+ #[derive(Clone, Debug, serde::Serialize)]
+@@ -29,7 +30,7 @@ impl Dialog {
+ }
+ 
+ fn title(id: &str) -> &'static str {
+-    match id {
++    locale::tr(match id {
+         "table" => "Insert Table",
+         "slideSize" => "Slide Size",
+         "headerFooter" => "Header and Footer",
+@@ -57,7 +58,7 @@ fn title(id: &str) -> &'static str {
+         "smartart" => "Choose a SmartArt Graphic",
+         "quit" => "DeckCraft",
+         _ => "DeckCraft",
+-    }
++    })
+ }
+ 
+ pub fn show(app: &mut SlideApp, ctx: &egui::Context) {
+@@ -90,7 +91,7 @@ fn buttons(ui: &mut Ui, ok_label: &str) -> (bool, bool) {
+         {
+             ok = true;
+         }
+-        if ui.add(egui::Button::new("Cancel").min_size(vec2(72.0, 24.0))).clicked() {
++        if ui.add(egui::Button::new(locale::tr("Cancel")).min_size(vec2(72.0, 24.0))).clicked() {
+             cancel = true;
+         }
+     });
+@@ -100,7 +101,7 @@ fn buttons(ui: &mut Ui, ok_label: &str) -> (bool, bool) {
+ fn field(ui: &mut Ui, d: &mut Dialog, label: &str, key: &str, default: &str) {
+     let mut v = d.get(key, default);
+     ui.horizontal(|ui| {
+-        ui.add_sized(vec2(120.0, 20.0), egui::Label::new(label));
++        ui.add_sized(vec2(120.0, 20.0), egui::Label::new(locale::tr(label)));
+         ui.add(egui::TextEdit::singleline(&mut v).desired_width(180.0));
+     });
+     d.fields.insert(key.into(), v);
+@@ -108,7 +109,7 @@ fn field(ui: &mut Ui, d: &mut Dialog, label: &str, key: &str, default: &str) {
+ 
+ fn check(ui: &mut Ui, d: &mut Dialog, label: &str, key: &str, default: bool) -> bool {
+     let mut v = d.get(key, if default { "1" } else { "0" }) == "1";
+-    ui.checkbox(&mut v, label);
++    ui.checkbox(&mut v, locale::tr(label));
+     d.fields.insert(key.into(), if v { "1".into() } else { "0".into() });
+     v
+ }
+@@ -135,7 +136,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+         }
+         "slideSize" => {
+             let cur = app.session.active().map(|s| s.doc.slide_size).unwrap_or(deckcraft_model::defaults::WIDE);
+-            ui.label("Slides sized for:");
++            ui.label(locale::tr("Slides sized for:"));
+             let preset = d.get("preset", "");
+             egui::ComboBox::from_id_salt("sizes").selected_text(if preset.is_empty() { "Custom" } else { &preset }).show_ui(ui, |ui| {
+                 for (label, w, h) in deckcraft_model::defaults::SLIDE_SIZES {
+@@ -168,9 +169,9 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             let mut apply_all = false;
+             let mut apply = false;
+             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-                apply_all = ui.button("Apply to All").clicked();
+-                apply = ui.button("Apply").clicked();
+-                if ui.button("Cancel").clicked() {
++                apply_all = ui.button(locale::tr("Apply to All")).clicked();
++                apply = ui.button(locale::tr("Apply")).clicked();
++                if ui.button(locale::tr("Cancel")).clicked() {
+                     d.fields.insert("cancel".into(), "1".into());
+                 }
+             });
+@@ -188,13 +189,13 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+         "hyperlink" => {
+             let mode = d.get("mode", "url");
+             ui.horizontal(|ui| {
+-                if ui.selectable_label(mode == "url", "Web Page or File").clicked() {
++                if ui.selectable_label(mode == "url", locale::tr("Web Page or File")).clicked() {
+                     d.fields.insert("mode".into(), "url".into());
+                 }
+-                if ui.selectable_label(mode == "slide", "This Document").clicked() {
++                if ui.selectable_label(mode == "slide", locale::tr("This Document")).clicked() {
+                     d.fields.insert("mode".into(), "slide".into());
+                 }
+-                if ui.selectable_label(mode == "email", "Email Address").clicked() {
++                if ui.selectable_label(mode == "email", locale::tr("Email Address")).clicked() {
+                     d.fields.insert("mode".into(), "email".into());
+                 }
+             });
+@@ -233,13 +234,13 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+         "setupShow" => {
+             let sh = app.session.active().map(|s| s.doc.show.clone()).unwrap_or_default();
+             let ty = d.get("type", &sh.show_type);
+-            ui.label("Show type");
++            ui.label(locale::tr("Show type"));
+             for (l, v) in [
+                 ("Presented by a speaker (full screen)", "speaker"),
+                 ("Browsed by an individual (window)", "browsed"),
+                 ("Browsed at a kiosk (full screen)", "kiosk"),
+             ] {
+-                if ui.radio(ty == v, l).clicked() {
++                if ui.radio(ty == v, locale::tr(l)).clicked() {
+                     d.fields.insert("type".into(), v.into());
+                 }
+             }
+@@ -262,20 +263,22 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                 return true;
+             }
+             let what = if names.len() == 1 { format!("“{}”", names[0]) } else { format!("{} presentations", names.len()) };
+-            ui.label(egui::RichText::new(format!("Do you want to save the changes you made to {what}?")).strong());
+-            ui.label("Your changes will be lost if you don't save them.");
++            ui.label(egui::RichText::new(format!("是否保存对 {what} 所做的更改？")).strong());
++            ui.label(locale::tr("Your changes will be lost if you don't save them."));
+             ui.add_space(8.0);
+             let mut done = false;
+             ui.horizontal(|ui| {
+                 let t = Tokens::get(ui.ctx());
+-                if ui.add(egui::Button::new("Don't Save").min_size(vec2(84.0, 24.0))).clicked() {
++                if ui.add(egui::Button::new(locale::tr("Don't Save")).min_size(vec2(84.0, 24.0))).clicked() {
+                     let _ = app.session.execute("file.recovery.discard", &json!({}));
+                     app.quit_confirmed = true;
+                     ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                     done = true;
+                 }
+                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-                    let save = ui.add(egui::Button::new(egui::RichText::new("Save").color(t.accent_text)).fill(t.accent).min_size(vec2(72.0, 24.0)));
++                    let save = ui.add(
++                        egui::Button::new(egui::RichText::new(locale::tr("Save")).color(t.accent_text)).fill(t.accent).min_size(vec2(72.0, 24.0)),
++                    );
+                     if save.clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                         if app.save_all() {
+                             app.quit_confirmed = true;
+@@ -283,7 +286,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                         }
+                         done = true;
+                     }
+-                    if ui.add(egui::Button::new("Cancel").min_size(vec2(72.0, 24.0))).clicked() {
++                    if ui.add(egui::Button::new(locale::tr("Cancel")).min_size(vec2(72.0, 24.0))).clicked() {
+                         done = true;
+                     }
+                 });
+@@ -293,18 +296,20 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+         "close" => {
+             // File › Close and Ctrl+W on a presentation with unsaved changes.
+             let Some(name) = app.session.active().map(|d| d.title()) else { return true };
+-            ui.label(egui::RichText::new(format!("Do you want to save the changes you made to “{name}”?")).strong());
+-            ui.label("Your changes will be lost if you don't save them.");
++            ui.label(egui::RichText::new(format!("是否保存对“{name}”所做的更改？")).strong());
++            ui.label(locale::tr("Your changes will be lost if you don't save them."));
+             ui.add_space(8.0);
+             let mut done = false;
+             ui.horizontal(|ui| {
+                 let t = Tokens::get(ui.ctx());
+-                if ui.add(egui::Button::new("Don't Save").min_size(vec2(84.0, 24.0))).clicked() {
++                if ui.add(egui::Button::new(locale::tr("Don't Save")).min_size(vec2(84.0, 24.0))).clicked() {
+                     run(app, "file.close", json!({}));
+                     done = true;
+                 }
+                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-                    let save = ui.add(egui::Button::new(egui::RichText::new("Save").color(t.accent_text)).fill(t.accent).min_size(vec2(72.0, 24.0)));
++                    let save = ui.add(
++                        egui::Button::new(egui::RichText::new(locale::tr("Save")).color(t.accent_text)).fill(t.accent).min_size(vec2(72.0, 24.0)),
++                    );
+                     if save.clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                         app.save();
+                         // In the browser a save is a download: the presentation stays "unsaved".
+@@ -314,7 +319,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                         }
+                         done = true;
+                     }
+-                    if ui.add(egui::Button::new("Cancel").min_size(vec2(72.0, 24.0))).clicked() {
++                    if ui.add(egui::Button::new(locale::tr("Cancel")).min_size(vec2(72.0, 24.0))).clicked() {
+                         done = true;
+                     }
+                 });
+@@ -327,7 +332,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                     let _ = app.run("view.zoom", json!({"percent": pct}));
+                 }
+             }
+-            if ui.button("Fit").clicked() {
++            if ui.button(locale::tr("Fit")).clicked() {
+                 app.ui.zoom = None;
+             }
+             let (ok, cancel) = buttons(ui, "OK");
+@@ -335,7 +340,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+         }
+         "comment" => {
+             let mut v = d.get("text", "");
+-            ui.add(egui::TextEdit::multiline(&mut v).hint_text("Start a conversation").desired_rows(4).desired_width(320.0));
++            ui.add(egui::TextEdit::multiline(&mut v).hint_text(locale::tr("Start a conversation")).desired_rows(4).desired_width(320.0));
+             d.fields.insert("text".into(), v.clone());
+             let (ok, cancel) = buttons(ui, "Post");
+             if ok && !v.trim().is_empty() {
+@@ -346,7 +351,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+         }
+         "altText" => {
+             let cur = app.session.active().and_then(|s| s.selected_shapes().first().map(|x| x.descr.clone())).unwrap_or_default();
+-            ui.label("How would you describe this object and its context to someone who is blind or has low vision?");
++            ui.label(locale::tr("How would you describe this object and its context to someone who is blind or has low vision?"));
+             let mut v = d.get("text", &cur);
+             ui.add(egui::TextEdit::multiline(&mut v).desired_rows(4).desired_width(340.0));
+             d.fields.insert("text".into(), v.clone());
+@@ -358,7 +363,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             ok || cancel
+         }
+         "outline" => {
+-            ui.label("Paste or type an outline. Unindented lines become slide titles; tab-indented lines become bullets.");
++            ui.label(locale::tr("Paste or type an outline. Unindented lines become slide titles; tab-indented lines become bullets."));
+             let mut v = d.get("text", "");
+             ui.add(egui::TextEdit::multiline(&mut v).desired_rows(10).desired_width(380.0).code_editor());
+             d.fields.insert("text".into(), v.clone());
+@@ -399,7 +404,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             ok || cancel
+         }
+         "export" => {
+-            ui.label("Export the presentation as:");
++            ui.label(locale::tr("Export the presentation as:"));
+             let fmt = d.get("fmt", "pdf");
+             for (l, f) in [
+                 ("PDF document (.pdf)", "pdf"),
+@@ -409,7 +414,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                 ("PowerPoint Presentation (.pptx)", "pptx"),
+                 ("Outline (.txt)", "outline"),
+             ] {
+-                if ui.radio(fmt == f, l).clicked() {
++                if ui.radio(fmt == f, locale::tr(l)).clicked() {
+                     d.fields.insert("fmt".into(), f.into());
+                 }
+             }
+@@ -417,7 +422,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             if fmt == "pdf" {
+                 ui.add_space(4.0);
+                 ui.horizontal(|ui| {
+-                    ui.label("Print layout:");
++                    ui.label(locale::tr("Print layout:"));
+                     egui::ComboBox::from_id_salt("pdf_layout")
+                         .selected_text(match pdf_layout.as_str() {
+                             "notes" => "Notes Pages",
+@@ -440,14 +445,14 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                                 ("h6", "Handouts (6 slides per page)"),
+                                 ("h9", "Handouts (9 slides per page)"),
+                             ] {
+-                                if ui.selectable_label(pdf_layout == k, l).clicked() {
++                                if ui.selectable_label(pdf_layout == k, locale::tr(l)).clicked() {
+                                     d.fields.insert("pdfLayout".into(), k.into());
+                                 }
+                             }
+                         });
+                 });
+                 let mut hidden = d.get("pdfHidden", "false") == "true";
+-                if ui.checkbox(&mut hidden, "Include hidden slides").changed() {
++                if ui.checkbox(&mut hidden, locale::tr("Include hidden slides")).changed() {
+                     d.fields.insert("pdfHidden".into(), hidden.to_string());
+                 }
+             }
+@@ -467,7 +472,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             ok || cancel
+         }
+         "symbol" => {
+-            ui.label("Click a symbol to insert it at the insertion point.");
++            ui.label(locale::tr("Click a symbol to insert it at the insertion point."));
+             let groups: [(&str, &str); 6] = [
+                 ("Punctuation", "–—‘’“”…•·§¶†‡‰′″‹›«»¡¿"),
+                 ("Currency", "$€£¥¢₹₩₽₺₿"),
+@@ -493,7 +498,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             ok || cancel
+         }
+         "equation" => {
+-            ui.label("Type an equation in linear form (e.g. a^2+b^2=c^2, x=(-b±√(b^2-4ac))/2a).");
++            ui.label(locale::tr("Type an equation in linear form (e.g. a^2+b^2=c^2, x=(-b±√(b^2-4ac))/2a)."));
+             let mut v = d.get("eq", "");
+             ui.add(egui::TextEdit::singleline(&mut v).desired_width(340.0).font(theme::font(15.0)));
+             d.fields.insert("eq".into(), v.clone());
+@@ -513,13 +518,13 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             let v = app.session.execute("review.spelling", &json!({})).unwrap_or_default();
+             let list = v.as_array().cloned().unwrap_or_default();
+             if list.is_empty() {
+-                ui.label("The spelling check is complete. No issues found.");
++                ui.label(locale::tr("The spelling check is complete. No issues found."));
+             }
+             for item in &list {
+                 ui.horizontal(|ui| {
+                     let w = item.get("word").and_then(Value::as_str).unwrap_or("");
+                     ui.label(format!("Slide {}: “{w}”", item.get("slide").and_then(Value::as_u64).unwrap_or(0) + 1));
+-                    if ui.small_button("Go to").clicked() {
++                    if ui.small_button(locale::tr("Go to")).clicked() {
+                         let _ = app.run("slide.go", json!({"index": item.get("slide").cloned().unwrap_or_default()}));
+                     }
+                 });
+@@ -531,7 +536,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             let v = app.session.execute("review.accessibility", &json!({})).unwrap_or_default();
+             let list = v.as_array().cloned().unwrap_or_default();
+             if list.is_empty() {
+-                ui.label("No accessibility issues found. People with disabilities should not have difficulty reading this document.");
++                ui.label(locale::tr("No accessibility issues found. People with disabilities should not have difficulty reading this document."));
+             }
+             egui::ScrollArea::vertical().max_height(300.0).show(ui, |ui| {
+                 for item in &list {
+@@ -542,7 +547,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                             item.get("issue").and_then(Value::as_str).unwrap_or(""),
+                             item.get("name").and_then(Value::as_str).map(|n| format!(" — {n}")).unwrap_or_default()
+                         ));
+-                        if ui.small_button("Go to").clicked() {
++                        if ui.small_button(locale::tr("Go to")).clicked() {
+                             let _ = app.run("slide.go", json!({"index": item.get("slide").cloned().unwrap_or_default()}));
+                             if let Some(id) = item.get("shape") {
+                                 let _ = app.run("edit.select", json!({"ids": [id]}));
+@@ -555,7 +560,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             ok || cancel
+         }
+         "language" => {
+-            ui.label("Mark selected text as:");
++            ui.label(locale::tr("Mark selected text as:"));
+             for l in [
+                 "English (United States)",
+                 "English (United Kingdom)",
+@@ -568,7 +573,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                 "中文",
+                 "العربية",
+             ] {
+-                let _ = ui.selectable_label(l.starts_with("English (United States)"), l);
++                let _ = ui.selectable_label(l.starts_with("English (United States)"), locale::tr(l));
+             }
+             let (ok, cancel) = buttons(ui, "OK");
+             ok || cancel
+@@ -578,7 +583,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             for s in &shows {
+                 ui.horizontal(|ui| {
+                     ui.label(format!("{} ({} slides)", s.name, s.slides.len()));
+-                    if ui.small_button("Delete").clicked() {
++                    if ui.small_button(locale::tr("Delete")).clicked() {
+                         let _ = app.run("show.customShow", json!({"name": s.name, "delete": true}));
+                     }
+                 });
+@@ -600,11 +605,11 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                     .find_map(|x| if let deckcraft_model::ShapeKind::Chart(c) = &x.kind { Some(((**c).clone(), x.id)) } else { None })
+             });
+             let Some((c, id)) = ch else {
+-                ui.label("Select a chart first.");
++                ui.label(locale::tr("Select a chart first."));
+                 let (ok, cancel) = buttons(ui, "Close");
+                 return ok || cancel;
+             };
+-            ui.label("Edit the data: first row = series names, first column = categories.");
++            ui.label(locale::tr("Edit the data: first row = series names, first column = categories."));
+             let mut grid: Vec<Vec<String>> = d.params.get("grid").and_then(|g| serde_json::from_value(g.clone()).ok()).unwrap_or_else(|| {
+                 let mut g = vec![std::iter::once(String::new()).chain(c.series.iter().map(|s| s.name.clone())).collect::<Vec<_>>()];
+                 for (i, cat) in c.categories.iter().enumerate() {
+@@ -625,11 +630,11 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                 }
+             });
+             ui.horizontal(|ui| {
+-                if ui.button("+ Row").clicked() {
++                if ui.button(locale::tr("+ Row")).clicked() {
+                     let n = grid.first().map(|r| r.len()).unwrap_or(2);
+                     grid.push(vec![String::new(); n]);
+                 }
+-                if ui.button("+ Series").clicked() {
++                if ui.button(locale::tr("+ Series")).clicked() {
+                     for r in grid.iter_mut() {
+                         r.push(String::new());
+                     }
+@@ -661,7 +666,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             ok || cancel
+         }
+         "smartart" => {
+-            ui.label("Pick a graphic; type one item per line.");
++            ui.label(locale::tr("Pick a graphic; type one item per line."));
+             let kind = d.get("kind", "process");
+             ui.horizontal_wrapped(|ui| {
+                 for (k, l) in [
+@@ -672,7 +677,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+                     ("pyramid", "Pyramid"),
+                     ("matrix", "Matrix"),
+                 ] {
+-                    if ui.selectable_label(kind == k, l).clicked() {
++                    if ui.selectable_label(kind == k, locale::tr(l)).clicked() {
+                         d.fields.insert("kind".into(), k.into());
+                     }
+                 }
+@@ -690,7 +695,7 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             let tab = d.get("tab", "about");
+             ui.horizontal(|ui| {
+                 for (k, l) in [("about", "About"), ("contributors", "Contributors"), ("models", "Models")] {
+-                    if ui.selectable_label(tab == k, l).clicked() {
++                    if ui.selectable_label(tab == k, locale::tr(l)).clicked() {
+                         d.fields.insert("tab".into(), k.into());
+                     }
+                 }
+@@ -709,29 +714,29 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             ok
+         }
+         "preferences" => {
+-            ui.label(egui::RichText::new("General").font(theme::bold(13.0)));
++            ui.label(egui::RichText::new(locale::tr("General")).font(theme::bold(13.0)));
+             let mut dark = app.ui.brightness == theme::Brightness::Dark;
+-            if ui.checkbox(&mut dark, "Dark appearance").changed() {
++            if ui.checkbox(&mut dark, locale::tr("Dark appearance")).changed() {
+                 let _ = app.run("view.dark", json!({"on": dark}));
+             }
+             let mut scale = app.ui.ui_scale;
+-            if ui.add(egui::Slider::new(&mut scale, 0.75..=1.75).text("Interface size")).changed() {
++            if ui.add(egui::Slider::new(&mut scale, 0.75..=1.75).text(locale::tr("Interface size"))).changed() {
+                 app.ui.ui_scale = scale;
+             }
+-            ui.label(egui::RichText::new("Editing").font(theme::bold(13.0)));
+-            ui.checkbox(&mut app.session.prefs.smart_guides, "Show smart guides");
+-            ui.checkbox(&mut app.session.prefs.snap_to_grid, "Snap objects to grid");
+-            ui.checkbox(&mut app.session.prefs.smart_quotes, "Replace straight quotes with smart quotes");
+-            ui.checkbox(&mut app.session.prefs.autocorrect, "AutoCorrect as you type");
++            ui.label(egui::RichText::new(locale::tr("Editing")).font(theme::bold(13.0)));
++            ui.checkbox(&mut app.session.prefs.smart_guides, locale::tr("Show smart guides"));
++            ui.checkbox(&mut app.session.prefs.snap_to_grid, locale::tr("Snap objects to grid"));
++            ui.checkbox(&mut app.session.prefs.smart_quotes, locale::tr("Replace straight quotes with smart quotes"));
++            ui.checkbox(&mut app.session.prefs.autocorrect, locale::tr("AutoCorrect as you type"));
+             ui.horizontal(|ui| {
+-                ui.label("Your name (comments):");
++                ui.label(locale::tr("Your name (comments):"));
+                 ui.text_edit_singleline(&mut app.session.prefs.author);
+             });
+             let (ok, _) = buttons(ui, "Done");
+             ok
+         }
+         _ => {
+-            ui.label(format!("“{}” is not available yet.", d.id));
++            ui.label(format!("“{}” 暂不可用。", d.id));
+             let (ok, cancel) = buttons(ui, "OK");
+             ok || cancel
+         }
+@@ -785,17 +790,19 @@ pub fn about(_app: &mut SlideApp, ui: &mut Ui) {
+     ui.vertical_centered(|ui| {
+         let (r, _) = ui.allocate_exact_size(vec2(64.0, 64.0), Sense::hover());
+         paint_logo(ui.painter(), r);
+-        ui.label(egui::RichText::new("DeckCraft").font(theme::bold(22.0)));
++        ui.label(egui::RichText::new("MyAI Power Point").font(theme::bold(22.0)));
+         ui.label(egui::RichText::new(version_line()).color(t.text_dim));
+         ui.add_space(6.0);
+-        ui.label("Presentations and slide shows, rebuilt from scratch in pure Rust.");
+-        ui.label("An open-source, clean-room project. Not affiliated with Microsoft.");
++        ui.label(locale::tr("Presentations and slide shows, rebuilt from scratch in pure Rust."));
++        ui.label(locale::tr("An open-source, clean-room project. Not affiliated with Microsoft."));
+         ui.add_space(6.0);
+-        ui.hyperlink_to("Join our community on Discord", deckcraft_engine::links::DISCORD);
++        ui.hyperlink_to("技术支持", deckcraft_engine::links::SUPPORT);
+         ui.hyperlink_to("getartcraft.com/apps/deckcraft", deckcraft_engine::links::APP_PAGE);
+-        ui.hyperlink_to("Source on GitHub", deckcraft_engine::links::GITHUB);
++        ui.hyperlink_to(locale::tr("Source on GitHub"), deckcraft_engine::links::GITHUB);
+         ui.add_space(6.0);
+-        ui.label(egui::RichText::new("MIT OR Apache-2.0 · © 2026 ArtCraft Team and the DeckCraft contributors").size(11.0).color(t.text_faint));
++        ui.label(
++            egui::RichText::new(locale::tr("MIT OR Apache-2.0 · © 2026 ArtCraft Team and the DeckCraft contributors")).size(11.0).color(t.text_faint),
++        );
+     });
+ }
+ 
+diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
+index ec97e6e..3c4d207 100644
+--- a/crates/ui-egui/src/lib.rs
++++ b/crates/ui-egui/src/lib.rs
+@@ -13,6 +13,7 @@ pub mod credits;
+ pub mod dialogs;
+ pub mod fillui;
+ pub mod icons;
++pub mod locale;
+ pub mod media;
+ pub mod menus;
+ pub mod panes;
+@@ -547,7 +548,7 @@ impl SlideApp {
+             }
+             "app.links" => {
+                 use deckcraft_engine::links::*;
+-                return Ok(json!({"discord": DISCORD, "website": WEBSITE, "apps": APPS, "appPage": APP_PAGE, "github": GITHUB}));
++                return Ok(json!({"support": SUPPORT, "website": WEBSITE, "apps": APPS, "appPage": APP_PAGE, "github": GITHUB}));
+             }
+             _ => return Err(format!("unknown UI command `{id}`")),
+         }
+@@ -795,6 +796,15 @@ impl SlideApp {
+                 .collect()
+         });
+         self.ui_fonts.note(ctx, &typed);
++        // The bundled MyAI Office host localises the editor chrome.  Prime the same fallback
++        // lookup used for document text with the UI glyphs before the first Chinese frame is
++        // painted; otherwise egui may show tofu boxes for labels that are not part of a deck.
++        if crate::locale::enabled() {
++            self.ui_fonts.note(
++                ctx,
++                "文件编辑视图插入格式排列设计切换动画幻灯片放映录制审阅开始绘图新建打开保存导出选项返回关闭取消确定应用撤销重做剪切复制粘贴全选删除查找搜索命令文本框艺术字日期和时间编号表格图表图片音频视频屏幕截图形状图标链接动作批注页眉页脚公式符号加粗倾斜下划线左对齐居中右对齐两端对齐普通视图大纲视图幻灯片浏览备注页阅读视图标尺网格线参考线缩放播放放映从头开始当前幻灯片自定义设置隐藏排练计时了解更多拼写检查同义词库翻译语言辅助功能格式刷填充轮廓效果组合取消组合上移一层置于顶层下移一层置于底层对齐旋转裁剪颜色透明度主题预览最近使用浏览演示文稿更多主题更多演示文稿搜索文件空白示例北极光技术支持上一页下一页打印导出创建讲义更改文件类型页眉页脚产品信息用户信息浅色深色选择橡皮擦黑色笔红色笔蓝色笔铅笔荧光笔墨迹转形状文字数学公式单击此处添加标题副标题文本图形媒体图片日期页脚页眉",
++            );
++        }
+         for d in self.session.documents() {
+             self.ui_fonts.note(ctx, &d.title());
+         }
+@@ -845,7 +855,10 @@ impl SlideApp {
+ 
+     /// Keyboard and clipboard for the slide (when no text field has focus).
+     fn keyboard(&mut self, ctx: &egui::Context) {
+-        if ctx.memory(|m| m.focused().is_some()) || self.dialog.as_ref().is_some_and(|d| d.modal()) || self.palette.is_some() {
++        if ctx.memory(|m| m.focused().is_some_and(|id| id != canvas::focus_id()))
++            || self.dialog.as_ref().is_some_and(|d| d.modal())
++            || self.palette.is_some()
++        {
+             return;
+         }
+         let events = ctx.input(|i| i.events.clone());
+@@ -1322,6 +1335,57 @@ mod tests {
+         harness
+     }
+ 
++    #[test]
++    fn clicking_a_placeholder_takes_back_text_focus_before_typing() {
++        let mut harness = canvas_harness();
++        harness.run_steps(2);
++        let xfrm = {
++            let state = harness.state().session.active().unwrap();
++            deckcraft_engine::cmd::xfrm_of(&state.doc, &state.selection, &state.doc.slides[0].shapes[0])
++        };
++        let slide = harness.state().slide_rect.unwrap();
++        let scale = harness.state().canvas_scale;
++        let centre = slide.min + egui::vec2(((xfrm.x + xfrm.w / 2.0) as f32) * scale, ((xfrm.y + xfrm.h / 2.0) as f32) * scale);
++
++        // Simulate a search/font field that still owns egui's focus when the user clicks the
++        // slide. The canvas must surrender that stale focus before the next IME/Text event.
++        harness.ctx.memory_mut(|m| m.request_focus(egui::Id::new("stale-text-field")));
++        harness.hover_at(centre);
++        harness.run_steps(1);
++        harness.drag_at(centre);
++        harness.run_steps(1);
++        harness.drop_at(centre);
++        harness.run_steps(2);
++        harness.event(egui::Event::Text("中文标题".into()));
++        harness.run_steps(2);
++
++        assert_eq!(title_text(harness.state()), "中文标题");
++        assert!(harness.state().session.active().unwrap().selection.text.is_some(), "the placeholder entered edit mode");
++    }
++
++    #[test]
++    fn a_mouse_click_with_the_cursor_remaining_on_the_slide_accepts_text_and_ime() {
++        let mut h = canvas_harness();
++        h.run_steps(2);
++        let slide = h.state().slide_rect.unwrap();
++        let p = slide.min + egui::vec2(slide.width() * 0.5, slide.height() * 0.3);
++        h.hover_at(p);
++        h.run_steps(1);
++        h.drag_at(p);
++        h.run_steps(1);
++        h.event(egui::Event::PointerButton { pos: p, button: egui::PointerButton::Primary, pressed: false, modifiers: Default::default() });
++        h.run_steps(2);
++        assert!(
++            h.output().platform_output.ime.is_some(),
++            "a mouse-selected text box must enable the macOS input method, not just synthetic text insertion"
++        );
++        h.event(egui::Event::Text("ABC".into()));
++        h.run_steps(2);
++        h.event(egui::Event::Ime(egui::ImeEvent::Commit("中文输入".into())));
++        h.run_steps(2);
++        assert_eq!(title_text(h.state()), "ABC中文输入");
++    }
++
+     fn selected(app: &SlideApp) -> Vec<u64> {
+         app.session.active().unwrap().selection.shapes.iter().map(|i| i.0 as u64).collect()
+     }
+diff --git a/crates/ui-egui/src/menus.rs b/crates/ui-egui/src/menus.rs
+index 25398b4..406b873 100644
+--- a/crates/ui-egui/src/menus.rs
++++ b/crates/ui-egui/src/menus.rs
+@@ -5,6 +5,7 @@ use deckcraft_engine::Mods;
+ use serde_json::json;
+ 
+ use crate::SlideApp;
++use crate::locale;
+ use crate::theme::{self, Tokens};
+ 
+ /// Shortcuts the UI handles itself (views, show, zoom, palette, file dialogs). True when consumed.
+@@ -82,7 +83,9 @@ pub fn palette(app: &mut SlideApp, ctx: &egui::Context) {
+         .anchor(egui::Align2::CENTER_TOP, egui::vec2(0.0, 90.0))
+         .fixed_size(egui::vec2(520.0, 380.0))
+         .show(ctx, |ui| {
+-            let r = ui.add(egui::TextEdit::singleline(&mut query).hint_text("Search commands…").desired_width(f32::INFINITY).font(theme::font(15.0)));
++            let r = ui.add(
++                egui::TextEdit::singleline(&mut query).hint_text(locale::tr("Search commands…")).desired_width(f32::INFINITY).font(theme::font(15.0)),
++            );
+             r.request_focus();
+             let q = query.to_lowercase();
+             let mut items: Vec<(String, String, Option<&'static str>)> = app
+@@ -90,8 +93,8 @@ pub fn palette(app: &mut SlideApp, ctx: &egui::Context) {
+                 .commands()
+                 .into_iter()
+                 .filter(|c| c.enabled)
+-                .map(|c| (c.id.to_string(), c.label.to_string(), c.shortcut))
+-                .chain(crate::UI_COMMANDS.iter().map(|c| (c.0.to_string(), c.1.to_string(), c.2)))
++                .map(|c| (c.id.to_string(), locale::tr(c.label).to_string(), c.shortcut))
++                .chain(crate::UI_COMMANDS.iter().map(|c| (c.0.to_string(), locale::tr(c.1).to_string(), c.2)))
+                 .filter(|(id, label, _)| q.is_empty() || label.to_lowercase().contains(&q) || id.to_lowercase().contains(&q))
+                 .collect();
+             items.sort_by_key(|(_, l, _)| !l.to_lowercase().starts_with(&q));
+diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
+index 428eff0..9b09c64 100644
+--- a/crates/ui-egui/src/ribbon.rs
++++ b/crates/ui-egui/src/ribbon.rs
+@@ -7,6 +7,7 @@ use serde_json::{Value, json};
+ 
+ use crate::SlideApp;
+ use crate::icons::{self, Icon};
++use crate::locale;
+ use crate::theme::{self, Tokens};
+ use crate::widgets::{self, RIBBON_H, big_button, big_button_ex, color_split, dropdown, group, icon_toggle, rows, small_button, small_button_ex};
+ 
+@@ -62,8 +63,11 @@ pub fn title_bar(app: &mut SlideApp, ui: &mut Ui) {
+         if icon_toggle(&mut child, Icon::PlayFromStart, "Play from Start (F5)", has_doc, false).clicked() {
+             app.start_show(0, false);
+         }
+-        let title =
+-            app.session.active().map(|d| format!("{}{}", d.title(), if dirty { " — Edited" } else { "" })).unwrap_or_else(|| "DeckCraft".into());
++        let title = app
++            .session
++            .active()
++            .map(|d| format!("{}{}", d.title(), if dirty { format!(" — {}", locale::tr("Edited")) } else { String::new() }))
++            .unwrap_or_else(|| locale::tr("DeckCraft").into());
+         ui.painter().text(rect.center(), Align2::CENTER_CENTER, title, theme::font(13.0), t.text);
+         // Right side.
+         let mut right = ui.new_child(
+@@ -76,7 +80,7 @@ pub fn title_bar(app: &mut SlideApp, ui: &mut Ui) {
+             app.palette = Some((String::new(), 0));
+         }
+         let share = right.add(
+-            egui::Button::new(egui::RichText::new("  Present  ").color(t.accent_text).font(theme::bold(13.0)))
++            egui::Button::new(egui::RichText::new(format!("  {}  ", locale::tr("Present"))).color(t.accent_text).font(theme::bold(13.0)))
+                 .fill(t.accent)
+                 .corner_radius(CornerRadius::same(13))
+                 .min_size(vec2(84.0, 26.0)),
+@@ -148,23 +152,25 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
+         let mut x = rect.min.x + 12.0;
+         let y = rect.min.y + 2.0;
+         {
+-            let w = ui.fonts_mut(|f| f.layout_no_wrap("File".to_string(), theme::font(13.0), t.text).size().x) + 18.0;
++            let file_label = locale::tr("File");
++            let w = ui.fonts_mut(|f| f.layout_no_wrap(file_label.to_string(), theme::font(13.0), t.text).size().x) + 18.0;
+             let r = Rect::from_min_size(pos2(x, y), vec2(w, 24.0));
+             let resp = ui.interact(r, ui.id().with("tab_file"), Sense::click());
+-            resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, "File"));
++            resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, file_label));
+             if resp.hovered() {
+                 ui.painter().rect_filled(r.shrink2(vec2(2.0, 2.0)), CornerRadius::same(4), t.hover);
+             }
+-            ui.painter().text(r.center(), Align2::CENTER_CENTER, "File", theme::font(13.0), t.text);
+-            if resp.on_hover_text("File (Alt+F)").clicked() {
++            ui.painter().text(r.center(), Align2::CENTER_CENTER, file_label, theme::font(13.0), t.text);
++            if resp.on_hover_text(format!("{} (Alt+F)", file_label)).clicked() {
+                 app.open_backstage(crate::backstage::Page::Home);
+             }
+             x += w + 2.0;
+         }
+         let all: Vec<(&str, bool)> = TABS.iter().map(|s| (*s, false)).chain(ctx_tabs.iter().map(|s| (*s, true))).collect();
+         for (name, contextual) in all {
++            let display_name = locale::tr(name);
+             let font = theme::font(13.0);
+-            let w = ui.fonts_mut(|f| f.layout_no_wrap(name.to_string(), font.clone(), t.text).size().x) + 18.0;
++            let w = ui.fonts_mut(|f| f.layout_no_wrap(display_name.to_string(), font.clone(), t.text).size().x) + 18.0;
+             let r = Rect::from_min_size(pos2(x, y), vec2(w, 24.0));
+             let resp = ui.interact(r, ui.id().with(("tab", name)), Sense::click());
+             let active = app.ui.tab == name;
+@@ -173,7 +179,7 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
+             }
+             let col = if contextual { t.contextual } else { t.text };
+             let f = if active { theme::bold(13.0) } else { font };
+-            ui.painter().text(r.center(), Align2::CENTER_CENTER, name, f, col);
++            ui.painter().text(r.center(), Align2::CENTER_CENTER, display_name, f, col);
+             if active {
+                 let uw = (w - 20.0).max(16.0);
+                 ui.painter().rect_filled(Rect::from_center_size(pos2(r.center().x, r.max.y - 1.0), vec2(uw, 3.0)), CornerRadius::same(1), t.accent);
+@@ -251,8 +257,8 @@ fn toggle(app: &mut SlideApp, ui: &mut Ui, icon: Icon, label: &str, id: &str, on
+ fn tip(id: &str, label: &str) -> String {
+     let sc = deckcraft_engine::find_command(id).and_then(|c| c.shortcut).or_else(|| crate::UI_COMMANDS.iter().find(|c| c.0 == id).and_then(|c| c.2));
+     match sc {
+-        Some(s) => format!("{label} ({})", pretty_shortcut(s)),
+-        None => label.to_string(),
++        Some(s) => format!("{} ({})", locale::tr(label), pretty_shortcut(s)),
++        None => locale::tr(label).to_string(),
+     }
+ }
+ 
+@@ -400,7 +406,7 @@ fn slides_group(app: &mut SlideApp, ui: &mut Ui) {
+ }
+ 
+ pub fn font_families(app: &SlideApp) -> Vec<String> {
+-    let mut v = vec![];
++    let mut v = vec!["宋体".to_string(), "仿宋".to_string(), "黑体".to_string(), "微软雅黑".to_string(), "楷体".to_string()];
+     if let Some(m) = app.session.active().and_then(|d| d.doc.masters.first()) {
+         v.push(m.theme.fonts.major.latin.clone());
+         v.push(m.theme.fonts.minor.latin.clone());
+@@ -419,21 +425,14 @@ fn font_group(app: &mut SlideApp, ui: &mut Ui, st: &Value) {
+                 let font = st.get("font").and_then(Value::as_str).unwrap_or("").to_string();
+                 let size = st.get("size").and_then(Value::as_f64);
+                 let fams = font_families(app);
+-                let theme_fonts: Vec<String> = fams.iter().take(2).cloned().collect();
+                 dropdown(ui, "font", &font, 150.0, en, |ui| {
+                     for (k, f) in fams.iter().enumerate() {
+-                        let label = if k == 0 && theme_fonts.len() == 2 {
+-                            format!("{f} (Headings)")
+-                        } else if k == 1 && theme_fonts.len() == 2 {
+-                            format!("{f} (Body)")
+-                        } else {
+-                            f.clone()
+-                        };
+-                        if ui.button(egui::RichText::new(label)).clicked() {
++                        if ui.button(egui::RichText::new(f)).clicked() {
+                             run(app, "format.font", json!({"family": f}));
+                             ui.close();
++                            ui.memory_mut(|m| m.request_focus(crate::canvas::focus_id()));
+                         }
+-                        if k == 1 {
++                        if k == 4 {
+                             ui.separator();
+                         }
+                     }
+@@ -444,6 +443,7 @@ fn font_group(app: &mut SlideApp, ui: &mut Ui, st: &Value) {
+                         if ui.button(widgets::fmt_num(*s, "")).clicked() {
+                             run(app, "format.size", json!({"size": s}));
+                             ui.close();
++                            ui.memory_mut(|m| m.request_focus(crate::canvas::focus_id()));
+                         }
+                     }
+                 });
+diff --git a/crates/ui-egui/src/sorter.rs b/crates/ui-egui/src/sorter.rs
+index dd26dd8..6625bb3 100644
+--- a/crates/ui-egui/src/sorter.rs
++++ b/crates/ui-egui/src/sorter.rs
+@@ -137,7 +137,7 @@ pub fn notes_page(app: &mut SlideApp, ui: &mut Ui) {
+     let mut buf: String = child.data_mut(|d| d.get_temp(id).unwrap_or_else(|| current.clone()));
+     let r = child.add(
+         egui::TextEdit::multiline(&mut buf)
+-            .hint_text("Click to add text")
++            .hint_text(crate::locale::tr("Click to add text"))
+             .desired_width(notes_rect.width())
+             .desired_rows(12)
+             .frame(egui::Frame::NONE)
+diff --git a/crates/ui-egui/src/status.rs b/crates/ui-egui/src/status.rs
+index 8e915b7..8cca806 100644
+--- a/crates/ui-egui/src/status.rs
++++ b/crates/ui-egui/src/status.rs
+@@ -5,6 +5,7 @@ use egui::{Align2, CornerRadius, Rect, Sense, Stroke, Ui, pos2, vec2};
+ use serde_json::json;
+ 
+ use crate::icons::{self, Icon};
++use crate::locale;
+ use crate::theme::{self, Tokens};
+ use crate::{SlideApp, ViewMode};
+ 
+@@ -15,12 +16,15 @@ pub fn status_bar(app: &mut SlideApp, ui: &mut Ui) {
+         let Some(st) = app.session.active() else { return };
+         let n = st.doc.slides.len();
+         let left = match st.selection.target {
+-            deckcraft_engine::Target::Slides => format!("Slide {} of {}", (st.selection.slide + 1).min(n.max(1)), n),
+-            _ => "Slide Master".to_string(),
++            deckcraft_engine::Target::Slides => {
++                let label = if locale::enabled() { "幻灯片" } else { "Slide" };
++                format!("{label} {} / {}", (st.selection.slide + 1).min(n.max(1)), n)
++            }
++            _ => locale::tr("Slide Master").to_string(),
+         };
+         let p = ui.painter();
+         p.text(pos2(rect.min.x + 14.0, rect.center().y), Align2::LEFT_CENTER, &left, theme::font(12.0), t.text_dim);
+-        p.text(pos2(rect.min.x + 120.0, rect.center().y), Align2::LEFT_CENTER, "English (United States)", theme::font(12.0), t.text_dim);
++        p.text(pos2(rect.min.x + 120.0, rect.center().y), Align2::LEFT_CENTER, locale::tr("English (United States)"), theme::font(12.0), t.text_dim);
+         // Transient status message.
+         if let Some((msg, at)) = app.status.clone() {
+             if crate::now_ms() - at < 6000.0 {
+@@ -88,6 +92,7 @@ pub fn status_bar(app: &mut SlideApp, ui: &mut Ui) {
+ 
+ fn small_icon(ui: &mut Ui, icon: Icon, tip: &str, on: bool) -> egui::Response {
+     let t = Tokens::get(ui.ctx());
++    let tip = locale::tr(tip);
+     let (r, resp) = ui.allocate_exact_size(vec2(26.0, 20.0), Sense::click());
+     if on || resp.hovered() {
+         ui.painter().rect_filled(r, CornerRadius::same(4), if on { t.selected } else { t.hover });
+@@ -98,6 +103,7 @@ fn small_icon(ui: &mut Ui, icon: Icon, tip: &str, on: bool) -> egui::Response {
+ 
+ fn labeled(ui: &mut Ui, icon: Icon, label: &str, on: bool) -> egui::Response {
+     let t = Tokens::get(ui.ctx());
++    let label = locale::tr(label);
+     let w = 22.0 + ui.fonts_mut(|f| f.layout_no_wrap(label.into(), theme::font(12.0), t.text).size().x) + 8.0;
+     let (r, resp) = ui.allocate_exact_size(vec2(w, 20.0), Sense::click());
+     if on || resp.hovered() {
+@@ -148,7 +154,7 @@ pub fn notes_pane(app: &mut SlideApp, ui: &mut Ui) {
+             let r = ui.add(
+                 egui::TextEdit::multiline(&mut buf)
+                     .id(id)
+-                    .hint_text("Click to add notes")
++                    .hint_text(locale::tr("Click to add notes"))
+                     .frame(egui::Frame::NONE)
+                     .desired_width(f32::INFINITY)
+                     .desired_rows(2)
+diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
+index 1847d47..b0133a5 100644
+--- a/crates/ui-egui/src/theme.rs
++++ b/crates/ui-egui/src/theme.rs
+@@ -191,6 +191,25 @@ pub fn font_definitions(extra: &[std::sync::Arc<deckcraft_fonts::FontFace>]) ->
+     bold.extend(defs.families.get(&FontFamily::Proportional).cloned().unwrap_or_default());
+     defs.families.insert(FontFamily::Name("bold".into()), bold);
+     add_fallback_faces(&mut defs, extra);
++    if crate::locale::enabled() {
++        let db = deckcraft_fonts::FontDb::global();
++        for family in ["Hiragino Sans GB", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC"] {
++            if !db.has_family(family) {
++                continue;
++            }
++            let face = db.face(family, "Regular");
++            let mut data = FontData::from_owned(face.data().to_vec());
++            data.index = face.index();
++            let name = "myai-chinese-ui".to_string();
++            defs.font_data.insert(name.clone(), std::sync::Arc::new(data));
++            // One CJK face for all interface characters, including font-family names: mixing
++            // Japanese UI glyphs and Chinese fallbacks gave characters different baselines.
++            for list in defs.families.values_mut() {
++                list.insert(0, name.clone());
++            }
++            break;
++        }
++    }
+     // The Japanese interface face (the first one when Inter isn't embedded) hints its en and em
+     // dashes, bars thinner than a pixel, down to nothing, so they drew as gaps in interface text;
+     // unhinted, they draw.
+diff --git a/crates/ui-egui/src/widgets.rs b/crates/ui-egui/src/widgets.rs
+index 5827b39..1351b95 100644
+--- a/crates/ui-egui/src/widgets.rs
++++ b/crates/ui-egui/src/widgets.rs
+@@ -6,6 +6,7 @@ use deckcraft_model::ColorRef;
+ use egui::{Align2, Color32, CornerRadius, Rect, Response, Sense, Stroke, Ui, Vec2, pos2, vec2};
+ 
+ use crate::icons::{self, Icon};
++use crate::locale;
+ use crate::theme::{self, Tokens};
+ 
+ /// Height of the ribbon's content area.
+@@ -34,6 +35,7 @@ pub fn big_button(ui: &mut Ui, icon: Icon, label: &str, enabled: bool) -> Respon
+ /// Large button; with `split`, the label row is a separate dropdown target (returns its response).
+ pub fn big_button_ex(ui: &mut Ui, icon: Icon, label: &str, enabled: bool, split: bool, selected: bool) -> (Response, Option<Response>) {
+     let t = Tokens::get(ui.ctx());
++    let label = locale::tr(label);
+     let font = theme::font(11.0);
+     let lines: Vec<&str> = wrap_label(label);
+     let text_w = lines.iter().map(|l| ui.fonts_mut(|f| f.layout_no_wrap(l.to_string(), font.clone(), t.text).size().x)).fold(0.0f32, f32::max);
+@@ -112,6 +114,7 @@ pub fn small_button(ui: &mut Ui, icon: Icon, label: &str, enabled: bool, selecte
+ 
+ pub fn small_button_ex(ui: &mut Ui, icon: Icon, label: &str, enabled: bool, selected: bool, split: bool) -> (Response, Option<Response>) {
+     let t = Tokens::get(ui.ctx());
++    let label = locale::tr(label);
+     let font = theme::font(12.0);
+     let tw = if label.is_empty() { 0.0 } else { ui.fonts_mut(|f| f.layout_no_wrap(label.to_string(), font.clone(), t.text).size().x) + 5.0 };
+     let arrow_w = if split { 12.0 } else { 0.0 };
+@@ -149,6 +152,7 @@ pub fn small_button_ex(ui: &mut Ui, icon: Icon, label: &str, enabled: bool, sele
+ /// A square icon toggle (B, I, U, alignment…).
+ pub fn icon_toggle(ui: &mut Ui, icon: Icon, tip: &str, enabled: bool, on: bool) -> Response {
+     let t = Tokens::get(ui.ctx());
++    let tip = locale::tr(tip);
+     let (rect, resp) = ui.allocate_exact_size(vec2(24.0, 22.0), if enabled { Sense::click() } else { Sense::hover() });
+     let painter = ui.painter_at(rect);
+     if let Some(c) = bg(ui, &resp, on, &t) {
+@@ -161,6 +165,7 @@ pub fn icon_toggle(ui: &mut Ui, icon: Icon, tip: &str, enabled: bool, on: bool)
+ /// Icon with a colour bar under it and a dropdown arrow (Font Color, Highlight, Shape Fill…).
+ pub fn color_split(ui: &mut Ui, icon: Icon, tip: &str, color: Color32, enabled: bool) -> (Response, Response) {
+     let t = Tokens::get(ui.ctx());
++    let tip = locale::tr(tip);
+     let (rect, resp) = ui.allocate_exact_size(vec2(34.0, 22.0), Sense::hover());
+     let main = ui.interact(Rect::from_min_size(rect.min, vec2(23.0, 22.0)), resp.id.with("m"), if enabled { Sense::click() } else { Sense::hover() });
+     let arrow = ui.interact(
+@@ -252,7 +257,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+     let t = Tokens::get(ui.ctx());
+     let mut out = None;
+     ui.set_min_width(220.0);
+-    ui.label(egui::RichText::new("Theme Colors").font(theme::bold(12.0)));
++    ui.label(egui::RichText::new(locale::tr("Theme Colors")).font(theme::bold(12.0)));
+     let slots = [
+         SchemeSlot::Lt1,
+         SchemeSlot::Dk1,
+@@ -314,7 +319,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+         }
+     });
+     ui.add_space(4.0);
+-    ui.label(egui::RichText::new("Standard Colors").font(theme::bold(12.0)));
++    ui.label(egui::RichText::new(locale::tr("Standard Colors")).font(theme::bold(12.0)));
+     ui.horizontal(|ui| {
+         ui.spacing_mut().item_spacing.x = 3.0;
+         for (c, name) in deckcraft_color::STANDARD_COLORS {
+@@ -333,7 +338,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+     let id = ui.id().with("hex");
+     let mut hex: String = ui.data_mut(|d| d.get_temp::<String>(id).unwrap_or_default());
+     ui.horizontal(|ui| {
+-        ui.label("More Colors… #");
++        ui.label(locale::tr("More Colors… #"));
+         let r = ui.add(egui::TextEdit::singleline(&mut hex).desired_width(70.0).hint_text("RRGGBB"));
+         if r.lost_focus()
+             && ui.input(|i| i.key_pressed(egui::Key::Enter))
+@@ -371,7 +376,8 @@ pub fn gallery(
+         if sel {
+             painter.rect_stroke(rect.expand(1.0), CornerRadius::same(4), Stroke::new(1.5, t.accent), egui::StrokeKind::Inside);
+         }
+-        if resp.on_hover_text(tip(i)).clicked() {
++        let tip = tip(i);
++        if resp.on_hover_text(locale::tr(&tip)).clicked() {
+             clicked = Some(i);
+         }
+     }
+@@ -435,13 +441,14 @@ pub fn section(ui: &mut Ui, title: &str, open: bool) -> bool {
+         p.line_segment([pos2(c.x - 2.0, c.y - 4.0), pos2(c.x + 2.0, c.y)], Stroke::new(1.2, t.text));
+         p.line_segment([pos2(c.x + 2.0, c.y), pos2(c.x - 2.0, c.y + 4.0)], Stroke::new(1.2, t.text));
+     }
+-    p.text(pos2(rect.min.x + 18.0, rect.center().y), Align2::LEFT_CENTER, title, theme::bold(13.0), t.text);
++    p.text(pos2(rect.min.x + 18.0, rect.center().y), Align2::LEFT_CENTER, locale::tr(title), theme::bold(13.0), t.text);
+     if resp.clicked() { !open } else { open }
+ }
+ 
+ /// A button with an optional label and a painted dropdown chevron (the UI font has no ▾).
+ pub fn drop_button(ui: &mut Ui, label: &str, size: egui::Vec2, enabled: bool) -> egui::Response {
+     let t = Tokens::get(ui.ctx());
++    let label = locale::tr(label);
+     let r = ui.add_enabled(enabled, egui::Button::new(if label.is_empty() { String::new() } else { format!("{label}   ") }).min_size(size));
+     let col = if enabled { t.text_dim } else { t.text_faint };
+     chevron(ui.painter(), egui::pos2(r.rect.max.x - 8.0, r.rect.center().y), 3.0, col);
+diff --git a/packaging/linux/ai.storyteller.deckcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.deckcraft.metainfo.xml.in
+index 4e6f0ae..d14e16f 100644
+--- a/packaging/linux/ai.storyteller.deckcraft.metainfo.xml.in
++++ b/packaging/linux/ai.storyteller.deckcraft.metainfo.xml.in
+@@ -26,7 +26,7 @@
+   <url type="homepage">https://getartcraft.com/apps/deckcraft</url>
+   <url type="bugtracker">https://github.com/storytold/deckcraft/issues</url>
+   <url type="help">https://github.com/storytold/deckcraft</url>
+-  <url type="contact">https://discord.gg/artcraft</url>
++  <url type="contact">https://t.me/+uEp8JOn7Oic0MDdl</url>
+   <categories>
+     <category>Office</category>
+     <category>Presentation</category>
+diff --git a/packaging/windows/deckcraft.wxs b/packaging/windows/deckcraft.wxs
+index 43d256f..18e39b0 100644
+--- a/packaging/windows/deckcraft.wxs
++++ b/packaging/windows/deckcraft.wxs
+@@ -30,7 +30,7 @@
+     <Property Id="ARPPRODUCTICON" Value="DeckcraftIcon.ico" />
+     <Property Id="ARPURLINFOABOUT" Value="https://getartcraft.com/apps/deckcraft" />
+     <Property Id="ARPURLUPDATEINFO" Value="https://getartcraft.com/apps/deckcraft" />
+-    <Property Id="ARPHELPLINK" Value="https://discord.gg/artcraft" />
++    <Property Id="ARPHELPLINK" Value="https://t.me/+uEp8JOn7Oic0MDdl" />
+ 
+     <StandardDirectory Id="ProgramFiles6432Folder">
+       <Directory Id="INSTALLFOLDER" Name="DeckCraft" />
+diff --git a/crates/ui-egui/src/locale.rs b/crates/ui-egui/src/locale.rs
+new file mode 100644
+index 0000000..62855fb
+--- /dev/null
++++ b/crates/ui-egui/src/locale.rs
+@@ -0,0 +1,438 @@
++//! Small, deliberately localised display-text layer for the bundled MyAI Office editor.
++//!
++//! Command ids, file formats and the engine's persisted values remain in English.  Only text
++//! that is presented to a user is translated, and the host enables this mode explicitly so the
++//! upstream DeckCraft test harness keeps its English labels.
++
++use std::sync::atomic::{AtomicBool, Ordering};
++
++static CHINESE: AtomicBool = AtomicBool::new(false);
++
++/// Enable the Simplified Chinese interface for the MyAI Office desktop host.
++pub fn enable_chinese() {
++    CHINESE.store(true, Ordering::Relaxed);
++    #[cfg(not(target_arch = "wasm32"))]
++    {
++        let db = deckcraft_fonts::FontDb::global();
++        db.load_system_fonts();
++        #[cfg(target_os = "macos")]
++        for path in [
++            "/System/Library/Fonts/Hiragino Sans GB.ttc",
++            "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
++            "/System/Library/Fonts/STHeiti Medium.ttc",
++            "/System/Library/Fonts/Supplemental/Songti.ttc",
++        ] {
++            if let Ok(bytes) = std::fs::read(path) {
++                if db.add_font(bytes) > 0 {
++                    break;
++                }
++            }
++        }
++    }
++}
++
++pub fn enabled() -> bool {
++    CHINESE.load(Ordering::Relaxed)
++}
++
++/// Translate a user-visible label while preserving the caller's borrowed-string API.
++pub fn tr(s: &str) -> &str {
++    if !enabled() {
++        return s;
++    }
++    match s {
++        "File" => "文件",
++        "DeckCraft" => "MyAI Power Point",
++        "Edited" => "已编辑",
++        "Edit" => "编辑",
++        "View" => "视图",
++        "Insert" => "插入",
++        "Format" => "格式",
++        "Arrange" => "排列",
++        "Design" => "设计",
++        "Transitions" => "切换",
++        "Animations" => "动画",
++        "Slide Show" => "幻灯片放映",
++        "Record" => "录制",
++        "Review" => "审阅",
++        "Home" => "开始",
++        "Draw" => "绘图",
++        "New" => "新建",
++        "Open" => "打开",
++        "Edit Text" => "编辑文本",
++        "Lock" => "锁定",
++        "Unlock" => "解锁",
++        "Link…" => "链接…",
++        "Edit Alt Text…" => "编辑替换文字…",
++        "Set as Default Shape" => "设为默认形状",
++        "Layout" => "版式",
++        "Reset Slide" => "重置幻灯片",
++        "Format Background…" => "设置背景格式…",
++        "New Comment" => "新建批注",
++        "Info" => "信息",
++        "Save" => "保存",
++        "Save As" => "另存为",
++        "Print" => "打印",
++        "Export" => "导出",
++        "Account" => "账户",
++        "Options" => "选项",
++        "Back" => "返回",
++        "Close" => "关闭",
++        "Shape Format" => "形状格式",
++        "Picture Format" => "图片格式",
++        "Table Design" => "表格设计",
++        "Chart Design" => "图表设计",
++        "Slide Master" => "幻灯片母版",
++        "Don't Save" => "不保存",
++        "Your changes will be lost if you don't save them." => "如果不保存，更改将会丢失。",
++        "Recent" => "最近使用",
++        "Browse" => "浏览",
++        "Presentations" => "演示文稿",
++        "More themes" => "更多主题",
++        "More presentations" => "更多演示文稿",
++        "Search for a file" => "搜索文件",
++        "Search for themes" => "搜索主题",
++        "Blank Presentation" => "空白演示文稿",
++        "Harbor" => "港湾",
++        "Ember" => "余烬",
++        "Meadow" => "草地",
++        "Nocturne" => "夜曲",
++        "Sample deck: Northern Lights" => "示例演示文稿：北极光",
++        "No themes match “{}”." => "没有匹配的主题：“{}”。",
++        "Presentations you open show up here. Use Open to browse for one." => "打开的演示文稿会显示在这里。使用“打开”浏览文件。",
++        "No recent presentations match “{}”." => "没有匹配的最近演示文稿：“{}”。",
++        "There are no unsaved presentations to recover" => "没有可恢复的未保存演示文稿",
++        "Copied the path" => "路径已复制",
++        "Open a presentation from a folder" => "从文件夹打开演示文稿",
++        "Not saved yet" => "尚未保存",
++        "Open file location" => "打开文件所在位置",
++        "Copy path" => "复制路径",
++        "Recover Unsaved Presentations" => "恢复未保存的演示文稿",
++        "Download" => "下载",
++        "Download the file" => "下载文件",
++        "Choose where to save" => "选择保存位置",
++        "Settings" => "设置",
++        "Appearance" => "外观",
++        "Light" => "浅色",
++        "Dark" => "深色",
++        "User Information" => "用户信息",
++        "Product Information" => "产品信息",
++        "About DeckCraft" => "关于 MyAI Power Point",
++        "Source on GitHub" => "GitHub 源码",
++        "Edit Header & Footer" => "编辑页眉和页脚",
++        "Previous Page" => "上一页",
++        "Next Page" => "下一页",
++        "Print Hidden Slides" => "打印隐藏幻灯片",
++        "Frame Slides" => "幻灯片加边框",
++        "Full Page Slides" => "整页幻灯片",
++        "Notes Pages" => "备注页",
++        "Handouts (1 slide per page)" => "讲义（每页 1 张幻灯片）",
++        "Handouts (2 slides per page)" => "讲义（每页 2 张幻灯片）",
++        "Handouts (3 slides per page)" => "讲义（每页 3 张幻灯片）",
++        "Handouts (4 slides per page)" => "讲义（每页 4 张幻灯片）",
++        "Handouts (6 slides per page)" => "讲义（每页 6 张幻灯片）",
++        "Handouts (9 slides per page)" => "讲义（每页 9 张幻灯片）",
++        "Create PDF" => "创建 PDF",
++        "Create PDF Document" => "创建 PDF 文档",
++        "Create a PDF Document" => "创建 PDF 文档",
++        "Create Handouts" => "创建讲义",
++        "Change File Type" => "更改文件类型",
++        "Keeps the layout, fonts and pictures" => "保留版式、字体和图片",
++        "Opens on any device with a PDF viewer" => "可在任何带 PDF 阅读器的设备上打开",
++        "The presentation keeps its own file" => "演示文稿文件仍会保留",
++        "Include hidden slides" => "包括隐藏幻灯片",
++        "Several slides on each page of a PDF" => "PDF 每页包含多张幻灯片",
++        "Three a page leaves lines for notes" => "每页三张时会留出备注线",
++        "Print them for your audience" => "打印后即可分发给观众",
++        "slides" => "张幻灯片",
++        "PowerPoint Presentation (*.pptx)" => "PowerPoint 演示文稿（*.pptx）",
++        "Opens in PowerPoint and other presentation apps" => "可在 PowerPoint 和其他演示应用中打开",
++        "DeckCraft Presentation (*.deckcraft)" => "MyAI Power Point 演示文稿（*.deckcraft）",
++        "DeckCraft's own format: everything is kept" => "MyAI Power Point 专用格式：保留全部内容",
++        "PDF (*.pdf)" => "PDF（*.pdf）",
++        "A fixed copy that keeps its layout on any device" => "固定版式副本，可在任何设备上保持布局",
++        "Outline (*.txt)" => "大纲（*.txt）",
++        "The slide titles and bullet text as plain text" => "以纯文本保存幻灯片标题和项目符号",
++        "PNG Picture (*.png)" => "PNG 图片（*.png）",
++        "The current slide as a picture" => "将当前幻灯片保存为图片",
++        "JPEG Picture (*.jpg)" => "JPEG 图片（*.jpg）",
++        "The current slide as a compressed picture" => "将当前幻灯片保存为压缩图片",
++        "Title" => "标题",
++        "Subject" => "主题",
++        "Tags" => "标签",
++        "Categories" => "类别",
++        "Company" => "公司",
++        "Author" => "作者",
++        "Add a title" => "添加标题",
++        "Specify the subject" => "指定主题",
++        "Add a tag" => "添加标签",
++        "Add a category" => "添加类别",
++        "Specify the company" => "指定公司",
++        "Add comments" => "添加批注",
++        "Add an author" => "添加作者",
++        "Cancel" => "取消",
++        "OK" => "确定",
++        "Apply" => "应用",
++        "Apply to All" => "全部应用",
++        "Undo" => "撤销",
++        "Redo" => "重做",
++        "Cut" => "剪切",
++        "Copy" => "复制",
++        "Paste" => "粘贴",
++        "Paste and Match Formatting" => "粘贴并匹配格式",
++        "Paste Formatting" => "仅粘贴格式",
++        "Select All" => "全选",
++        "Duplicate" => "复制对象",
++        "Delete" => "删除",
++        "Delete Slide" => "删除幻灯片",
++        "Find…" => "查找…",
++        "Search commands…" => "搜索命令…",
++        "Search commands (⇧⌘P)" => "搜索命令（⇧⌘P）",
++        "New Presentation" => "新建演示文稿",
++        "New Slide" => "新建幻灯片",
++        "New\nSlide" => "新建\n幻灯片",
++        "Duplicate Slide" => "复制幻灯片",
++        "Duplicate Selected Slides" => "复制所选幻灯片",
++        "Slides from Outline…" => "从大纲导入幻灯片…",
++        "Add Section" => "添加节",
++        "Remove All Sections" => "删除所有节",
++        "Section" => "节",
++        "Text Box" => "文本框",
++        "WordArt" => "艺术字",
++        "Date and Time" => "日期和时间",
++        "Slide Number" => "幻灯片编号",
++        "Table" => "表格",
++        "Table…" => "表格…",
++        "Insert Table…" => "插入表格…",
++        "Chart" => "图表",
++        "Picture" => "图片",
++        "Picture from File…" => "来自文件的图片…",
++        "Audio from File…" => "来自文件的音频…",
++        "Video from File…" => "来自文件的视频…",
++        "Screenshot" => "屏幕截图",
++        "Shapes" => "形状",
++        "Icons" => "图标",
++        "SmartArt" => "SmartArt",
++        "Link" => "链接",
++        "Action" => "动作",
++        "Comment" => "批注",
++        "New\nComment" => "新建\n批注",
++        "Header &\nFooter" => "页眉和\n页脚",
++        "Equation" => "公式",
++        "Symbol" => "符号",
++        "Bold" => "加粗",
++        "Italic" => "倾斜",
++        "Underline" => "下划线",
++        "Align Left" => "左对齐",
++        "Center" => "居中",
++        "Align Right" => "右对齐",
++        "Justify" => "两端对齐",
++        "Right-to-Left Text Direction" => "从右到左文字方向",
++        "Normal" => "普通",
++        "Normal View" => "普通视图",
++        "Outline View" => "大纲视图",
++        "Outline\nView" => "大纲\n视图",
++        "Slide Sorter" => "幻灯片浏览",
++        "Slide\nSorter" => "幻灯片\n浏览",
++        "Notes Page" => "备注页",
++        "Notes\nPage" => "备注\n页",
++        "Reading View" => "阅读视图",
++        "Reading\nView" => "阅读\n视图",
++        "Slide\nMaster" => "幻灯片\n母版",
++        "Handout\nMaster" => "讲义\n母版",
++        "Notes\nMaster" => "备注\n母版",
++        "Ruler" => "标尺",
++        "Gridlines" => "网格线",
++        "Guides" => "参考线",
++        "Notes" => "备注",
++        "Comments" => "批注",
++        "Zoom" => "缩放",
++        "Zoom In" => "放大",
++        "Zoom Out" => "缩小",
++        "Fit" => "适应",
++        "Fit to Window" => "适应窗口",
++        "Fit to\nWindow" => "适应\n窗口",
++        "Collapse the Ribbon" => "折叠功能区",
++        "Dark Mode" => "深色模式",
++        "Dark\nMode" => "深色\n模式",
++        "Grayscale" => "灰度",
++        "Playback" => "播放",
++        "Presenter\nView" => "演示者\n视图",
++        "Present" => "放映",
++        "Play from\nStart" => "从头\n播放",
++        "Play from\nCurrent Slide" => "从当前幻灯片\n播放",
++        "From\nBeginning" => "从\n头开始",
++        "From\nCurrent Slide" => "从当前幻灯片\n开始",
++        "Custom\nShow" => "自定义\n放映",
++        "Set Up\nSlide Show" => "设置\n幻灯片放映",
++        "Hide\nSlide" => "隐藏\n幻灯片",
++        "Rehearse\nTimings" => "排练\n计时",
++        "Cameo" => "摄像头",
++        "Select" => "选择",
++        "Eraser" => "橡皮擦",
++        "Black Pen" => "黑色笔",
++        "Red Pen" => "红色笔",
++        "Blue Pen" => "蓝色笔",
++        "Pencil" => "铅笔",
++        "Highlighter" => "荧光笔",
++        "Ink to Shape" => "墨迹转形状",
++        "Ink to Text" => "墨迹转文字",
++        "Ink to Math" => "墨迹转数学公式",
++        "Click to add notes" => "单击此处添加备注",
++        "Click to add text" => "单击此处添加文本",
++        "Learn\nMore" => "了解\n更多",
++        "Spelling" => "拼写检查",
++        "Thesaurus" => "同义词库",
++        "Translate" => "翻译",
++        "Language" => "语言",
++        "Check\nAccessibility" => "检查\n辅助功能",
++        "Show\nComments" => "显示\n批注",
++        "Character Spacing" => "字符间距",
++        "Change Case" => "更改大小写",
++        "Text Highlight Color" => "文本突出显示颜色",
++        "Font Color" => "字体颜色",
++        "Line Spacing" => "行距",
++        "Columns" => "分栏",
++        "Text Direction" => "文字方向",
++        "Align Text" => "对齐文本",
++        "Very Tight" => "极紧",
++        "Tight" => "紧",
++        "Loose" => "松",
++        "Very Loose" => "极松",
++        "None" => "无",
++        "No Color" => "无颜色",
++        "No Outline" => "无线条",
++        "Format Painter (double-click to keep it on)" => "格式刷（双击可持续使用）",
++        "Format Painter" => "格式刷",
++        "Shape Fill" => "形状填充",
++        "Shape Outline" => "形状轮廓",
++        "Shape Effects" => "形状效果",
++        "Quick\nStyles" => "快速\n样式",
++        "Shape\nStyles" => "形状\n样式",
++        "Text Fill" => "文本填充",
++        "Text Outline" => "文本轮廓",
++        "Text Effects" => "文本效果",
++        "Group" => "组合",
++        "Ungroup" => "取消组合",
++        "Regroup" => "重新组合",
++        "Bring Forward" => "上移一层",
++        "Bring to Front" => "置于顶层",
++        "Bring\nForward" => "上移\n一层",
++        "Send Backward" => "下移一层",
++        "Send to Back" => "置于底层",
++        "Send\nBackward" => "下移\n一层",
++        "Align" => "对齐",
++        "Rotate" => "旋转",
++        "Rotate Right 90°" => "向右旋转 90°",
++        "Rotate Left 90°" => "向左旋转 90°",
++        "Flip Vertical" => "垂直翻转",
++        "Flip Horizontal" => "水平翻转",
++        "Distribute Horizontally" => "横向分布",
++        "Distribute Vertically" => "纵向分布",
++        "Order Objects" => "对象层次",
++        "Group Objects" => "组合对象",
++        "Position Objects" => "对象位置",
++        "Selection Pane…" => "选择窗格…",
++        "Edit\nShape" => "编辑\n形状",
++        "Change Shape" => "更改形状",
++        "Merge\nShapes" => "合并\n形状",
++        "Gradient…" => "渐变…",
++        "Shadow" => "阴影",
++        "No Shadow" => "无阴影",
++        "Reflection" => "倒影",
++        "Glow" => "发光",
++        "No Glow" => "无发光",
++        "Soft Edges" => "柔化边缘",
++        "No Soft Edges" => "无柔化边缘",
++        "Bevel" => "棱台",
++        "Format Shape…" => "设置形状格式…",
++        "Picture\nStyles" => "图片\n样式",
++        "Change Picture" => "更改图片",
++        "Reset Picture" => "重置图片",
++        "Remove\nBackground" => "删除\n背景",
++        "Corrections" => "更正",
++        "Color" => "颜色",
++        "Transparency" => "透明度",
++        "Crop" => "裁剪",
++        "Crop to Shape" => "裁剪为形状",
++        "Simple Frame, White" => "简单白色边框",
++        "Drop Shadow Rectangle" => "矩形投影",
++        "Rounded Diagonal Corner" => "圆角对角线",
++        "Soft Edge Rectangle" => "柔化边缘矩形",
++        "Reflected Rounded Rectangle" => "带倒影的圆角矩形",
++        "Oval" => "椭圆",
++        "Header Row" => "标题行",
++        "First Column" => "第一列",
++        "Total Row" => "汇总行",
++        "Last Column" => "末列",
++        "Banded Rows" => "镶边行",
++        "Banded Columns" => "镶边列",
++        "Delete Columns" => "删除列",
++        "Delete Rows" => "删除行",
++        "Delete Table" => "删除表格",
++        "Insert\nBelow" => "在下方\n插入",
++        "Insert\nLeft" => "在左侧\n插入",
++        "Insert\nRight" => "在右侧\n插入",
++        "Change\nChart Type" => "更改\n图表类型",
++        "Edit\nData" => "编辑\n数据",
++        "Pause" => "暂停",
++        "Play" => "播放",
++        "Trim" => "剪辑",
++        "Volume" => "音量",
++        "Insert\nLayout" => "插入\n版式",
++        "Rename" => "重命名",
++        "Insert\nPlaceholder" => "插入\n占位符",
++        "Themes" => "主题",
++        "Close\nMaster View" => "关闭\n母版视图",
++        "Content" => "内容",
++        "Text" => "文本",
++        "Media" => "媒体",
++        "Preview" => "预览",
++        "Effect\nOptions" => "效果\n选项",
++        "Add\nAnimation" => "添加\n动画",
++        "Trigger" => "触发器",
++        "Animation\nPainter" => "动画\n刷",
++        "Start:" => "开始：",
++        "Duration:" => "持续时间：",
++        "Delay:" => "延迟：",
++        "On Mouse Click" => "单击鼠标时",
++        "After:" => "之后：",
++        "Use Timings" => "使用计时",
++        "Play Narrations" => "播放旁白",
++        "Show Media Controls" => "显示媒体控件",
++        "Start Automatically" => "自动开始",
++        "Play Across Slides" => "跨幻灯片播放",
++        "Loop until Stopped" => "循环播放，直到停止",
++        "Hide During Show" => "放映时隐藏",
++        "Rewind after Playing" => "播放后倒回",
++        "Play Full Screen" => "全屏播放",
++        "English (United States)" => "中文（中国）",
++        "Theme Colors" => "主题颜色",
++        "Standard Colors" => "标准颜色",
++        "More Colors… #" => "其他颜色… #",
++        "Pick" => "选择",
++        _ => s,
++    }
++}
++
++/// Translate an owned string when a direct egui widget needs an owned label.
++pub fn owned(s: String) -> String {
++    if !enabled() {
++        return s;
++    }
++    match s.as_str() {
++        "Show" => "显示".into(),
++        "Hide" => "隐藏".into(),
++        "Reopen" => "重新打开".into(),
++        "Resolve" => "解决".into(),
++        "Move Up" => "上移".into(),
++        "Move Down" => "下移".into(),
++        "Remove" => "移除".into(),
++        "Go to" => "转到".into(),
++        "Don't Save" => "不保存".into(),
++        "Create PDF Document" => "创建 PDF 文档".into(),
++        "Create Handouts" => "创建讲义".into(),
++        "Change File Type" => "更改文件类型".into(),
++        _ => s,
++    }
++}

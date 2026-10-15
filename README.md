@@ -17,12 +17,18 @@ MyAI PDF 使用 PdfCraft 作为套件内的 PDF 工作台。三个编辑器各�
 
 ## 构建
 
+`SourceLock.json` 固定四个编辑器和字体仓库的源码版本；`VendorPatches/` 保存 MyAI Office 的中文化、编辑修复及品牌修改。新机器先运行 `sh ./prepare-sources.sh`，会在本工程的同级 `ThirdParty/` 中准备对应源码，已有不一致的本地修改不会被覆盖。
+
 先在 `ThirdParty/wordcraft`、`ThirdParty/gridcraft`、`ThirdParty/deckcraft`、`ThirdParty/pdfcraft` 中分别完成 Release 构建，再运行：
 
 ```sh
 ./build-suite.sh
 ./package-dmg.sh
 ```
+
+编辑器以各自的 macOS 应用包内嵌在 `Contents/Helpers/`，通过系统的应用启动机制获得独立窗口及键盘/输入法焦点。主界面与 Dock 图标使用同一张蓝绿玻璃图标，支持悬停反馈和系统“减少动态效果”设置。
+
+`QA/verify-ppt.py` 通过实际 egui 指针、键盘和输入法事件验证占位框编辑与 PPTX 保存重开；`QA/verify-native-ppt.py` 在 macOS 简体拼音输入法下，通过系统键盘事件验证中文提交，只操作新开的测试窗口。构建产物和界面验收截图保存在 `Build/`。
 
 ## 自动升级与发版
 
@@ -35,7 +41,7 @@ MyAI PDF 使用 PdfCraft 作为套件内的 PDF 工作台。三个编辑器各�
 ./release.sh minor --notes "新增功能说明"
 ```
 
-首次发布或无法自动找到上一版本时，用 `--previous-app` 指定上一版 `.app`，即可生成增量包。`--publish` 会把代码推送到 `ddxmu/MyAI-Office`，并把 DMG、完整自动更新 ZIP 和增量 ZIP 上传到对应 GitHub Release；仓库需要公开，否则已安装应用无法免登录读取升级清单。
+首次发布或无法自动找到上一版本时，用 `--previous-app` 指定上一版 `.app`，即可生成增量包。`--publish` 会把代码推送到 `ddxmu/MyAI-Office`，先上传并公开 DMG、完整自动更新 ZIP 和增量 ZIP，再推送升级清单，避免客户端读到尚不可下载的更新；仓库需要公开，否则已安装应用无法免登录读取升级清单。
 
 构建脚本会用 `ThirdParty/craft-fonts` 的开放字体作为可选构建输入，以改善中文、日文等文档的显示与 PDF 嵌入；同时打包对应署名文件。没有使用或打包 LibreOffice。后续 AI 功能会在套件入口和各编辑器中逐步加入。
 

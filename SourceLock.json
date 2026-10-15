@@ -1,0 +1,7 @@
+{
+  "wordcraft": {"url": "https://github.com/storytold/wordcraft.git", "revision": "04f6f53b8a4d8140c7bb62f949b0a6099a473da1"},
+  "gridcraft": {"url": "https://github.com/storytold/gridcraft.git", "revision": "84acf6293b1dc1fc09837524e035d674eb4d6741"},
+  "deckcraft": {"url": "https://github.com/storytold/deckcraft.git", "revision": "457406a7a5b62425e915926c8ccb0984e61a198c"},
+  "pdfcraft": {"url": "https://github.com/storytold/pdfcraft.git", "revision": "c1a41cc5c7c2460fb60af880af69ee28a0c71bd5"},
+  "craft-fonts": {"url": "https://github.com/storytold/craft-fonts.git", "revision": "3d9ab3a132ed0eff457e424226a435a901da30d3"}
+}

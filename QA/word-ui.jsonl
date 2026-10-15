@@ -1,0 +1,19 @@
+{"empty":true,"width":1440,"height":900}
+{"method":"engine.execute","params":{"command":"ui.language","params":{"value":"zh-hans"}}}
+{"method":"engine.execute","params":{"command":"ui.theme","params":{"value":"light"}}}
+{"steps":8}
+{"shot":"/Users/dingjunjie/Desktop/XYZ Office/MyAI Office/Build/QA/word-ribbon.png"}
+{"method":"ui.click","params":{"x":267,"y":81}}
+{"steps":8}
+{"shot":"/Users/dingjunjie/Desktop/XYZ Office/MyAI Office/Build/QA/word-font-menu.png"}
+{"method":"ui.click","params":{"x":165,"y":116}}
+{"steps":5}
+{"method":"ui.text","params":{"text":"中文字体与字号验证：宋体、仿宋、黑体、微软雅黑。"}}
+{"steps":5}
+{"method":"ui.click","params":{"x":303,"y":81}}
+{"method":"ui.key","params":{"key":"A","cmd":true}}
+{"method":"ui.text","params":{"text":"18"}}
+{"method":"ui.key","params":{"key":"Enter"}}
+{"steps":5}
+{"method":"engine.execute","params":{"command":"format.state"}}
+{"shot":"/Users/dingjunjie/Desktop/XYZ Office/MyAI Office/Build/QA/word-chinese-text.png"}
