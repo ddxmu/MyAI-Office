@@ -10,6 +10,7 @@ RELEASE_OK=0
 PUBLISH=0
 PREVIOUS_APP=""
 NOTES="自动升级能力、增量更新包支持，以及升级失败时的安全回退处理。"
+RELEASE_PYTHON="${MYAI_RELEASE_PYTHON:-python3}"
 
 usage() {
     cat <<'EOF'
@@ -98,7 +99,11 @@ plutil -replace CFBundleShortVersionString -string "$TARGET_VERSION" "$INFO"
 plutil -replace CFBundleVersion -string "$BUILD_NUMBER" "$INFO"
 
 echo "构建 MyAI Office ${TARGET_VERSION}…"
-"$ROOT/build-suite.sh"
+if [ -d "$WORK_DIR/previous.app" ]; then
+    MYAI_OFFICE_PREVIOUS_APP="$WORK_DIR/previous.app" "$ROOT/build-suite.sh"
+else
+    "$ROOT/build-suite.sh"
+fi
 "$ROOT/package-dmg.sh"
 
 FULL_ZIP="$PROJECT_ROOT/MyAI-Office-${TARGET_VERSION}-arm64.zip"
@@ -112,9 +117,20 @@ printf '%s\n' "{\"format\":1,\"kind\":\"full\",\"baseVersion\":null,\"targetVers
 (cd "$FULL_METADATA" && /usr/bin/zip -q "$FULL_ZIP" metadata.json)
 
 DELTA_ZIP=""
+BINARY_ZIP=""
 BASE_VERSION=""
 if [ -d "$WORK_DIR/previous.app" ]; then
     BASE_VERSION="$(plutil -extract CFBundleShortVersionString raw -o - "$WORK_DIR/previous.app/Contents/Info.plist")"
+    "$RELEASE_PYTHON" -c 'import bsdiff4' 2>/dev/null || {
+        echo "发版需要 bsdiff4；请先用发版 Python 安装 Tools/requirements-release.txt。客户端无需安装。" >&2
+        exit 1
+    }
+    BINARY_ZIP="$PROJECT_ROOT/MyAI-Office-${BASE_VERSION}-to-${TARGET_VERSION}-arm64.bsdiff.zip"
+    "$RELEASE_PYTHON" "$ROOT/Tools/make-delta.py" \
+        --base "$WORK_DIR/previous.app" --target "$APP" --output "$BINARY_ZIP"
+    # Clients before 0.7.0 only understand complete-file deltas. Keep their bridge first.
+    NEED_LEGACY="$(printf '%s' "$BASE_VERSION" | awk -F. '{print ($1 == 0 && $2 < 7) ? 1 : 0}')"
+    if [ "$NEED_LEGACY" -eq 1 ]; then
     DELTA_STAGE="$WORK_DIR/delta"
     mkdir -p "$DELTA_STAGE/payload"
     : > "$DELTA_STAGE/deleted.txt"
@@ -144,6 +160,7 @@ if [ -d "$WORK_DIR/previous.app" ]; then
     DELTA_ZIP="$PROJECT_ROOT/MyAI-Office-${BASE_VERSION}-to-${TARGET_VERSION}-arm64.delta.zip"
     rm -f "$DELTA_ZIP"
     ditto -c -k --sequesterRsrc "$DELTA_STAGE" "$DELTA_ZIP"
+    fi
 fi
 
 sha256() { shasum -a 256 "$1" | awk '{print $1}'; }
@@ -157,8 +174,15 @@ if [ -n "$DELTA_ZIP" ]; then
         --arg base "$BASE_VERSION" \
         --arg url "$RELEASE_BASE/$(basename "$DELTA_ZIP")" \
         --arg sha "$DELTA_SHA256" \
-        '{baseVersion:$base,url:$url,sha256:$sha}')"
+        --argjson size "$(stat -f %z "$DELTA_ZIP")" \
+        '{baseVersion:$base,url:$url,sha256:$sha,size:$size,format:"file-delta-v1"}')"
     DELTA_JSON="[$DELTA_OBJECT]"
+fi
+if [ -n "$BINARY_ZIP" ]; then
+    DELTA_JSON="$(jq -cn --argjson previous "$DELTA_JSON" \
+        --arg base "$BASE_VERSION" --arg url "$RELEASE_BASE/$(basename "$BINARY_ZIP")" \
+        --arg sha "$(sha256 "$BINARY_ZIP")" --argjson size "$(stat -f %z "$BINARY_ZIP")" \
+        '$previous + [{baseVersion:$base,url:$url,sha256:$sha,size:$size,format:"bsdiff-v2"}]')"
 fi
 
 mkdir -p "$ROOT/updates/releases"
@@ -170,15 +194,20 @@ jq -n \
     --arg fullSha "$FULL_SHA256" \
     --arg dmgUrl "$RELEASE_BASE/$(basename "$DMG")" \
     --arg dmgSha "$DMG_SHA256" \
+    --argjson fullSize "$(stat -f %z "$FULL_ZIP")" \
+    --argjson dmgSize "$(stat -f %z "$DMG")" \
     --argjson deltas "$DELTA_JSON" \
-    '{app:$app,latestVersion:$version,releaseNotes:$notes,full:{url:$fullUrl,sha256:$fullSha,baseVersion:null},dmg:{url:$dmgUrl,sha256:$dmgSha},deltas:$deltas}' \
+    '{app:$app,latestVersion:$version,releaseNotes:$notes,full:{url:$fullUrl,sha256:$fullSha,size:$fullSize,baseVersion:null},dmg:{url:$dmgUrl,sha256:$dmgSha,size:$dmgSize},deltas:$deltas}' \
     > "$ROOT/updates/latest.json"
 cp "$ROOT/updates/latest.json" "$ROOT/updates/releases/$TARGET_VERSION.json"
 
 echo "完整自动更新包：$FULL_ZIP"
+if [ -n "$BINARY_ZIP" ]; then
+    echo "二进制差分包：$BINARY_ZIP"
+fi
 if [ -n "$DELTA_ZIP" ]; then
     echo "增量更新包：$DELTA_ZIP"
-else
+elif [ -z "$BINARY_ZIP" ]; then
     echo "未生成增量包：没有找到上一版本应用，请使用 --previous-app PATH。"
 fi
 echo "升级清单：$ROOT/updates/latest.json"
@@ -194,17 +223,15 @@ if [ "$PUBLISH" -eq 1 ]; then
         echo "$REPO 是私有仓库，应用无法免登录读取升级清单；请改为公开仓库或提供专用更新服务。" >&2
         exit 1
     }
-    git add .gitignore Info.plist MyAIOffice-icon.png README.md Sources THIRD-PARTY-NOTICES.md Assets QA SourceLock.json VendorPatches prepare-sources.sh build-suite.sh package-dmg.sh release.sh
+    git add .gitignore Info.plist MyAIOffice-icon.png README.md Sources Tools THIRD-PARTY-NOTICES.md Assets QA SourceLock.json VendorPatches prepare-sources.sh build-suite.sh package-dmg.sh release.sh
     git commit -m "Release MyAI Office $TARGET_VERSION"
     git push origin main
     SOURCE_REVISION="$(git rev-parse HEAD)"
-    if [ -n "$DELTA_ZIP" ]; then
-        gh release create "v$TARGET_VERSION" "$DMG" "$FULL_ZIP" "$DELTA_ZIP" \
-            --draft --target "$SOURCE_REVISION" --title "MyAI Office $TARGET_VERSION" --notes "$NOTES"
-    else
-        gh release create "v$TARGET_VERSION" "$DMG" "$FULL_ZIP" \
-            --draft --target "$SOURCE_REVISION" --title "MyAI Office $TARGET_VERSION" --notes "$NOTES"
-    fi
+    set -- "$DMG" "$FULL_ZIP"
+    if [ -n "$DELTA_ZIP" ]; then set -- "$@" "$DELTA_ZIP"; fi
+    if [ -n "$BINARY_ZIP" ]; then set -- "$@" "$BINARY_ZIP"; fi
+    gh release create "v$TARGET_VERSION" "$@" \
+        --draft --target "$SOURCE_REVISION" --title "MyAI Office $TARGET_VERSION" --notes "$NOTES"
     gh release edit "v$TARGET_VERSION" --draft=false --latest
     # Publish the update feed only after every downloadable asset is available.
     git add updates

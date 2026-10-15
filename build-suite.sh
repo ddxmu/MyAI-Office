@@ -16,6 +16,14 @@ GRID="$OFFICE_ROOT/ThirdParty/gridcraft"
 DECK="$OFFICE_ROOT/ThirdParty/deckcraft"
 PDF="$OFFICE_ROOT/ThirdParty/pdfcraft"
 FONTS="$OFFICE_ROOT/ThirdParty/craft-fonts"
+MODULE_BASE="${MYAI_OFFICE_PREVIOUS_APP:-$APP}"
+MODULE_CACHE="$(mktemp -d "${TMPDIR:-/tmp}/myai-office-modules.XXXXXX")"
+trap 'rm -rf "$MODULE_CACHE"' EXIT
+for label in "MyAI Word" "MyAI Excel" "MyAI Power Point" "MyAI PDF"; do
+    if [ -d "$MODULE_BASE/Contents/Helpers/$label.app" ]; then
+        ditto --noextattr --norsrc "$MODULE_BASE/Contents/Helpers/$label.app" "$MODULE_CACHE/$label.app"
+    fi
+done
 
 require_executable() {
     path="$1"
@@ -33,6 +41,24 @@ install_helper() {
     label="$3"
     require_executable "$source" "$label"
     module_app="$HELPERS/$label.app"
+    cached_app="$MODULE_CACHE/$label.app"
+    cached_binary="$cached_app/Contents/MacOS/$name"
+    if [ -f "$cached_binary" ]; then
+        # A launcher-only release must not re-version/sign unchanged 100 MB editors.
+        cp "$source" "$MODULE_CACHE/source-binary"
+        cp "$cached_binary" "$MODULE_CACHE/cached-binary"
+        codesign --remove-signature "$MODULE_CACHE/source-binary" 2>/dev/null || true
+        codesign --remove-signature "$MODULE_CACHE/cached-binary" 2>/dev/null || true
+        codesign --force --sign - --identifier com.myai.office.engine-comparison "$MODULE_CACHE/source-binary" 2>/dev/null
+        codesign --force --sign - --identifier com.myai.office.engine-comparison "$MODULE_CACHE/cached-binary" 2>/dev/null
+        if cmp -s "$MODULE_CACHE/source-binary" "$MODULE_CACHE/cached-binary" \
+            && cmp -s "$RESOURCES/MyAIOffice.icns" "$cached_app/Contents/Resources/MyAIOffice.icns" \
+            && codesign --verify --deep --strict "$cached_app" 2>/dev/null; then
+            ditto --noextattr --norsrc "$cached_app" "$module_app"
+            echo "复用未改动模块：$label"
+            return
+        fi
+    fi
     mkdir -p "$module_app/Contents/MacOS" "$module_app/Contents/Resources"
     cp "$source" "$module_app/Contents/MacOS/$name"
     chmod 755 "$module_app/Contents/MacOS/$name"
@@ -62,7 +88,9 @@ swiftc -O -target arm64-apple-macos13.0 \
     -framework UniformTypeIdentifiers \
     -o "$MACOS/MyAI Office" \
     "$ROOT/Sources/MyAIOffice.swift" \
-    "$ROOT/Sources/MyAIOfficeUpdate.swift"
+    "$ROOT/Sources/MyAIOfficeUpdate.swift" \
+    "$ROOT/Sources/MyAIUpdatePackage.swift" \
+    "$ROOT/Sources/MyAIUpdateReceipt.swift"
 
 cp "$ROOT/Info.plist" "$APP/Contents/Info.plist"
 
@@ -82,8 +110,11 @@ rm -rf "$ICONSET"
 
 swiftc -O -target arm64-apple-macos13.0 \
     -framework Cocoa \
+    -framework CryptoKit \
     -o "$HELPERS/myai-office-updater" \
-    "$ROOT/Sources/MyAIOfficeUpdater.swift"
+    "$ROOT/Sources/MyAIOfficeUpdater.swift" \
+    "$ROOT/Sources/MyAIUpdatePackage.swift" \
+    "$ROOT/Sources/MyAIUpdateReceipt.swift"
 chmod 755 "$HELPERS/myai-office-updater"
 
 install_helper "$WORD/target/release/wordcraft" "myai-writer" "MyAI Word"

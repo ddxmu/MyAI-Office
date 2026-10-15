@@ -359,17 +359,18 @@ final class FileAssociationManager {
 
 final class SettingsWindowController: NSWindowController {
     private let defaultCheck = NSButton(checkboxWithTitle: "将 MyAI Office 设为默认打开方式", target: nil, action: nil)
+    private let updateCheck = NSButton(checkboxWithTitle: "自动检查更新（启动时及每 4 小时）", target: nil, action: nil)
     private let statusLabel = NSTextField(labelWithString: "")
     private let manager = FileAssociationManager.shared
 
     init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 468),
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 510),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
         )
-        window.title = "文件关联设置"
+        window.title = "MyAI Office 设置"
         window.center()
         window.isRestorable = false
         window.restorationClass = nil
@@ -377,6 +378,8 @@ final class SettingsWindowController: NSWindowController {
         super.init(window: window)
         defaultCheck.target = self
         defaultCheck.action = #selector(toggleDefault)
+        updateCheck.target = self
+        updateCheck.action = #selector(toggleAutomaticUpdates)
         buildUI()
         refresh()
     }
@@ -450,6 +453,10 @@ final class SettingsWindowController: NSWindowController {
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         root.addSubview(statusLabel)
 
+        updateCheck.font = NSFont.systemFont(ofSize: 13)
+        updateCheck.translatesAutoresizingMaskIntoConstraints = false
+        root.addSubview(updateCheck)
+
         let note = NSTextField(labelWithString: "删除应用时，macOS 会移除 MyAI Office 的文件关联并回落到其它可用应用。若要精确恢复安装前的选择，请在删除前点击“恢复之前方式”。")
         note.font = NSFont.systemFont(ofSize: 12)
         note.textColor = NSColor.tertiaryLabelColor
@@ -474,7 +481,9 @@ final class SettingsWindowController: NSWindowController {
             statusLabel.topAnchor.constraint(equalTo: panel.bottomAnchor, constant: 14),
             note.leadingAnchor.constraint(equalTo: root.leadingAnchor),
             note.trailingAnchor.constraint(equalTo: root.trailingAnchor),
-            note.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 14),
+            updateCheck.leadingAnchor.constraint(equalTo: root.leadingAnchor),
+            updateCheck.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 14),
+            note.topAnchor.constraint(equalTo: updateCheck.bottomAnchor, constant: 14),
             note.bottomAnchor.constraint(lessThanOrEqualTo: root.bottomAnchor)
         ])
     }
@@ -485,6 +494,10 @@ final class SettingsWindowController: NSWindowController {
         } else {
             restoreDefaults()
         }
+    }
+
+    @objc private func toggleAutomaticUpdates() {
+        MyAIOfficeUpdateManager.shared.automaticChecks = updateCheck.state == .on
     }
 
     @objc private func applyDefaults() {
@@ -503,6 +516,7 @@ final class SettingsWindowController: NSWindowController {
 
     private func refresh() {
         defaultCheck.state = manager.areAllDefaultsMyAI ? .on : .off
+        updateCheck.state = MyAIOfficeUpdateManager.shared.automaticChecks ? .on : .off
         if statusLabel.stringValue.isEmpty { statusLabel.stringValue = manager.statusText }
     }
 }
@@ -511,7 +525,7 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
     private let statusLabel = NSTextField(labelWithString: "请选择一个模块，或直接打开已有文件")
     private let versionLabel = NSTextField(labelWithString: "MyAI Office \(MyAIOfficeUpdateManager.currentVersion)")
     private let updateDot = NSView()
-    private let upgradeButton = NSButton(title: "升级", target: nil, action: nil)
+    private let upgradeButton = NSButton(title: "检查更新", target: nil, action: nil)
     private var settingsController: SettingsWindowController?
 
     init() {
@@ -696,6 +710,8 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         footer.alignment = .centerY
         statusLabel.font = NSFont.systemFont(ofSize: 12)
         statusLabel.textColor = NSColor.secondaryLabelColor
+        statusLabel.lineBreakMode = .byTruncatingTail
+        statusLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         footer.addArrangedSubview(statusLabel)
         let footerSpacer = NSView()
         footerSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -716,13 +732,13 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         upgradeButton.target = self
         upgradeButton.action = #selector(startUpdate)
         upgradeButton.bezelStyle = .rounded
-        upgradeButton.controlSize = .small
+        upgradeButton.controlSize = .regular
         upgradeButton.contentTintColor = NSColor(calibratedRed: 0.03, green: 0.42, blue: 0.45, alpha: 1)
-        upgradeButton.isHidden = true
-        upgradeButton.setAccessibilityLabel("升级 MyAI Office")
-        upgradeButton.toolTip = "升级 MyAI Office"
+        upgradeButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 92).isActive = true
+        upgradeButton.setAccessibilityIdentifier("myai-check-update")
+        upgradeButton.toolTip = "检查 MyAI Office 更新"
 
-        let versionCluster = NSStackView(views: [versionLabel, updateDot, upgradeButton])
+        let versionCluster = NSStackView(views: [upgradeButton, updateDot, versionLabel])
         versionCluster.orientation = .horizontal
         versionCluster.alignment = .centerY
         versionCluster.spacing = 7
@@ -746,39 +762,54 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
     }
 
     @objc private func startUpdate() {
-        MyAIOfficeUpdateManager.shared.startPendingUpdate()
+        MyAIOfficeUpdateManager.shared.startPendingUpdate(presenting: window)
     }
 
     private func renderUpdateState(_ state: MyAIOfficeUpdateState) {
+        upgradeButton.isHidden = false
+        upgradeButton.isEnabled = true
+        updateDot.isHidden = true
         switch state {
         case .available(let version, let notes):
             updateDot.isHidden = false
             upgradeButton.isHidden = false
             upgradeButton.isEnabled = true
-            upgradeButton.title = "升级"
+            upgradeButton.title = "立即更新"
             upgradeButton.toolTip = notes.isEmpty ? "升级到 MyAI Office \(version)" : "升级到 MyAI Office \(version)：\(notes)"
-        case .downloading(let version):
+            statusLabel.stringValue = "发现新版本 \(version)，点击右侧按钮更新"
+        case .downloading(let version, let progress, let detail):
             updateDot.isHidden = false
             upgradeButton.isHidden = false
             upgradeButton.isEnabled = false
-            upgradeButton.title = "下载中…"
+            upgradeButton.title = progress.map { "下载 \(Int($0 * 100))%" } ?? "下载中…"
             upgradeButton.toolTip = "正在下载 MyAI Office \(version)"
+            statusLabel.stringValue = detail
         case .installing(let version):
             updateDot.isHidden = false
             upgradeButton.isHidden = false
             upgradeButton.isEnabled = false
             upgradeButton.title = "安装中…"
             upgradeButton.toolTip = "正在安装 MyAI Office \(version)，完成后自动重启"
+            statusLabel.stringValue = "下载完成，正在校验、安装；完成后自动重启"
         case .failed(let message):
-            updateDot.isHidden = false
+            updateDot.isHidden = true
             upgradeButton.isHidden = false
             upgradeButton.isEnabled = true
-            upgradeButton.title = "重试"
+            upgradeButton.title = "重试更新"
             upgradeButton.toolTip = message
-        case .idle, .checking:
-            updateDot.isHidden = true
-            upgradeButton.isHidden = true
+            statusLabel.stringValue = message
+        case .checking:
             upgradeButton.isEnabled = false
+            upgradeButton.title = "检查中…"
+            statusLabel.stringValue = "正在检查新版本…"
+        case .latest:
+            upgradeButton.title = "检查更新"
+            statusLabel.stringValue = "当前已是最新版本"
+        case .updated(let version):
+            upgradeButton.title = "检查更新"
+            statusLabel.stringValue = "更新完成，当前版本 \(version)"
+        case .idle:
+            upgradeButton.title = "检查更新"
         }
     }
 
@@ -909,12 +940,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller?.showWindow(nil)
         controller?.window?.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: true)
+        MyAIOfficeUpdateManager.shared.finishPendingUpdate(presenting: mainWindow)
         if ProcessInfo.processInfo.environment["MYAI_OFFICE_QA"] == "1" { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             FileAssociationManager.shared.configureOnFirstLaunch()
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            MyAIOfficeUpdateManager.shared.checkForUpdates(presenting: self.mainWindow)
+            MyAIOfficeUpdateManager.shared.startAutomaticChecks(presenting: self.mainWindow)
         }
     }
 
