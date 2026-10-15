@@ -1,21 +1,32 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.6.1",
-  "releaseNotes": "修复 DOC 表格错行、列宽、边框、底色、页眉横线和中文字体；补全 XLS 字体、底色、边框、对齐及主题色导入。老格式请另存为 DOCX/XLSX，图表等高级对象仍有兼容限制。",
+  "latestVersion": "0.7.0",
+  "releaseNotes": "新增常驻检查更新、启动及每4小时自动检查；二进制差分小包、下载百分比、取消重试、安装校验与自动重启完成提示。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.1/MyAI-Office-0.6.1-arm64.zip",
-    "sha256": "952f459ee0c769374bd83dd2b12d97a5092baddcbe598063a6902e1a42714d28",
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.0/MyAI-Office-0.7.0-arm64.zip",
+    "sha256": "af7286a61c15e5b5736b1c0912ebfabac775a5a2841876ac2240ff4039ef66ba",
+    "size": 215689833,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.1/MyAI-Office-0.6.1-arm64.dmg",
-    "sha256": "bf85ada9ec2122001515a5f7400a6e83c8a06b6086b978e014c2160c7e0f5aa7"
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.0/MyAI-Office-0.7.0-arm64.dmg",
+    "sha256": "05b046c73fa14d304ca53121df579523609fcc53535128ad716f29d45f243e2f",
+    "size": 215444197
   },
   "deltas": [
     {
-      "baseVersion": "0.6.0",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.6.1/MyAI-Office-0.6.0-to-0.6.1-arm64.delta.zip",
-      "sha256": "c434038c4f3db46580244783b551b3ffd689346a0442ca7e6d030812fcb31bd9"
+      "baseVersion": "0.6.1",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.0/MyAI-Office-0.6.1-to-0.7.0-arm64.delta.zip",
+      "sha256": "bbd0663fbea2bf2eeea0bbc317fc51e5da07fdf1f5f2f471bdc4c0bb8d01a024",
+      "size": 217998,
+      "format": "file-delta-v1"
+    },
+    {
+      "baseVersion": "0.6.1",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.0/MyAI-Office-0.6.1-to-0.7.0-arm64.bsdiff.zip",
+      "sha256": "ebc089ff61a5f6e622b031ed2e5ddbb6bb0a694db9c47e4efbf03227a1396ba1",
+      "size": 159804,
+      "format": "bsdiff-v2"
     }
   ]
 }
