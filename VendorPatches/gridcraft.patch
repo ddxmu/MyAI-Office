@@ -44,6 +44,35 @@ index 678495f..fff8dbb 100644
    <a href="https://getartcraft.com/">getartcraft.com</a> ·
    <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
    <a href="https://getartcraft.com/apps/gridcraft">GridCraft</a>
+diff --git a/ROADMAP.md b/ROADMAP.md
+index 070552d..8a2f430 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -2,7 +2,7 @@
+ 
+ **Stage: alpha** · next: beta, ~25 points of "ready for real work" and ~160–240 h away
+ 
+-> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-12 · **Change:** minor (rows auto-fit oversized fonts on open and whole-row/column formatting) · **Target:** Microsoft Excel (Microsoft 365)
++> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.6.1 legacy import); previous: minor (rows auto-fit oversized fonts on open and whole-row/column formatting) · **Target:** Microsoft Excel (Microsoft 365)
+ 
+ GridCraft aims at full Microsoft Excel parity, and at being better in places: faster, open (XLSX
+ is the native format), fully scriptable by agents (MCP, control channel, CLI), and on the web.
+@@ -132,6 +132,7 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
+ 
+ | Date | What landed |
+ |---|---|
++| 2026-10-16 | MyAI Office 0.6.1: legacy XLS formatting import and XLSX round-trip regressions; private workbook remains outside source/release. |
+ | 2026-10-12 | Rows auto-fit oversized fonts: opening a file and whole-row/column formatting grow non-custom rows to their tallest font (#833) |
+ | 2026-10-12 | Number formats: parsing a format code is linear in its length (long runs of `[`, `,` or `/` no longer take quadratic time), and an unclosed `[` is a literal when splitting sections as well as when tokenizing (#810) |
+ | 2026-10-12 | Number formats: a fraction denominator with 65,536 zeros no longer crashes; format codes are capped at 255 characters like Excel (longer codes display as General, `TEXT` gives `#VALUE!`) (#807) |
+@@ -193,6 +194,7 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
+ 
+ | Date | Change | Summary |
+ |---|---|---|
++| 2026-10-16 | patch | MyAI Office 0.6.1: legacy XLS formatting import and XLSX round-trip regressions; private workbook remains outside source/release. |
+ | 2026-10-12 | minor | Rows auto-fit oversized fonts on open and whole-row/column formatting (#833); progress log row |
+ | 2026-10-12 | minor | Progress log: multi-area row/column delete (#758) |
+ | 2026-10-12 | trivial | Progress log: XLSX chart sheets kept on save (#727) |
 diff --git a/apps/gridcraft/src/main.rs b/apps/gridcraft/src/main.rs
 index 7c0eb04..5230651 100644
 --- a/apps/gridcraft/src/main.rs
@@ -260,10 +289,20 @@ index fb9236c..ee707bf 100644
          "(unnamed)" => "(sem nome)",
          "— VBA project (preserved, not run)" => "— Projeto VBA (preservado, não executado)",
 diff --git a/crates/ui-egui/src/i18n/zh.rs b/crates/ui-egui/src/i18n/zh.rs
-index 0017592..4c5dafa 100644
+index 0017592..e466918 100644
 --- a/crates/ui-egui/src/i18n/zh.rs
 +++ b/crates/ui-egui/src/i18n/zh.rs
-@@ -402,6 +402,63 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+@@ -2,6 +2,9 @@
+ 
+ pub(super) fn translate(text: &str) -> Option<&'static str> {
+     Some(match text {
++        "Opened in .xls compatibility mode with fonts, fills, borders and alignment. Save as .xlsx. Charts, pictures and comments are not imported." => {
++            "已按兼容模式打开 .xls，已读取字体、底色、边框和对齐。请另存为 .xlsx；图表、图片和批注暂未导入。"
++        }
+         "Paste" => "粘贴",
+         "Paste Values" => "粘贴值",
+         "Paste Formulas" => "粘贴公式",
+@@ -402,6 +405,63 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "Workbook calculation" => "工作簿计算",
          "Enable iterative calculation" => "启用迭代计算",
          "Calculation settings are saved with the workbook." => "计算设置随工作簿一起保存。",
@@ -328,7 +367,7 @@ index 0017592..4c5dafa 100644
      })
  }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index f96cdac..70bee50 100644
+index f96cdac..95a7e56 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -798,6 +798,14 @@ impl SheetApp {
@@ -337,7 +376,7 @@ index f96cdac..70bee50 100644
          }
 +        if msgs.iter().any(|m| m.contains("Excel 97-2003") || m.contains(".xls")) {
 +            self.notice = Some(Notice {
-+                text: "Opened in compatibility mode. Legacy .xls data was imported; save as .xlsx. Some legacy formatting, pictures, charts and comments may not carry over.".into(),
++                text: self.ui.language.tr("Opened in .xls compatibility mode with fonts, fills, borders and alignment. Save as .xlsx. Charts, pictures and comments are not imported.").into(),
 +                kind: NoticeKind::Info,
 +                action: None,
 +            });
@@ -362,6 +401,371 @@ index 9c6d89e..0f6d426 100644
  ];
  
  fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+diff --git a/crates/xlsx/src/tests/xls_tests.rs b/crates/xlsx/src/tests/xls_tests.rs
+index 91e63c1..cc845e0 100644
+--- a/crates/xlsx/src/tests/xls_tests.rs
++++ b/crates/xlsx/src/tests/xls_tests.rs
+@@ -293,6 +293,157 @@ fn ftext(wb: &gridcraft_model::Workbook, a1: &str) -> Option<String> {
+     wb.sheets[0].cell(CellRef::parse(a1).unwrap()).and_then(|c| c.formula.as_ref()).map(|f| f.text.clone())
+ }
+ 
++/// Original BIFF8 fixture: Chinese fonts, a custom palette, coloured headers, merged labels,
++/// and blank cells whose borders must survive. No real personnel data is included.
++fn styled_legacy_workbook(extended: bool) -> Vec<u8> {
++    let font = |name: &str, height: u16, weight: u16, color: u16| {
++        let text: Vec<u16> = name.encode_utf16().collect();
++        rec(0x0031, &cat(&[&u16s(&[height, 0, color, weight, 0]), &[0, 0, 134, 0, text.len() as u8, 1], &u16s(&text)]))
++    };
++    let xf = |font: u16, fill: Option<u16>, center: bool| {
++        let mut data = u16s(&[font, 0, 1]);
++        data.extend_from_slice(&[if center { 0x1A } else { 0x20 }, 0, 0, 0xFC]);
++        let sides = 0x1111u32 | (64 << 16) | (64 << 23);
++        let other = 64u32 | (64 << 7) | if fill.is_some() { 1 << 26 } else { 0 };
++        data.extend_from_slice(&sides.to_le_bytes());
++        data.extend_from_slice(&other.to_le_bytes());
++        data.extend_from_slice(&(fill.unwrap_or(64) | (65 << 7)).to_le_bytes());
++        rec(0x00E0, &data)
++    };
++    let label = |row, col, style, text: &str| {
++        let units: Vec<u16> = text.encode_utf16().collect();
++        rec(0x0204, &cat(&[&cell(row, col, style), &(units.len() as u16).to_le_bytes(), &[1], &u16s(&units)]))
++    };
++    let mut palette = 56u16.to_le_bytes().to_vec();
++    for i in 0..56 {
++        palette.extend_from_slice(match i {
++            0 => &[255, 0, 0, 0],
++            1 => &[255, 173, 126, 0],
++            2 => &[0, 126, 168, 0],
++            _ => &[0, 0, 0, 0],
++        });
++    }
++    let extensions = if extended {
++        let color = |kind: u16, tint: i16, value: u32| cat(&[&kind.to_le_bytes(), &tint.to_le_bytes(), &value.to_le_bytes(), &[0; 8]]);
++        let ext = |xf: u16, props: &[(u16, Vec<u8>)]| {
++            let mut data = cat(&[&[0x7D, 8], &[0; 12], &xf.to_le_bytes(), &[0, 0], &(props.len() as u16).to_le_bytes()]);
++            for (kind, value) in props {
++                data.extend(cat(&[&kind.to_le_bytes(), &((value.len() + 4) as u16).to_le_bytes(), value]));
++            }
++            rec(0x087D, &data)
++        };
++        let theme = super::make_zip(&[(
++            "theme/theme/theme1.xml",
++            br#"<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Original"><a:themeElements><a:clrScheme name="Original"><a:accent1><a:srgbClr val="5B9BD5"/></a:accent1><a:accent2><a:srgbClr val="ED7D31"/></a:accent2></a:clrScheme></a:themeElements></a:theme>"#,
++        )]);
++        cat(&[
++            &ext(1, &[(4, color(3, 13106, 5)), (8, color(2, 0, 0xFF563412))]),
++            &ext(3, &[(4, color(3, -8191, 4))]),
++            &ext(2, &[(13, color(2, 0, 0xFF0000FF))]),
++            &ext(5, &[(4, color(3, 0, 0))]),
++            &rec(0x0896, &cat(&[&[0x96, 8], &[0; 14], &theme])),
++        ])
++    } else {
++        Vec::new()
++    };
++    let globals = |pos: u32| {
++        cat(&[
++            &bof(0x0005),
++            &font("宋体", 210, 400, 0x7FFF),
++            &font("宋体", 210, 400, 8),
++            &font("unused-2", 220, 400, 0x7FFF),
++            &font("unused-3", 220, 400, 0x7FFF),
++            // FontIndex 4 is reserved; the fifth Font record is referenced as index 5.
++            &font("黑体", 280, 700, 0x7FFF),
++            &rec(0x0092, &palette),
++            &xf(0, None, false),
++            &xf(5, Some(9), true),
++            &xf(1, None, false),
++            &xf(0, Some(10), true),
++            &xf(0, None, true),
++            &xf(0, Some(9), false),
++            &extensions,
++            &rec(0x0085, &cat(&[&pos.to_le_bytes(), &[0, 0, 6, 0], b"Roster"])),
++            &eof(),
++        ])
++    };
++    let mut sheet = cat(&[
++        &bof(0x0010),
++        &label(1, 1, 1, "部门/职位"),
++        &label(1, 2, 1, "姓名"),
++        &rec(0x0201, &cell(1, 0, 3)),
++        &label(2, 0, 4, "企业人员"),
++        &label(2, 1, 0, "测试岗位"),
++        &label(2, 2, 0, "测试人员"),
++        &label(13, 1, 2, "质量专员"),
++        &rec(0x00E5, &u16s(&[1, 2, 12, 0, 0])),
++        &rec(0x00BE, &u16s(&[14, 1, 0, 5, 2])),
++        &rec(0x007D, &u16s(&[1, 1, 60 * 256, 0, 0, 0])),
++        &rec(0x0208, &cat(&[&u16s(&[1, 0, 3, 760, 0, 0]), &0x40u32.to_le_bytes()])),
++    ]);
++    sheet.extend_from_slice(&eof());
++    let offset = globals(0).len() as u32;
++    compound("Workbook", &cat(&[&globals(offset), &sheet]))
++}
++
++#[test]
++fn xls_preserves_chinese_fonts_fills_borders_alignment_and_styled_blanks() {
++    use gridcraft_model::{BorderStyle, Color, HAlign, PatternType, VAlign};
++    let bytes = styled_legacy_workbook(false);
++    // Optional synthetic fixture export for the offscreen UI acceptance check.
++    if let Some(path) = std::env::var_os("GRIDCRAFT_XLS_QA_PATH") {
++        std::fs::write(path, &bytes).unwrap();
++    }
++    let (wb, _) = read_xls(&bytes).unwrap();
++    let check = |wb: &gridcraft_model::Workbook| {
++        let sheet = &wb.sheets[0];
++        let style = |a1: &str| wb.styles.get(sheet.style_id(CellRef::parse(a1).unwrap()));
++        let header = style("B2");
++        assert_eq!(header.font.name, "黑体");
++        assert_eq!(header.font.size, 14.0);
++        assert!(header.font.bold);
++        assert_eq!(header.fill.pattern, PatternType::Solid);
++        assert_eq!(header.fill.fg, Color::Rgb(0xFFAD7E));
++        assert_eq!(header.align.h, HAlign::Center);
++        assert_eq!(header.align.v, VAlign::Center);
++        assert!(header.align.wrap);
++        assert_eq!(header.borders.bottom.style, BorderStyle::Thin);
++        assert_eq!(header.borders.bottom.color, Color::Rgb(0));
++        assert_eq!(style("A2").fill.fg, Color::Rgb(0x007EA8));
++        assert_eq!(style("B14").font.name, "宋体");
++        assert_eq!(style("B14").font.size, 10.5);
++        assert_eq!(style("B14").font.color, Color::Rgb(0xFF0000));
++        assert_eq!(style("B15").borders.left.style, BorderStyle::Thin);
++        assert!(sheet.cell(CellRef::parse("B15").unwrap()).is_some(), "styled empty cells must be stored");
++        assert_eq!(style("A3").align.v, VAlign::Center);
++        assert_eq!(sheet.merges, [RangeRef::parse("A3:A13").unwrap()]);
++        assert_eq!(v(wb, 0, "B3"), Value::from("测试岗位"));
++        assert_eq!(sheet.rows.get(&1).unwrap().size, Some(crate::tables::pt_to_px(38.0)));
++    };
++    check(&wb);
++    let (reopened, _) = read_xlsx(&write_xlsx(&wb).unwrap()).unwrap();
++    check(&reopened);
++}
++
++#[test]
++fn xls_preserves_xf_extensions_and_original_theme_after_xlsx_save() {
++    use gridcraft_model::Color;
++    let (wb, _) = read_xls(&styled_legacy_workbook(true)).unwrap();
++    let check = |wb: &gridcraft_model::Workbook| {
++        let style = |a1: &str| wb.styles.get(wb.sheets[0].style_id(CellRef::parse(a1).unwrap()));
++        assert_eq!(wb.theme.name, "Original");
++        assert_eq!(style("C15").fill.fg, Color::Theme(0, 0));
++        assert_eq!(style("C15").fill.fg.resolve(&wb.theme), Some([255, 255, 255]));
++        assert_eq!(wb.theme.colors[4], 0x5B9BD5);
++        assert_eq!(style("A2").fill.fg, Color::Theme(4, -250));
++        assert_eq!(style("B2").fill.fg, Color::Theme(5, 400));
++        assert_eq!(style("B2").borders.bottom.color, Color::Rgb(0x123456));
++        assert_eq!(style("B14").font.color, Color::Rgb(0xFF0000));
++    };
++    check(&wb);
++    check(&read_xlsx(&write_xlsx(&wb).unwrap()).unwrap().0);
++}
++
+ #[test]
+ fn reads_values_formulas_formats_and_layout() {
+     for big in [false, true] {
+diff --git a/crates/xlsx/src/xls/mod.rs b/crates/xlsx/src/xls/mod.rs
+index dde8641..951c158 100644
+--- a/crates/xlsx/src/xls/mod.rs
++++ b/crates/xlsx/src/xls/mod.rs
+@@ -4,11 +4,12 @@
+ //!
+ //! Read: worksheets, shared strings, cell values, formulas (text and cached results, including
+ //! shared and array formulas), number formats, the 1904 date system, merged cells, column
+-//! widths, row heights, defined names, print areas, print titles and the calculation settings
+-//! (mode, iteration, precision as displayed). Everything else (fonts, fills, borders, charts,
++//! widths, row heights, fonts, fills, borders, alignment, defined names, print areas, print titles and the calculation settings
++//! (mode, iteration, precision as displayed). Everything else (charts,
+ //! pictures, comments, conditional formats, validation, macros) is skipped with a warning.
+ //! Encrypted workbooks and pre-BIFF8 versions are refused.
+ 
++mod formatting;
+ mod formula;
+ mod ftab;
+ mod records;
+@@ -17,11 +18,12 @@ use std::collections::HashMap;
+ use std::sync::Arc;
+ 
+ use gridcraft_core::{CellRef, DateSystem, MAX_COLS, MAX_ROWS, RangeRef, Value};
+-use gridcraft_model::{CalcMode, CalcSettings, Cell, DefinedName, Formula, LineInfo, NumFmt, Sheet, Style, StyleId, Visibility, Workbook};
++use gridcraft_model::{CalcMode, CalcSettings, Cell, DefinedName, Formula, LineInfo, Sheet, Style, StyleId, StyleTable, Visibility, Workbook};
+ 
+ use crate::cfb::Compound;
+-use crate::tables::{builtin_format, col_width_to_px, pt_to_px};
++use crate::tables::{INDEXED, builtin_format, col_width_to_px, pt_to_px};
+ use crate::{IoError, ReadReport};
++use formatting::{FontRecord, Xf, XfExt};
+ use formula::{Links, Mode, SupBook, Unsupported, Xti, cell_error, decode};
+ use records::{Cursor, Record, Records};
+ 
+@@ -120,7 +122,11 @@ struct Globals {
+     sheets: Vec<BoundSheet>,
+     date1904: bool,
+     formats: HashMap<u16, String>,
+-    xf_formats: Vec<u16>,
++    xfs: Vec<Xf>,
++    xf_exts: HashMap<usize, XfExt>,
++    theme: Option<gridcraft_model::Theme>,
++    fonts: Vec<FontRecord>,
++    palette: Vec<u32>,
+     sst: Vec<Arc<str>>,
+     links: Links,
+     names: Vec<Lbl>,
+@@ -150,17 +156,27 @@ pub(crate) fn read_xls_with(bytes: &[u8], mut budget: Budget) -> Result<(Workboo
+     let mut wb = Workbook::new();
+     wb.sheets.clear();
+     wb.date_system = if g.date1904 { DateSystem::D1904 } else { DateSystem::D1900 };
+-    // One model style per XF: only the number format is imported.
++    if let Some(theme) = &g.theme {
++        wb.theme = theme.clone();
++    }
++    if let Some(font) = g.fonts.first() {
++        wb.styles = StyleTable::with_default(Style { font: font.resolve(&g.palette), ..Style::default() });
++        if g.theme.is_none() {
++            wb.theme.minor_font = font.name().into();
++        }
++    }
++    // Resolve font and colour indices only after the complete globals substream is known.
+     let styles: Vec<StyleId> = g
+-        .xf_formats
++        .xfs
+         .iter()
+-        .map(|ifmt| {
+-            let code = g.formats.get(ifmt).map(String::as_str).or_else(|| builtin_format(u32::from(*ifmt))).unwrap_or("General");
+-            if code.eq_ignore_ascii_case("General") {
+-                StyleId::DEFAULT
+-            } else {
+-                wb.styles.intern(Style { num_fmt: NumFmt::new(code), ..Style::default() })
+-            }
++        .enumerate()
++        .map(|(i, xf)| {
++            let code = g.formats.get(&xf.format).map(String::as_str).or_else(|| builtin_format(u32::from(xf.format))).unwrap_or("General");
++            let mut style = xf.resolve(&g.fonts, &g.palette, code);
++            if let Some(ext) = g.xf_exts.get(&i) {
++                ext.apply(&mut style, &g.palette);
++            }
++            wb.styles.intern(style)
+         })
+         .collect();
+ 
+@@ -199,7 +215,7 @@ pub(crate) fn read_xls_with(bytes: &[u8], mut budget: Budget) -> Result<(Workboo
+     // The overview comes first.
+     report.warnings.insert(
+         0,
+-        "Imported from an Excel 97-2003 (.xls) workbook: values, formulas, number formats, merged cells, column widths, row heights and defined names were read. Fonts, fills, borders, charts, pictures, comments and other features are not imported yet. Save as .xlsx; saving .xls is not supported.".into(),
++        "Imported from an Excel 97-2003 (.xls) workbook: values, formulas, fonts, fills, borders, alignment, number formats, merged cells, column widths, row heights and defined names were read. Charts, pictures, comments and other advanced features are not imported yet. Save as .xlsx; saving .xls is not supported.".into(),
+     );
+     Ok((wb, report))
+ }
+@@ -226,7 +242,7 @@ fn globals(stream: &[u8], budget: &mut Budget, report: &mut ReadReport) -> Resul
+     if dt != 0x0005 {
+         return Err(invalid("the Workbook stream does not start with the workbook globals"));
+     }
+-    let mut g = Globals::default();
++    let mut g = Globals { palette: INDEXED.to_vec(), ..Globals::default() };
+     let mut offsets = std::collections::HashSet::new();
+     while let Some(rec) = recs.next_record()? {
+         budget.record()?;
+@@ -270,9 +286,30 @@ fn globals(stream: &[u8], budget: &mut Budget, report: &mut ReadReport) -> Resul
+                 g.formats.insert(ifmt, code);
+             }
+             0x00E0 => {
+-                if g.xf_formats.len() < MAX_XFS {
+-                    c.u16()?;
+-                    g.xf_formats.push(c.u16()?);
++                if g.xfs.len() < MAX_XFS {
++                    g.xfs.push(Xf::read(&mut c)?);
++                }
++            }
++            0x0031 => {
++                if g.fonts.len() < MAX_XFS {
++                    let font = FontRecord::read(&mut c)?;
++                    budget.text(font.name().len())?;
++                    g.fonts.push(font);
++                }
++            }
++            0x0092 => formatting::palette(&mut c, &mut g.palette)?,
++            0x087D => {
++                let ext = XfExt::read(&mut c)?;
++                if ext.index < MAX_XFS {
++                    g.xf_exts.insert(ext.index, ext);
++                }
++            }
++            0x0896 => {
++                budget.text(c.remaining())?;
++                match formatting::theme(&mut c) {
++                    Ok(theme) => g.theme = theme,
++                    Err(IoError::TooLarge(m)) => return Err(IoError::TooLarge(m)),
++                    Err(e) => report.warn(format!("Some .xls theme colours could not be read: {e}")),
+                 }
+             }
+             0x00FC => g.sst = shared_strings(&mut c, budget)?,
+diff --git a/docs/file-format-parity.md b/docs/file-format-parity.md
+index 9884724..b5aed16 100644
+--- a/docs/file-format-parity.md
++++ b/docs/file-format-parity.md
+@@ -1,6 +1,6 @@
+ # File-format parity
+ 
+-> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-12 · **Change:** trivial (XLSX chart sheets are kept on save (#727); previously minor: CSV save keeps the separator it was opened with) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
++> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.6.1 legacy import); previous: trivial (XLSX chart sheets are kept on save (#727); previously minor: CSV save keeps the separator it was opened with) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
+ 
+ Every format Excel opens or saves, with GridCraft's read and write support, fidelity and tests.
+ Part of [target-app-parity.md](target-app-parity.md). **File formats: ~50% ready, 80–120 h**
+@@ -29,7 +29,7 @@ and repair-free opening remain unverified.
+ | `.xlsm` Macro-Enabled Workbook | R/W | yes | yes, macros kept, not run | The VBA project is kept byte-for-byte and written back only into `.xlsm`/`.xltm` (#6); macros never run. Saved with the macro-enabled workbook content type | `roundtrip.rs` (`vba_project_roundtrip`, `package_kind_sets_workbook_content_type`), engine `io.rs` (`macros_are_saved_only_into_xlsm`) |
+ | `.xltx` / `.xltm` templates | R/W | yes | partial | Saved with the template (and macro-enabled template) content type, chosen by extension; `.xltm` keeps a VBA project, `.xltx` drops it; "new from template" behaviour missing | `roundtrip.rs` (`package_kind_sets_workbook_content_type`), engine `io.rs` |
+ | `.xlsb` Binary Workbook | R/W | **values only** (#101) | no | Names, visibility, numbers, text, booleans, errors, merges, cached formula results; no formulas, formatting, charts, names | `xlsb_tests.rs` |
+-| `.xls` Excel 97-2003 (BIFF8) | R/W | **yes, partial** (#121) | no (Save As `.xlsx`) | Clean-room from [MS-CFB] and [MS-XLS]. Read: worksheets and visibility, shared strings, numbers, text, booleans, errors, formulas (text for the common tokens, shared and array formulas, 3-D refs, names, newer functions called by name) with cached results, number formats (dates display as dates), 1904 date system, merges, column widths, row heights, defined names, print area and titles, calculation settings (mode, iteration with its maximum iterations and change, precision as displayed). Not read: fonts, fills, borders, alignment, charts, pictures, comments, CF, validation, hyperlinks, freeze panes, external links (formula kept as its value). Chart and macro sheets skipped with a warning; encrypted (FILEPASS) and BIFF5 (Excel 5.0/95) files refused with a message. Opens as a new unsaved workbook. Unverified on a real-world corpus | `xls_tests.rs` |
++| `.xls` Excel 97-2003 (BIFF8) | R/W | **yes, partial** (#121) | no (Save As `.xlsx`) | Clean-room from [MS-CFB] and [MS-XLS]. Read: worksheets and visibility, shared strings, numbers, text, booleans, errors, formulas (text for the common tokens, shared and array formulas, 3-D refs, names, newer functions called by name) with cached results, fonts, fills, borders, alignment, palette/XFExt colours and workbook themes, number formats (dates display as dates), 1904 date system, merges, column widths, row heights, defined names, print area and titles, calculation settings (mode, iteration with its maximum iterations and change, precision as displayed). Not read: charts, pictures, comments, CF, validation, hyperlinks, freeze panes, external links (formula kept as its value). Chart and macro sheets skipped with a warning; encrypted (FILEPASS) and BIFF5 (Excel 5.0/95) files refused with a message. Opens as a new unsaved workbook. Checked on one private two-sheet workbook and synthetic round trips; not a broad real-world corpus | `xls_tests.rs` |
+ | `.xlt` Excel 97-2003 template | R/W | yes (read as `.xls`) | no | | — |
+ | `.xlam` / `.xla` add-ins | R/W | no | no | VBA; out of scope | — |
+ | `.xml` XML Spreadsheet 2003 | R/W | no | no | Simple to support | — |
+@@ -75,7 +75,7 @@ refresh. Counted under features (Get & Transform, ~10% ready), not here.
+ | Real-world XLSX corpus run (craftrules test-corpora standard), and confirm Excel opens our output with no repair prompt (owner runs Excel) | 15–25 |
+ | Preserve the rest of the unmodelled XLSX content (slicers, timelines, data model, table query tables, `extLst` entries); pass-through landed for the rest (#330) | 6–10 |
+ | Streaming XLSX reader for very large files (#175), part-size limits that degrade instead of failing | 10–15 |
+-| Legacy `.xls` (BIFF8): styles (fonts, fills, borders, alignment), comments, CF, validation, pictures and charts on import; corpus run; then write | 10–15 |
++| Legacy `.xls` (BIFF8): comments, CF, validation, pictures and charts on import; broad corpus run; then write (basic styles now read) | 10–15 |
+ | Encrypted workbooks: save with password (#11) | 4–6 |
+ | XLSB and ODS: formulas and formatting on import; then write | 10–15 |
+ | CSV/text: encoding choice, `.prn`, `.dif`, `.slk`, XML Spreadsheet 2003 | 4–7 |
+@@ -85,6 +85,7 @@ refresh. Counted under features (Get & Transform, ~10% ready), not here.
+ 
+ | Date | Change | Summary |
+ |---|---|---|
++| 2026-10-16 | patch | XLS fonts, palette/XFExt colours, borders and alignment read and survive XLSX save; private two-sheet sample and synthetic regressions checked. Pictures/charts/comments still unsupported. |
+ | 2026-10-12 | trivial | XLSX chart sheets are kept on save (#727) |
+ | 2026-10-12 | trivial | CSV and TSV export is capped at 512 MiB and refuses a larger used range with an error (#528) |
+ | 2026-10-12 | minor | `.xls` import reads the calculation settings (CalcMode, CalcIter, CalcCount, CalcDelta, CalcPrecision), so circular models calculate instead of showing `#CIRC!` (#724) |
+diff --git a/docs/gaps.md b/docs/gaps.md
+index 03e8672..8c3b0bb 100644
+--- a/docs/gaps.md
++++ b/docs/gaps.md
+@@ -1,6 +1,6 @@
+ # Gaps
+ 
+-> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-12 · **Change:** minor (rows auto-fit oversized fonts on open and whole-row/column formatting) · **Target:** Microsoft Excel (Microsoft 365)
++> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.6.1 legacy import); previous: minor (rows auto-fit oversized fonts on open and whole-row/column formatting) · **Target:** Microsoft Excel (Microsoft 365)
+ 
+ Every known shortfall against Excel, one entry each, ranked by user impact (what blocks someone
+ using GridCraft for real work first). This is the work list: pick from the top, check the open
+@@ -68,7 +68,7 @@ No alpha blockers: every core workflow passes the [alpha gate](roadmap.md#alpha-
+ 
+ ### 7. Legacy `.xls` only partly read; encrypted workbooks can't be saved with a password (FF)
+ - **Evidence:** #121: Excel 97-2003 (BIFF8) `.xls` files now open (values, formulas, number
+-  formats, merges, sizes, names); fonts, fills, borders, charts, pictures, comments, conditional
++  formats, fonts, fills, borders, alignment, theme colours, merges, sizes, names); charts, pictures, comments, conditional
+   formats, validation and BIFF5 files are not read, and `.xls` is never written. Password-encrypted
+   `.xlsx` workbooks (Agile and Standard encryption) open with their password since #11, but are
+   saved without it: GridCraft can't write an encrypted file yet. Encrypted `.xls` (FILEPASS) and
+@@ -168,6 +168,7 @@ No alpha blockers: every core workflow passes the [alpha gate](roadmap.md#alpha-
+ 
+ | Date | Change | Summary |
+ |---|---|---|
++| 2026-10-16 | patch | Legacy XLS styles and theme colours imported and checked; remaining legacy objects, validation, CF and writing stay open. |
+ | 2026-10-12 | minor | rows auto-fit oversized fonts on open and whole-row/column formatting (#833) |
+ | 2026-10-12 | minor | Page Layout view: dragging margins on the rulers (#792) removed from the §14 remainder |
+ | 2026-10-12 | minor | §13: Forecast Sheet Forecast Start (hindcast) landed (#785) |
 diff --git a/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in
 index 3cde6f9..9122253 100644
 --- a/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in
@@ -388,3 +792,323 @@ index 9a64b61..5aa11e8 100644
  
      <!-- An explicit command-line value wins. Otherwise retain the previous installation's
           choice, defaulting to off for a fresh install. Run only in the first sequence so the
+diff --git a/crates/xlsx/src/xls/formatting.rs b/crates/xlsx/src/xls/formatting.rs
+new file mode 100644
+index 0000000..ff85978
+--- /dev/null
++++ b/crates/xlsx/src/xls/formatting.rs
+@@ -0,0 +1,314 @@
++//! BIFF8 Font, Palette and XF formatting, from [MS-XLS] 2.4.122, 2.4.188 and 2.4.353.
++//! Keep font and palette references until all globals have been read: Palette often follows XF.
++
++use gridcraft_model::{
++    Alignment, BorderLine, BorderStyle, Borders, Color, Fill, Font, HAlign, NumFmt, PatternType, Style, Theme, Underline, VAlign, VertAlign,
++};
++
++use super::records::Cursor;
++use crate::IoError;
++
++pub(super) struct FontRecord {
++    font: Font,
++    color: u16,
++}
++
++impl FontRecord {
++    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
++        let height = c.u16()?;
++        let flags = c.u16()?;
++        let color = c.u16()?;
++        let weight = c.u16()?;
++        let escapement = c.u16()?;
++        let underline = c.u8()?;
++        c.skip(3)?; // family, character set, reserved
++        let name = c.short_string()?;
++        let mut font = Font {
++            size: (f32::from(height) / 20.0).clamp(1.0, 409.5),
++            bold: weight >= 700,
++            italic: flags & 2 != 0,
++            strike: flags & 8 != 0,
++            underline: match underline {
++                1 => Underline::Single,
++                2 => Underline::Double,
++                0x21 => Underline::SingleAccounting,
++                0x22 => Underline::DoubleAccounting,
++                _ => Underline::None,
++            },
++            vert: match escapement {
++                1 => VertAlign::Superscript,
++                2 => VertAlign::Subscript,
++                _ => VertAlign::Baseline,
++            },
++            ..Font::default()
++        };
++        if !name.is_empty() {
++            font.name = name;
++        }
++        Ok(Self { font, color })
++    }
++
++    pub(super) fn name(&self) -> &str {
++        &self.font.name
++    }
++
++    pub(super) fn resolve(&self, palette: &[u32]) -> Font {
++        Font { color: color(self.color, palette), ..self.font.clone() }
++    }
++}
++
++pub(super) struct Xf {
++    font: u16,
++    pub(super) format: u16,
++    data: Option<[u8; 16]>,
++}
++
++impl Xf {
++    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
++        let font = c.u16()?;
++        let format = c.u16()?;
++        // Keep accepting the short XFs accepted by the old reader; use default properties
++        // for a missing tail, rather than interpreting zero padding as real formatting.
++        let data = if c.remaining() >= 16 {
++            let mut data = [0; 16];
++            for b in &mut data {
++                *b = c.u8()?;
++            }
++            Some(data)
++        } else {
++            None
++        };
++        Ok(Self { font, format, data })
++    }
++
++    pub(super) fn resolve(&self, fonts: &[FontRecord], palette: &[u32], number_format: &str) -> Style {
++        // FontIndex 4 is reserved. Indices above it are one greater than their array index.
++        let index = match self.font {
++            0..=3 => Some(usize::from(self.font)),
++            5.. => Some(usize::from(self.font - 1)),
++            _ => None,
++        };
++        let font = index.and_then(|i| fonts.get(i)).or_else(|| fonts.first()).map(|f| f.resolve(palette)).unwrap_or_default();
++        let mut style = Style { font, num_fmt: NumFmt::new(number_format), ..Style::default() };
++        let Some([p0, p1, align, rotation, indent, _, b0, b1, b2, b3, b4, b5, b6, b7, f0, f1]) = self.data else { return style };
++        let lr = u32::from_le_bytes([b0, b1, b2, b3]);
++        let tb = u32::from_le_bytes([b4, b5, b6, b7]);
++        let fill = u16::from_le_bytes([f0, f1]);
++        let border = |kind: u32, index: u32| {
++            let style = border_style(kind as u8);
++            if style == BorderStyle::None { BorderLine::default() } else { BorderLine { style, color: color(index as u16, palette) } }
++        };
++        let diagonal = border((tb >> 21) & 15, (tb >> 14) & 127);
++        style.borders = Borders {
++            left: border(lr & 15, (lr >> 16) & 127),
++            right: border((lr >> 4) & 15, (lr >> 23) & 127),
++            top: border((lr >> 8) & 15, tb & 127),
++            bottom: border((lr >> 12) & 15, (tb >> 7) & 127),
++            diag_down: if lr & (1 << 30) != 0 { diagonal } else { BorderLine::default() },
++            diag_up: if lr & (1 << 31) != 0 { diagonal } else { BorderLine::default() },
++        };
++        let pattern = pattern((tb >> 26) as u8);
++        if pattern != PatternType::None {
++            style.fill = Fill { pattern, fg: color(fill & 127, palette), bg: color((fill >> 7) & 127, palette) };
++        }
++        style.align = Alignment {
++            h: match align & 7 {
++                1 => HAlign::Left,
++                2 => HAlign::Center,
++                3 => HAlign::Right,
++                4 => HAlign::Fill,
++                5 => HAlign::Justify,
++                6 => HAlign::CenterAcross,
++                7 => HAlign::Distributed,
++                _ => HAlign::General,
++            },
++            v: match (align >> 4) & 7 {
++                0 => VAlign::Top,
++                1 => VAlign::Center,
++                3 => VAlign::Justify,
++                4 => VAlign::Distributed,
++                _ => VAlign::Bottom,
++            },
++            wrap: align & 8 != 0,
++            shrink: indent & 16 != 0,
++            indent: indent & 15,
++            rotation: match rotation {
++                0..=90 => i16::from(rotation),
++                91..=180 => 90 - i16::from(rotation),
++                255 => 255,
++                _ => 0,
++            },
++        };
++        let protection = u16::from_le_bytes([p0, p1]);
++        style.protection.locked = protection & 1 != 0;
++        style.protection.hidden = protection & 2 != 0;
++        style
++    }
++}
++
++/// XFExt colours override the older, lossy palette approximations in XF/Font records.
++pub(super) struct XfExt {
++    pub(super) index: usize,
++    colors: Vec<(u16, [u8; 16])>,
++    indent: Option<u8>,
++}
++
++impl XfExt {
++    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
++        c.skip(14)?; // FrtHeader and reserved1
++        let index = usize::from(c.u16()?);
++        c.skip(2)?;
++        let count = c.u16()?;
++        let mut ext = Self { index, colors: Vec::new(), indent: None };
++        for _ in 0..count {
++            let kind = c.u16()?;
++            let size = usize::from(c.u16()?).checked_sub(4).ok_or_else(|| super::invalid("short XFExt property"))?;
++            if size > c.remaining() {
++                return Err(super::invalid("truncated XFExt property"));
++            }
++            if matches!(kind, 4 | 5 | 7..=11 | 13) && size == 16 {
++                let mut bytes = [0; 16];
++                for b in &mut bytes {
++                    *b = c.u8()?;
++                }
++                ext.colors.push((kind, bytes));
++            } else if kind == 15 && size == 2 {
++                ext.indent = Some(c.u16()?.min(250) as u8);
++            } else {
++                c.skip(size)?;
++            }
++        }
++        Ok(ext)
++    }
++
++    pub(super) fn apply(&self, style: &mut Style, palette: &[u32]) {
++        for (kind, bytes) in &self.colors {
++            let Some(color) = full_color(bytes, palette) else { continue };
++            match kind {
++                4 => style.fill.fg = color,
++                5 => style.fill.bg = color,
++                7 => style.borders.top.color = color,
++                8 => style.borders.bottom.color = color,
++                9 => style.borders.left.color = color,
++                10 => style.borders.right.color = color,
++                11 => {
++                    style.borders.diag_up.color = color;
++                    style.borders.diag_down.color = color;
++                }
++                13 => style.font.color = color,
++                _ => {}
++            }
++        }
++        if let Some(indent) = self.indent {
++            style.align.indent = indent;
++        }
++    }
++}
++
++fn full_color(b: &[u8; 16], palette: &[u32]) -> Option<Color> {
++    let [t0, t1, s0, s1, r, g, bl, a, ..] = *b;
++    let kind = u16::from_le_bytes([t0, t1]);
++    let tint = (f32::from(i16::from_le_bytes([s0, s1])) / 32767.0).clamp(-1.0, 1.0);
++    let value = u32::from_le_bytes([r, g, bl, a]);
++    if kind == 3 && value < 12 {
++        // Extended cell colours use background/text slots, not clrScheme XML order.
++        return Some(Color::Theme(value as u8, (tint * 1000.0).round() as i16));
++    }
++    let color = match kind {
++        0 => Color::Auto,
++        1 => color(value.min(u32::from(u16::MAX)) as u16, palette),
++        2 => Color::rgb(r, g, bl),
++        _ => return None,
++    };
++    Some(match color {
++        Color::Rgb(v) if tint != 0.0 => {
++            let [r, g, b] = gridcraft_model::style::apply_tint([(v >> 16) as u8, (v >> 8) as u8, v as u8], f64::from(tint));
++            Color::rgb(r, g, b)
++        }
++        _ => color,
++    })
++}
++
++pub(super) fn theme(c: &mut Cursor<'_, '_>) -> Result<Option<Theme>, IoError> {
++    c.skip(12)?;
++    let version = c.u32()?;
++    if c.remaining() == 0 && version == 124226 {
++        // Default Office 2007 theme, not GridCraft's own default palette.
++        return Ok(Some(Theme {
++            name: "Office".into(),
++            colors: [0xFFFFFF, 0, 0xEEECE1, 0x1F497D, 0x4F81BD, 0xC0504D, 0x9BBB59, 0x8064A2, 0x4BACC6, 0xF79646, 0x0000FF, 0x800080],
++            major_font: "Cambria".into(),
++            minor_font: "Calibri".into(),
++        }));
++    }
++    let bytes = c.rest();
++    let mut pkg = crate::package::Package::open(&bytes)?;
++    for part in ["theme/theme/theme1.xml", "theme/theme1.xml", "theme1.xml"] {
++        if let Some(xml) = pkg.read_limited(part, 1024 * 1024)? {
++            return Ok(Some(crate::theme::read_theme(&crate::xml::parse(&xml)?)));
++        }
++    }
++    Ok(None)
++}
++
++pub(super) fn palette(c: &mut Cursor<'_, '_>, colors: &mut [u32]) -> Result<(), IoError> {
++    let count = usize::from(c.u16()?).min(56).min(c.remaining() / 4);
++    for slot in colors.iter_mut().skip(8).take(count) {
++        let (r, g, b) = (c.u8()?, c.u8()?, c.u8()?);
++        c.u8()?; // reserved
++        *slot = (u32::from(r) << 16) | (u32::from(g) << 8) | u32::from(b);
++    }
++    Ok(())
++}
++
++fn color(index: u16, palette: &[u32]) -> Color {
++    match index {
++        64 => Color::Rgb(0),        // system window text
++        65 => Color::Rgb(0xFFFFFF), // system window background
++        _ => palette.get(usize::from(index)).copied().map(Color::Rgb).unwrap_or(Color::Auto),
++    }
++}
++
++fn border_style(index: u8) -> BorderStyle {
++    match index {
++        1 => BorderStyle::Thin,
++        2 => BorderStyle::Medium,
++        3 => BorderStyle::Dashed,
++        4 => BorderStyle::Dotted,
++        5 => BorderStyle::Thick,
++        6 => BorderStyle::Double,
++        7 => BorderStyle::Hair,
++        8 => BorderStyle::MediumDashed,
++        9 => BorderStyle::DashDot,
++        10 => BorderStyle::MediumDashDot,
++        11 => BorderStyle::DashDotDot,
++        12 => BorderStyle::MediumDashDotDot,
++        13 => BorderStyle::SlantDashDot,
++        _ => BorderStyle::None,
++    }
++}
++
++fn pattern(index: u8) -> PatternType {
++    use PatternType::*;
++    match index {
++        1 => Solid,
++        2 => Gray50,
++        3 => Gray75,
++        4 => Gray25,
++        5 => DarkHorizontal,
++        6 => DarkVertical,
++        7 => DarkDown,
++        8 => DarkUp,
++        9 => DarkGrid,
++        10 => DarkTrellis,
++        11 => LightHorizontal,
++        12 => LightVertical,
++        13 => LightDown,
++        14 => LightUp,
++        15 => LightGrid,
++        16 => LightTrellis,
++        17 => Gray125,
++        18 => Gray0625,
++        _ => None,
++    }
++}

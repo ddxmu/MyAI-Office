@@ -44,6 +44,35 @@ index 2929018..1f8b556 100644
    <a href="https://getartcraft.com/">getartcraft.com</a> ·
    <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
    <a href="https://getartcraft.com/apps/wordcraft">WordCraft</a>
+diff --git a/ROADMAP.md b/ROADMAP.md
+index a5b5cbb..441edc7 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -2,7 +2,7 @@
+ 
+ **Stage: alpha** · next: beta, ~15 points (60% → 75% ready for real work) and ~150–230 h away
+ 
+-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** trivial (progress log: privacy options on save, #1062; previously trivial: progress log: equation pictures in theme colours on Windows, #1002; previously trivial: symbol fonts, #776; previously trivial: the save prompt answers from the keyboard, #861; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw tab ink, #307, and Draw Table and Eraser, #303, landed: catalog 402/434; previously minor: readiness table with hours per audience; full number back to the additive weighted sum, 60%; mainstream and essentials numbers added; alpha gate checked; previously major: full re-measure against Word for Mac 16.113.4; restructured to the craftrules progress-docs standard) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
++> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.6.1 legacy import); previous: trivial (progress log: privacy options on save, #1062; previously trivial: progress log: equation pictures in theme colours on Windows, #1002; previously trivial: symbol fonts, #776; previously trivial: the save prompt answers from the keyboard, #861; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw tab ink, #307, and Draw Table and Eraser, #303, landed: catalog 402/434; previously minor: readiness table with hours per audience; full number back to the additive weighted sum, 60%; mainstream and essentials numbers added; alpha gate checked; previously major: full re-measure against Word for Mac 16.113.4; restructured to the craftrules progress-docs standard) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
+ 
+ > **Printing update:** 2026-10-12 · direct desktop printing through craft-print; details below.
+ 
+@@ -135,6 +135,7 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
+ 
+ | Date | What landed |
+ |---|---|
++| 2026-10-16 | MyAI Office 0.6.1: legacy DOC tables and header rules repaired from public specs; private originals are not committed. |
+ | 2026-10-12 | Text boxes from older Word files (VML) keep their internal margins, Resize shape to fit text and vertical alignment, so letterhead address blocks and form headers sit where Word puts them instead of 7 pt in and 4 pt down. Hidden drawings stay hidden (they were drawn as empty boxes) and are kept on save |
+ | 2026-10-13 | Word's privacy options are kept and honoured when saving .docx (#1062): with Remove personal information, comments and tracked changes are saved by "Author" and the file has no creator or last-modified-by; with Remove date and time, they are saved without dates. The open document keeps the real names and dates; `file.privacyOptions` sets both |
+ | 2026-10-13 | A selected comment balloon's Delete, Reply and Resolve buttons work again (#1085): pressing them no longer counts as a click on the page that closes the balloon first, so a new empty comment, or any other, can be deleted from its balloon |
+@@ -287,6 +288,7 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
+ 
+ | Date | Change | Summary |
+ |---|---|---|
++| 2026-10-16 | patch | MyAI Office 0.6.1: legacy DOC tables and header rules repaired from public specs; private originals are not committed. |
+ | 2026-10-12 | trivial | Progress log: VML text box margins, fit and alignment; hidden drawings |
+ | 2026-10-13 | trivial | Progress log: comment balloon buttons work, empty comments can be deleted (#1085) |
+ | 2026-10-12 | trivial | Progress log: sample-text formulas on Enter (#1067) |
 diff --git a/apps/wordcraft/src/main.rs b/apps/wordcraft/src/main.rs
 index 62b51d4..11d4f6e 100644
 --- a/apps/wordcraft/src/main.rs
@@ -100,11 +129,93 @@ index 62b51d4..11d4f6e 100644
              load_user_dictionary(&mut app);
              // A region chosen in File › Options replaces the system's for the first blank
              // document too (#838).
+diff --git a/crates/docbin/src/fkp.rs b/crates/docbin/src/fkp.rs
+index 8ed395a..b0dbe60 100644
+--- a/crates/docbin/src/fkp.rs
++++ b/crates/docbin/src/fkp.rs
+@@ -70,10 +70,10 @@ impl Bins {
+         page.get(at + 1..at + 1 + cb as usize).unwrap_or(&[])
+     }
+ 
+-    /// The (istd, grpprl) of the Papx of the paragraph whose mark is just before `fc`
+-    /// ([MS-DOC] PapxFkp: rgfc u32s — each the FC *following* a paragraph mark —, rgbx BX
++    /// The (istd, grpprl) of the Papx covering the paragraph mark at `fc`
++    /// ([MS-DOC] PapxFkp: rgfc u32s delimiting paragraph ranges, rgbx BX
+     /// entries (1 offset byte + 12 PHE bytes), crun in the last byte; the PAPX itself is a
+-    /// PapxInFkp with the cb/cb' size quirk). Query with the FC of the character after the mark.
++    /// PapxInFkp with the cb/cb' size quirk). Query with the mark's own FC.
+     pub(crate) fn papx<'w>(&self, word: &'w [u8], fc: u32) -> (u16, &'w [u8]) {
+         let Some(page) = self.page(word, fc) else { return (0, &[]) };
+         let Some(&crun) = page.get(511) else { return (0, &[]) };
+diff --git a/crates/docbin/src/fmt.rs b/crates/docbin/src/fmt.rs
+index 6c4232f..3c1b951 100644
+--- a/crates/docbin/src/fmt.rs
++++ b/crates/docbin/src/fmt.rs
+@@ -19,6 +19,7 @@ const C_CR: u16 = 0x6870; // explicit COLORREF
+ const C_HPS: u16 = 0x4A43; // half-points
+ const C_HPS_POS: u16 = 0x4845; // super/subscript by half-points
+ const C_FTC0: u16 = 0x4A4F; // font index
++const C_FTC1: u16 = 0x4A50; // East Asian font index
+ const C_HIGHLIGHT: u16 = 0x2A0C;
+ const C_ISTD: u16 = 0x4A30; // character style
+ 
+@@ -177,6 +178,11 @@ pub(crate) fn apply_char(p: &mut CharProps, prl: &Prl, base: &CharProps, fonts:
+                 p.font = Some(name.clone());
+             }
+         }
++        C_FTC1 => {
++            if let Some(name) = u16_of(prl).and_then(|i| fonts.get(i as usize)) {
++                p.font_ea = Some(name.clone());
++            }
++        }
+         C_HIGHLIGHT => {
+             if let Some(h) = HL.get(prl.operand.first().copied().unwrap_or(0) as usize) {
+                 p.highlight = Some(*h);
+@@ -243,6 +249,20 @@ pub(crate) fn apply_para(p: &mut ParaProps, prl: &Prl) {
+     let tw = |v: i32| (v as f32 / 20.0).clamp(-1000.0, 1000.0);
+     let s16 = |prl: &Prl| -> Option<i16> { u16_of(prl).map(|v| v as i16) };
+     match prl.op {
++        0x6424..=0x6428 | 0xC64E..=0xC652 => {
++            let modern = prl.op >= 0xC000;
++            let border = if modern { prl.operand.get(1..).and_then(crate::table::brc) } else { crate::table::brc80(prl.operand) };
++            if let Some(border) = border {
++                let borders = p.borders.get_or_insert_with(Default::default);
++                match if modern { prl.op - 0xC64E } else { prl.op - 0x6424 } {
++                    0 => borders.top = Some(border),
++                    1 => borders.left = Some(border),
++                    2 => borders.bottom = Some(border),
++                    3 => borders.right = Some(border),
++                    _ => borders.between = Some(border),
++                }
++            }
++        }
+         sprm::P_CHG_TABS | sprm::P_CHG_TABS_PAPX => change_tabs(p, prl),
+         P_JC | P_JC80 => {
+             p.align = match prl.operand.first().copied().unwrap_or(0) {
 diff --git a/crates/docbin/src/lib.rs b/crates/docbin/src/lib.rs
-index 9ff4386..7d20f3f 100644
+index 9ff4386..cc0e766 100644
 --- a/crates/docbin/src/lib.rs
 +++ b/crates/docbin/src/lib.rs
-@@ -392,19 +392,25 @@ fn walk(ctx: &WalkCtx, cp_start: u32, cp_end: u32, pics: &mut media::Pictures) -
+@@ -117,6 +117,9 @@ pub fn read(bytes: &[u8]) -> Result<Document, DocbinError> {
+     let mut doc = Document::new();
+     doc.body.clear();
+     doc.styles = fmt::stylesheet(&raw_styles, &fonts);
++    if let Some((fc, lcb)) = fib.pair(fib::pair::STSHF) {
++        doc.styles.default_chr.font_ea = stsh::default_east_asian_font(&table, fc, lcb, &fonts);
++    }
+     doc.numbering = list::parse(&table, &fib, &fonts);
+     let sheet: StyleSheet = doc.styles.clone();
+     let sects = sections::parse(&word, &table, &fib);
+@@ -364,6 +367,8 @@ fn walk(ctx: &WalkCtx, cp_start: u32, cp_end: u32, pics: &mut media::Pictures) -
+                 // querying at the mark's own FC finds that paragraph's properties.
+                 let fc_mark = ctx.pieces.fc_of_cp(cp).unwrap_or(0);
+                 let (istd, papx) = ctx.papx_bins.papx(ctx.word, fc_mark);
++                let expanded = sprm::expand_papx(papx, ctx.data);
++                let papx = expanded.as_ref();
+                 if let Some(st) = ctx.raw_styles.get(istd as usize).filter(|s| !s.name.is_empty()) {
+                     pb.props.style = Some(fmt::style_id(&st.name));
+                 }
+@@ -392,19 +397,25 @@ fn walk(ctx: &WalkCtx, cp_start: u32, cp_end: u32, pics: &mut media::Pictures) -
                  }
                  let fc = ctx.pieces.fc_of_cp(cp).unwrap_or(0);
                  pb.mark = char_props(ctx.chpx_bins.chpx(ctx.word, fc), ctx.fonts, &CharProps::default());
@@ -142,7 +253,7 @@ index 9ff4386..7d20f3f 100644
              }
              // Field begin/separator/end ([MS-DOC] §2.9.84 Plcfld).
              '\u{13}' => {
-@@ -520,10 +526,59 @@ fn finish_field(pb: &mut ParaBuild, f: FieldBuild) {
+@@ -520,10 +531,59 @@ fn finish_field(pb: &mut ParaBuild, f: FieldBuild) {
          }
          return;
      }
@@ -202,11 +313,441 @@ index 9ff4386..7d20f3f 100644
  /// `HYPERLINK "url"` / `HYPERLINK url \l "bookmark"` → the model link target
  /// (`#bookmark` for internal links); `None` when not a hyperlink.
  fn hyperlink_target(instr: &str) -> Option<String> {
+diff --git a/crates/docbin/src/sprm.rs b/crates/docbin/src/sprm.rs
+index 7db632c..9d3cf21 100644
+--- a/crates/docbin/src/sprm.rs
++++ b/crates/docbin/src/sprm.rs
+@@ -60,6 +60,44 @@ pub(crate) fn iter(grpprl: &[u8]) -> impl Iterator<Item = Prl<'_>> {
+     })
+ }
+ 
++/// Huge paragraph properties and table properties point at length-prefixed PrcData in
++/// the Data stream. Follow their chain with checked bounds and a strict depth limit.
++pub(crate) fn expand_papx<'a>(papx: &'a [u8], data: &'a [u8]) -> std::borrow::Cow<'a, [u8]> {
++    if !iter(papx).any(|p| matches!(p.op, 0x6646 | 0x646B)) {
++        return std::borrow::Cow::Borrowed(papx);
++    }
++    let mut current = papx;
++    let mut seen = Vec::new();
++    let mut result = Vec::new();
++    for _ in 0..16 {
++        let mut next = None;
++        for (i, p) in iter(current).enumerate() {
++            if p.op == 0x646B || (p.op == 0x6646 && i == 0) {
++                let [a, b, c, d] = p.operand else { continue };
++                let at = u32::from_le_bytes([*a, *b, *c, *d]) as usize;
++                if seen.contains(&at) {
++                    break;
++                }
++                seen.push(at);
++                if let Some(head) = data.get(at..at.saturating_add(2)) {
++                    let len = usize::from(u16::from_le_bytes([head[0], head[1]]));
++                    next = data.get(at.saturating_add(2)..at.saturating_add(2).saturating_add(len));
++                }
++                // Processing a pointer replaces the remaining Prls in its containing list.
++                if next.is_some() {
++                    break;
++                }
++            } else {
++                result.extend_from_slice(&p.op.to_le_bytes());
++                result.extend_from_slice(p.operand);
++            }
++        }
++        let Some(next) = next else { break };
++        current = next;
++    }
++    std::borrow::Cow::Owned(result)
++}
++
+ /// A ToggleOperand value: 0 = off, 1 = on, 0x80 = leave unchanged, 0x81 = invert.
+ pub(crate) enum Toggle {
+     Off,
+diff --git a/crates/docbin/src/stsh.rs b/crates/docbin/src/stsh.rs
+index 5b3393c..23fc19a 100644
+--- a/crates/docbin/src/stsh.rs
++++ b/crates/docbin/src/stsh.rs
+@@ -157,3 +157,14 @@ pub(crate) fn fonts(table: &[u8], fc: u32, lcb: u32) -> Vec<String> {
+ 
+ /// Bytes of an FFN before its primary name ([MS-DOC] §2.9.82).
+ const FFN_HEADER: usize = 39;
++
++/// Stshif.ftcFE supplies the East Asian font when no style or run overrides it.
++pub(crate) fn default_east_asian_font(table: &[u8], fc: u32, lcb: u32, fonts: &[String]) -> Option<String> {
++    let data = table.get(fc as usize..(fc as usize).checked_add(lcb as usize)?)?;
++    let cb = data.get(..2).map(|b| u16::from_le_bytes([b[0], b[1]]))?;
++    if cb < 18 {
++        return None;
++    }
++    let index = data.get(16..18).map(|b| u16::from_le_bytes([b[0], b[1]]))?;
++    fonts.get(usize::from(index)).cloned()
++}
+diff --git a/crates/docbin/src/table.rs b/crates/docbin/src/table.rs
+index e341618..bd06ef7 100644
+--- a/crates/docbin/src/table.rs
++++ b/crates/docbin/src/table.rs
+@@ -28,6 +28,11 @@ const T_TABLE_BORDERS_80: u16 = 0xD605;
+ const T_ROW_HEIGHT: u16 = 0x9407;
+ const T_DEF_TABLE: u16 = 0xD608;
+ const T_DEF_TABLE_SHD_80: u16 = 0xD609;
++const T_DEF_TABLE_SHD: u16 = 0xD612;
++const T_DEF_TABLE_SHD_2ND: u16 = 0xD616;
++const T_DEF_TABLE_SHD_3RD: u16 = 0xD60C;
++const T_DEF_TABLE_SHD_RAW: u16 = 0xD670;
++const T_TABLE_BORDERS: u16 = 0xD613;
+ const T_CANT_SPLIT_90: u16 = 0x3403;
+ const T_MERGE: u16 = 0x5624;
+ const T_VERT_MERGE: u16 = 0xD62B;
+@@ -35,6 +40,11 @@ const T_VERT_ALIGN: u16 = 0xD62C;
+ const T_SET_SHD: u16 = 0xD62D;
+ const T_CANT_SPLIT: u16 = 0x3466;
+ const T_CELL_WIDTH: u16 = 0xD635;
++const T_INSERT: u16 = 0x7621;
++const T_DXA_COL: u16 = 0x7623;
++const T_AUTOFIT: u16 = 0x3615;
++const T_SET_BRC: u16 = 0xD62F;
++const T_SET_BRC_80: u16 = 0xD620;
+ 
+ /// Most grid columns we build from a `sprmTDefTable` (the model's own cap is 63; one more
+ /// edge is fine but merged rows can sum spans slightly over, so clamp when assembling).
+@@ -55,6 +65,7 @@ pub(crate) struct RowInfo {
+     height_rule: HeightRule,
+     header: bool,
+     cant_split: bool,
++    autofit: bool,
+     align: Option<Align>,
+     indent: Option<f32>,
+     borders: Option<Borders>,
+@@ -65,6 +76,7 @@ pub(crate) struct RowInfo {
+     shading: Vec<(u8, Rgb)>,
+     widths: Vec<(u8, f32)>,
+     valign: Vec<(u8, VAlign)>,
++    cell_borders: Vec<(u8, Borders)>,
+ }
+ 
+ /// Read the table context out of a paragraph mark's PAPX grpprl.
+@@ -87,7 +99,42 @@ pub(crate) fn decode(papx: &[u8]) -> RowInfo {
+             P_IN_TABLE => r.in_table = prl.operand.first().copied().unwrap_or(0) != 0,
+             P_TTP => r.ttp = prl.operand.first().copied().unwrap_or(0) != 0,
+             P_ITAP => r.depth = i32_of(&prl).unwrap_or(0).max(0) as u32,
+-            T_DEF_TABLE => r.grid = def_table_grid(prl.operand),
++            T_DEF_TABLE => {
++                r.grid = def_table_grid(prl.operand);
++                let cells_at = 3 + (r.grid.len() + 1) * 2;
++                for (i, tc) in prl.operand.get(cells_at..).unwrap_or(&[]).as_chunks::<20>().0.iter().take(r.grid.len()).enumerate() {
++                    let flags = u16::from_le_bytes([tc[0], tc[1]]);
++                    let v = match (flags >> 7) & 3 {
++                        1 => VAlign::Center,
++                        2 => VAlign::Bottom,
++                        _ => VAlign::Top,
++                    };
++                    r.valign.push((i as u8, v));
++                    let b = |offset: usize| tc.get(offset..offset + 4).filter(|b| *b != [0xFF; 4]).and_then(brc80);
++                    let borders = Borders { top: b(4), left: b(8), bottom: b(12), right: b(16), ..Default::default() };
++                    if borders.any_visible() {
++                        r.cell_borders.push((i as u8, borders));
++                    }
++                }
++            }
++            T_AUTOFIT => r.autofit = prl.operand.first() == Some(&1),
++            T_INSERT => {
++                if let [a, b, w0, w1] = prl.operand {
++                    let (a, b) = (usize::from(*a), usize::from(*b).min(MAX_COLS));
++                    if a <= r.grid.len() && b > a && r.grid.len() + b - a <= MAX_COLS {
++                        let width = (f32::from(i16::from_le_bytes([*w0, *w1])) / 20.0).max(0.0);
++                        r.grid.splice(a..a, std::iter::repeat_n(width, b - a));
++                    }
++                }
++            }
++            T_DXA_COL => {
++                if let [a, b, w0, w1] = prl.operand {
++                    let width = (f32::from(i16::from_le_bytes([*w0, *w1])) / 20.0).max(0.0);
++                    for w in r.grid.iter_mut().take(usize::from(*b)).skip(usize::from(*a)) {
++                        *w = width;
++                    }
++                }
++            }
+             T_TABLE_HEADER => r.header = prl.operand.first().copied().unwrap_or(0) != 0,
+             T_CANT_SPLIT | T_CANT_SPLIT_90 => r.cant_split = prl.operand.first().copied().unwrap_or(0) != 0,
+             T_ROW_HEIGHT => {
+@@ -111,6 +158,31 @@ pub(crate) fn decode(papx: &[u8]) -> RowInfo {
+             T_DXA_LEFT => dxa_left = s16(&prl),
+             T_DXA_GAP_HALF => gap_half = s16(&prl),
+             T_TABLE_BORDERS_80 => r.borders = table_borders(prl.operand),
++            T_TABLE_BORDERS => {
++                let b = |i: usize| prl.operand.get(1 + i * 8..1 + i * 8 + 8).and_then(brc);
++                r.borders = Some(Borders { top: b(0), left: b(1), bottom: b(2), right: b(3), between: b(4), inside_v: b(5) });
++            }
++            T_SET_BRC | T_SET_BRC_80 => {
++                if let [_, a, b, sides, rest @ ..] = prl.operand {
++                    let border = if prl.op == T_SET_BRC { brc(rest) } else { brc80(rest) };
++                    if let Some(border) = border {
++                        for cell in *a..(*b).min(MAX_COLS as u8) {
++                            let index = r.cell_borders.iter().position(|(i, _)| *i == cell).unwrap_or_else(|| {
++                                r.cell_borders.push((cell, Borders::default()));
++                                r.cell_borders.len() - 1
++                            });
++                            if let Some((_, borders)) = r.cell_borders.get_mut(index) {
++                                for (mask, side) in [(1, &mut borders.top), (2, &mut borders.left), (4, &mut borders.bottom), (8, &mut borders.right)]
++                                {
++                                    if sides & mask != 0 {
++                                        *side = Some(border);
++                                    }
++                                }
++                            }
++                        }
++                    }
++                }
++            }
+             T_MERGE => {
+                 if let [a, b, ..] = prl.operand
+                     && b > a
+@@ -148,9 +220,21 @@ pub(crate) fn decode(papx: &[u8]) -> RowInfo {
+                     }
+                 }
+             }
++            T_DEF_TABLE_SHD | T_DEF_TABLE_SHD_RAW | T_DEF_TABLE_SHD_2ND | T_DEF_TABLE_SHD_3RD => {
++                let start = match prl.op {
++                    T_DEF_TABLE_SHD_2ND => 22,
++                    T_DEF_TABLE_SHD_3RD => 44,
++                    _ => 0,
++                };
++                for (i, shd) in prl.operand.get(1..).unwrap_or(&[]).as_chunks::<10>().0.iter().take(22).enumerate() {
++                    if let Some(rgb) = shd_rgb(shd) {
++                        r.shading.push(((start + i) as u8, rgb));
++                    }
++                }
++            }
+             T_CELL_WIDTH => {
+                 // cb, itcFirst, itcLim, ftsWidth (3 = twips), wWidth.
+-                if let [a, b, fts, w0, w1, ..] = prl.operand
++                if let [_, a, b, fts, w0, w1, ..] = prl.operand
+                     && *fts == 3
+                 {
+                     let w = (i16::from_le_bytes([*w0, *w1]) as f32 / 20.0).clamp(0.0, 1584.0);
+@@ -221,12 +305,15 @@ pub(crate) fn assemble(paras: Vec<ParaOut>) -> Blocks {
+             if let Some((_, w)) = info.widths.iter().find(|(k, _)| *k == i) {
+                 c.props.width = Some(*w);
+             }
+-            if let Some((_, s)) = info.shading.iter().find(|(k, _)| *k == i) {
++            if let Some((_, s)) = info.shading.iter().rev().find(|(k, _)| *k == i) {
+                 c.props.shading = Some(*s);
+             }
+             if let Some((_, v)) = info.valign.iter().find(|(k, _)| *k == i) {
+                 c.props.valign = *v;
+             }
++            if let Some((_, borders)) = info.cell_borders.iter().rev().find(|(k, _)| *k == i) {
++                c.props.borders = Some(*borders);
++            }
+         }
+         for &(a, b) in info.merges.iter().take(MAX_COLS) {
+             let a = a as usize;
+@@ -258,7 +345,9 @@ pub(crate) fn assemble(paras: Vec<ParaOut>) -> Blocks {
+     }
+     fn flush_table(out: &mut Blocks, rows: &mut Vec<Row>, cells: &mut Vec<Cell>, cell: &mut Blocks, grid: &[f32], props: &TableProps, nested: bool) {
+         if !cells.is_empty() || !cell.is_empty() {
+-            flush_cell(cells, cell);
++            if !cell.is_empty() {
++                flush_cell(cells, cell);
++            }
+             // A stray trailing row (no TTP of its own): size its cells from the grid.
+             let mut stray = build_row(std::mem::take(cells), &RowInfo::default());
+             for (i, c) in stray.cells.iter_mut().enumerate() {
+@@ -297,12 +386,19 @@ pub(crate) fn assemble(paras: Vec<ParaOut>) -> Blocks {
+                 flush_table(&mut out, &mut rows, &mut cells, &mut cell, &grid, &props, depth_seen > 1);
+                 open = false;
+                 depth_seen = 0;
++                grid.clear();
++                props = TableProps::default();
+             }
+             out.push(para_block(p.para));
+             continue;
+         }
+         if !open {
+             open = true;
++            // Legacy table widths are fixed unless explicitly marked AutoFit.
++            props.fixed = true;
++        }
++        if info.autofit {
++            props.fixed = false;
+         }
+         depth_seen = depth_seen.max(info.depth);
+         if !info.grid.is_empty() && grid.is_empty() {
+@@ -317,15 +413,21 @@ pub(crate) fn assemble(paras: Vec<ParaOut>) -> Blocks {
+         if props.indent.is_none() {
+             props.indent = info.indent;
+         }
+-        if info.cell_mark {
++        if info.ttp {
++            // The row mark is separate from the last cell mark in real Word documents.
++            // Tolerate old writers which put TTP on the final cell's text paragraph too.
++            if !p.para.is_empty() || !cell.is_empty() || cells.len() < info.grid.len() {
++                if !p.para.is_empty() {
++                    cell.push(para_block(p.para));
++                }
++                flush_cell(&mut cells, &mut cell);
++            }
++            rows.push(build_row(std::mem::take(&mut cells), &info));
++        } else if info.cell_mark {
+             if !p.para.text.is_empty() {
+                 cell.push(para_block(p.para));
+             }
+             flush_cell(&mut cells, &mut cell);
+-            if info.ttp {
+-                let row = build_row(std::mem::take(&mut cells), &info);
+-                rows.push(row);
+-            }
+         } else {
+             cell.push(para_block(p.para));
+         }
+@@ -361,7 +463,7 @@ fn table_borders(operand: &[u8]) -> Option<Borders> {
+ }
+ 
+ /// One Brc80: width in 1/8 pt, type, palette colour, space/flags byte.
+-fn brc80(b: &[u8]) -> Option<Border> {
++pub(crate) fn brc80(b: &[u8]) -> Option<Border> {
+     let [w, ty, ico, flags] = b else { return None };
+     let style = match ty {
+         0x00 => BorderStyle::None,
+@@ -380,6 +482,14 @@ fn brc80(b: &[u8]) -> Option<Border> {
+     Some(Border { style, width: (*w as f32 / 8.0).clamp(0.25, 12.0), color: fmt::ico(*ico), space: (flags & 0x1F) as f32 })
+ }
+ 
++/// Modern Brc: COLORREF followed by width/type/spacing flags.
++pub(crate) fn brc(b: &[u8]) -> Option<Border> {
++    let [r, g, bl, auto, w, ty, flags, _] = b else { return None };
++    let mut border = brc80(&[*w, *ty, 0, *flags])?;
++    border.color = (*auto != 0xFF).then_some(Rgb(*r, *g, *bl));
++    Some(border)
++}
++
+ /// Background colour from a 10-byte `Shd`: cvFore, cvBack (COLORREFs), ipat. Solid patterns
+ /// show the foreground; other patterns are approximated by their background.
+ fn shd_rgb(b: &[u8]) -> Option<Rgb> {
+@@ -392,7 +502,7 @@ fn shd_rgb(b: &[u8]) -> Option<Rgb> {
+     };
+     let ipat = b.get(8..10).map(|x| u16::from_le_bytes([x[0], x[1]]))?;
+     match ipat {
+-        0 | 0xFFFF => None,
++        0xFFFF => None,
+         1 => cv(b.get(0..4)?),
+         _ => cv(b.get(4..8)?),
+     }
+@@ -404,7 +514,7 @@ fn shd80_rgb(b: &[u8]) -> Option<Rgb> {
+     let fore = v & 0x1F;
+     let back = (v >> 5) & 0x1F;
+     let ipat = v >> 10;
+-    if ipat == 0 || (fore == 0x1F && back == 0x1F) {
++    if fore == 0x1F && back == 0x1F {
+         return None;
+     }
+     fmt::ico(if ipat == 1 { fore as u8 } else { back as u8 })
 diff --git a/crates/docbin/src/tests.rs b/crates/docbin/src/tests.rs
-index acad986..95867ab 100644
+index acad986..e0555fe 100644
 --- a/crates/docbin/src/tests.rs
 +++ b/crates/docbin/src/tests.rs
-@@ -1352,6 +1352,12 @@ fn fields_and_hyperlinks() {
+@@ -983,6 +983,101 @@ fn t_def_table(edges: &[i16]) -> Vec<u8> {
+     v
+ }
+ 
++#[test]
++fn table_separate_row_marks_and_external_papx_preserve_header() {
++    let text = "A\u{7}B\u{7}\u{7}C\u{7}D\u{7}\u{7}tail\r";
++    let in_table = grpprl(&[(0x2416, &[1]), (0x6649, &1u32.to_le_bytes())]);
++    let mut def = t_def_table(&[0, 1440, 4320]);
++    let tc_at = 5 + 3 * 2;
++    for i in 0..2 {
++        let at = tc_at + 20 * i;
++        def[at..at + 2].copy_from_slice(&0x0680u16.to_le_bytes()); // twips and vertically centered
++        def[at + 4..at + 8].copy_from_slice(&[4, 1, 1, 0]); // top cell border
++    }
++    let row = [in_table.clone(), grpprl(&[(0x2417, &[1])]), def, grpprl(&[(0xD62F, &[11, 0, 2, 4, 0, 0, 0, 0xFF, 8, 1, 0, 0])])].concat();
++    // A real TTP is a separate mark after the last cell, and a long row's PAPX can live
++    // in the Data stream. Use original synthetic content, never a private user's file.
++    let shading = [vec![20], [[0, 0, 0, 0xFF, 217, 234, 247, 0, 0, 0]; 2].concat()].concat();
++    let external = [row.clone(), grpprl(&[(0x9407, &800u16.to_le_bytes()), (0xD612, &shading)])].concat();
++    let data = [vec![0; 4], (external.len() as u16).to_le_bytes().to_vec(), external].concat();
++    let spec = StructSpec {
++        text,
++        header_stories: vec![],
++        sections: vec![(text.chars().count() as u32, Vec::new())],
++        chpx_runs: vec![(0, Vec::new())],
++        papx_entries: vec![
++            (0, 0, in_table.clone()),
++            (2, 0, in_table.clone()),
++            (4, 0, grpprl(&[(0x6646, &4u32.to_le_bytes())])),
++            (5, 0, in_table.clone()),
++            (7, 0, in_table),
++            (9, 0, row),
++            (10, 0, Vec::new()),
++        ],
++        plf_lst: Vec::new(),
++        plf_lfo: Vec::new(),
++        note_stories: vec![],
++        endnote_stories: vec![],
++        extra_pairs: Vec::new(),
++        data_stream: data,
++    };
++    let doc = read(&struct_doc(&spec)).expect("opens");
++    let table = doc.body.iter().find_map(|b| b.as_table()).expect("table");
++    assert_eq!(table.rows.len(), 2);
++    assert!(table.rows.iter().all(|r| r.cells.len() == 2), "a TTP must not add an empty cell or join two rows");
++    assert_eq!(table.grid, [72.0, 144.0]);
++    assert!(table.props.fixed);
++    assert_eq!(table.rows[0].cells[0].props.valign, wordcraft_doc::props::VAlign::Center);
++    assert_eq!(table.rows[0].cells[0].props.borders.unwrap().top.unwrap().width, 0.5);
++    assert_eq!(table.rows[0].cells[0].props.borders.unwrap().bottom.unwrap().width, 1.0);
++    assert_eq!(table.rows[0].props.height, Some(40.0));
++    assert_eq!(table.rows[0].cells[0].props.shading, Some(wordcraft_doc::Rgb(217, 234, 247)));
++    assert_eq!(table.rows[0].cells[1].props.shading, Some(wordcraft_doc::Rgb(217, 234, 247)));
++    assert_eq!(table.rows[1].cells[0].props.shading, None);
++    let cell_text =
++        |r: usize, c: usize| table.rows[r].cells[c].blocks.iter().filter_map(|b| b.as_para()).map(|p| p.text.as_str()).collect::<String>();
++    assert_eq!(cell_text(0, 1), "B");
++    assert_eq!(cell_text(1, 0), "C");
++}
++
++#[test]
++fn external_table_properties_chains_and_invalid_pointers_are_bounded() {
++    let target = grpprl(&[(0x2416, &[1]), (0x2417, &[1]), (0x7621, &[0, 2, 0xA0, 0x05]), (0x7623, &[1, 2, 0x40, 0x0B])]);
++    let data = [(target.len() as u16).to_le_bytes().to_vec(), target].concat();
++    let ptr = grpprl(&[(0x646B, &0u32.to_le_bytes())]);
++    let expanded = super::sprm::expand_papx(&ptr, &data);
++    assert_eq!(super::table::decode(&expanded).grid, [72.0, 144.0]);
++    let cycle = [6u16.to_le_bytes().to_vec(), ptr.clone()].concat();
++    assert!(super::sprm::expand_papx(&ptr, &cycle).is_empty());
++    for offset in [u32::MAX, 1, 10000] {
++        let bad = grpprl(&[(0x6646, &offset.to_le_bytes())]);
++        let _ = super::sprm::expand_papx(&bad, &cycle);
++    }
++}
++
++#[test]
++fn legacy_default_cjk_font_and_paragraph_border_are_read() {
++    let mut style_header = vec![0u8; 20];
++    style_header[..2].copy_from_slice(&18u16.to_le_bytes());
++    style_header[16..18].copy_from_slice(&1u16.to_le_bytes());
++    let fonts = vec!["Times New Roman".into(), "宋体".into()];
++    assert_eq!(super::stsh::default_east_asian_font(&style_header, 0, 20, &fonts), Some("宋体".into()));
++    let mut chars = wordcraft_doc::props::CharProps::default();
++    let ops = grpprl(&[(0x4A50, &1u16.to_le_bytes())]);
++    for p in super::sprm::iter(&ops) {
++        super::fmt::apply_char(&mut chars, &p, &Default::default(), &fonts);
++    }
++    assert_eq!(chars.font_ea.as_deref(), Some("宋体"));
++    let mut para = wordcraft_doc::props::ParaProps::default();
++    let ops = grpprl(&[(0x6426, &[6, 1, 1, 1]), (0xC650, &[8, 10, 20, 30, 0, 8, 1, 2, 0])]);
++    for p in super::sprm::iter(&ops) {
++        super::fmt::apply_para(&mut para, &p);
++    }
++    let b = para.borders.unwrap().bottom.unwrap();
++    assert_eq!(b.width, 1.0);
++    assert_eq!(b.color, Some(wordcraft_doc::Rgb(10, 20, 30)));
++}
++
+ #[test]
+ fn table_assembled_from_marks() {
+     // A 2×2 table: "a\x07 b\x07|ttp  c\x07 d\x07|ttp" then a normal paragraph.
+@@ -1352,6 +1447,12 @@ fn fields_and_hyperlinks() {
      assert_eq!(result, "3");
  }
  
@@ -263,6 +804,99 @@ index b3c5965..e100abd 100644
      #[test]
      fn resolves_weights_named_as_their_own_family() {
          // Word stores a Medium face as the family "Inter Medium" (#219).
+diff --git a/crates/layout/src/lib.rs b/crates/layout/src/lib.rs
+index 883011b..3393a4f 100644
+--- a/crates/layout/src/lib.rs
++++ b/crates/layout/src/lib.rs
+@@ -961,7 +961,28 @@ fn layout_box(
+                     pl = ctx.para_labelled(p, width, table, &rel, label);
+                 }
+                 let lead = pl.lines.first().map_or(0.0, |l| l.top.max(0.0));
+-                push_para(&mut items, story, &path, &pl, 0, pl.lines.len(), 0.0, y + lead, width);
++                let mut painted = pl.clone();
++                if let Some(borders) = pl.rp.borders {
++                    let adjoining = |j: usize| {
++                        blocks.get(j).and_then(|b| b.as_para()).is_some_and(|p| {
++                            let rp = ctx.doc.styles.resolve_para_in(&p.props, table.map(|t| &t.para));
++                            rp.borders == Some(borders) && rp.indent_left == pl.rp.indent_left && rp.indent_right == pl.rp.indent_right
++                        })
++                    };
++                    let previous = i.checked_sub(1).is_some_and(adjoining);
++                    let next = adjoining(i + 1);
++                    if previous || next {
++                        let mut joined = borders;
++                        if previous {
++                            joined.top = None;
++                        }
++                        if next {
++                            joined.bottom = joined.between;
++                        }
++                        Arc::make_mut(&mut painted).rp.borders = Some(joined);
++                    }
++                }
++                push_para(&mut items, story, &path, &painted, 0, pl.lines.len(), 0.0, y + lead, width);
+                 // Pictures, shapes and text boxes: drawn, their areas and text boxes' text.
+                 if !p.objects.is_empty() {
+                     let at = ObjFrame { page: frame, col: (0.0, width), para_y: y, table_chr: table.map(|t| &t.chr) };
+diff --git a/crates/layout/src/para.rs b/crates/layout/src/para.rs
+index 41f9fad..4864530 100644
+--- a/crates/layout/src/para.rs
++++ b/crates/layout/src/para.rs
+@@ -717,7 +717,6 @@ impl<'a> Builder<'a> {
+             .as_ref()
+             .filter(|f| !f.eq_ignore_ascii_case(&rc.font) && text.chars().any(east_asian))
+             .map(|f| wordcraft_fonts::word::resolve(f, rc.bold, rc.italic))
+-            .filter(|r| !r.substituted)
+             .map(|r| r.face);
+         let use_levels = para_text && !self.levels.is_empty();
+         let context = if self.env.numeral == NumeralMode::Context && use_levels { context_digit_dirs(text, &self.levels, base) } else { Vec::new() };
+diff --git a/crates/layout/src/tests.rs b/crates/layout/src/tests.rs
+index afdf9d0..26feaf4 100644
+--- a/crates/layout/src/tests.rs
++++ b/crates/layout/src/tests.rs
+@@ -4293,6 +4293,42 @@ fn table_cell_footnotes_are_placed() {
+     assert!(c.top > body.top + 100.0, "at the page bottom: {c:?} {body:?}");
+ }
+ 
++#[test]
++fn consecutive_header_paragraphs_share_one_bottom_border() {
++    let mut doc = Document::from_text("Body text");
++    let blocks = (0..3)
++        .map(|_| {
++            let mut p = Paragraph::new();
++            p.props.borders = Some(Borders { bottom: Some(Border::single(0.75)), ..Default::default() });
++            wordcraft_doc::para_block(p)
++        })
++        .collect();
++    let id = doc.add_part(wordcraft_doc::PartKind::Header, blocks);
++    doc.last_section.headers.default = Some(id);
++    let layout = lay(&doc);
++    let rules: Vec<_> = layout.pages[0].header.iter().filter(|i| matches!(i, Placed::Rule { .. })).collect();
++    assert_eq!(rules.len(), 1, "matching adjacent paragraph borders form one group");
++}
++
++#[test]
++fn chinese_font_alias_is_used_for_the_east_asian_run() {
++    let asian = wordcraft_fonts::word::resolve("宋体", false, false);
++    if !asian.face.covers('中') || !asian.face.covers('文') {
++        return;
++    }
++    let mut doc = Document::from_text("ABC中文");
++    doc.format_range(&Pos::body(0, 0), &Pos::body(0, "ABC中文".len()), &|c| {
++        c.font = Some("Arial".into());
++        c.font_ea = Some("宋体".into());
++    })
++    .unwrap();
++    let layout = lay(&doc);
++    let para = layout.pages[0].items.iter().find_map(|i| if let Placed::Lines { para, .. } = i { Some(para) } else { None }).unwrap();
++    for cluster in para.clusters.iter().filter(|c| c.start >= 3) {
++        assert_eq!(para.styles[cluster.style as usize].face.id(), asian.face.id());
++    }
++}
++
+ #[test]
+ fn east_asian_text_takes_the_asian_font_and_latin_text_the_latin_font() {
+     // #505: one run with a Latin font and an Asian font (w:eastAsia) of its own sets each script in
 diff --git a/crates/mcp/src/server.rs b/crates/mcp/src/server.rs
 index 63f6764..f781411 100644
 --- a/crates/mcp/src/server.rs
@@ -616,6 +1250,55 @@ index ad4adcd..29c9570 100644
  
  /// A combo's scrolling list. Only the rows in view are built: the font menu lists every installed
  /// family and each preview loads that font, so building all rows loaded every font on the system
+diff --git a/docs/file-format-parity.md b/docs/file-format-parity.md
+index 641da4f..a072f87 100644
+--- a/docs/file-format-parity.md
++++ b/docs/file-format-parity.md
+@@ -1,6 +1,6 @@
+ # File-format parity with Microsoft Word
+ 
+-> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-13 · **Change:** trivial (VML text boxes keep their internal margins, fit to their text and vertical alignment; hidden drawings not shown; previously trivial: equations as MathML in HTML export, copy and paste, #816; previously trivial: symbol-font text exported as Unicode, #776; previously trivial: text-box margins, Resize shape to fit text and freeforms in groups, #743; previously trivial: formatted paste from the system clipboard's HTML and RTF, #687; previously trivial: independent complex-script formatting inheritance and round-trip regression tests; previously trivial: import/export fixes for TXT, RTF, ODT, HTML and LaTeX, #433–#440; previously major: first version; every format Word reads or writes, measured from the readers and writers on origin/main) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4, plus Word for Windows' extra formats
++> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.6.1 legacy import); previous: trivial (VML text boxes keep their internal margins, fit to their text and vertical alignment; hidden drawings not shown; previously trivial: equations as MathML in HTML export, copy and paste, #816; previously trivial: symbol-font text exported as Unicode, #776; previously trivial: text-box margins, Resize shape to fit text and freeforms in groups, #743; previously trivial: formatted paste from the system clipboard's HTML and RTF, #687; previously trivial: independent complex-script formatting inheritance and round-trip regression tests; previously trivial: import/export fixes for TXT, RTF, ODT, HTML and LaTeX, #433–#440; previously major: first version; every format Word reads or writes, measured from the readers and writers on origin/main) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4, plus Word for Windows' extra formats
+ 
+ Every format Word opens or saves, what WordCraft does with it, and how it's tested. Fidelity is the
+ share of a typical real-world file's content and formatting that survives (read: shows correctly;
+@@ -163,6 +163,7 @@ raise readiness estimates. No Word-derived files are fixtures.
+ 
+ | Date | Change | Summary |
+ |---|---|---|
++| 2026-10-16 | patch | MyAI Office 0.6.1: external PAPX/table-property chains, separate row marks, fixed grids, RGB shading/cell borders and CJK font defaults read. Private two-page sample round-tripped to DOCX. |
+ | 2026-10-12 | trivial | VML text boxes keep their internal margins (`inset`), fit to their text (`mso-fit-shape-to-text`) and vertical alignment (`v-text-anchor`); hidden drawings (`visibility:hidden`, `wp:docPr/@hidden`) are kept but not shown |
+ | 2026-10-13 | trivial | Remove personal information / Remove date and time settings kept and honoured on save: anonymous annotation authors, no creator or last-modified-by, no annotation dates (#1062) |
+ | 2026-10-12 | trivial | Direct run-level `w:contentPart` InkML keeps its relationship, content type and bytes through DOCX edits and repeated saves; nested group/canvas ink and native rendering remain missing |
+diff --git a/docs/gaps.md b/docs/gaps.md
+index a85a8f0..1b52424 100644
+--- a/docs/gaps.md
++++ b/docs/gaps.md
+@@ -1,6 +1,6 @@
+ # Where WordCraft falls short of Word
+ 
+-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** trivial (sample-text formulas on Enter, #1067; previously trivial: #29: copied equations as MathML, OMML open as #1297, #816; previously trivial: the Font list no longer keeps every previewed font in memory, #848; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw Table and Eraser landed, #303; previously minor: beta distance restated: ~15 points, ~150–230 h; previously: first version; every known shortfall from the 2026-10-10 re-measure, ranked) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
++> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.6.1 legacy import); previous: trivial (sample-text formulas on Enter, #1067; previously trivial: #29: copied equations as MathML, OMML open as #1297, #816; previously trivial: the Font list no longer keeps every previewed font in memory, #848; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw Table and Eraser landed, #303; previously minor: beta distance restated: ~15 points, ~150–230 h; previously: first version; every known shortfall from the 2026-10-10 re-measure, ranked) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
+ 
+ > **Printing update:** 2026-10-12 · direct desktop printing through craft-print; details below.
+ 
+@@ -13,6 +13,8 @@ Native save reliability: synthetic cases on macOS reproduced loss through the pr
+ 
+ ## Ranked
+ 
++MyAI Office 0.6.1 narrows the legacy DOC compatibility gap: external paragraph/table properties, separate row terminators, fixed grids, shading, cell borders and CJK font defaults are now read. One private two-page document and synthetic regression cases were checked; this does not close the general pagination or corpus-validation gaps.
++
+ | # | Gap | B | Evidence | Impact | Hours | Doc |
+ |---|---|---|---|---|---|---|
+ | 1 | **DOCX never tested on real-world files.** No corpus of files from Word, Google Docs, LibreOffice and Pages has been opened, rendered and round-tripped and compared with Word page by page | B | No corpus in the repo; `crates/docx/tests` are synthetic fixtures (including omitted/empty paragraph defaults and imported TOC range preservation); "DOCX fidelity corpus: not started" since 2026-10-06. Field reports fixed one by one: a cover page's theme-coloured shapes (#611), freeforms inside groups and text-box margins and Resize to fit (#743) | Everyone: the files people receive are the files that break | 30–50 | [file-format-parity.md](file-format-parity.md) |
+@@ -80,6 +82,7 @@ The same gaps grouped the way the parity documents are, for agents working in on
+ 
+ | Date | Change | Summary |
+ |---|---|---|
++| 2026-10-16 | patch | Legacy DOC table import narrowed: row marks, external properties, CJK fonts, shading and borders covered; general compatibility/pagination gaps remain. |
+ | 2026-10-12 | trivial | Sample-text formulas on Enter (#1067) implemented; numerical limits not compared in Word |
+ | 2026-10-12 | minor | Italian proofing landed (it-IT spelling from the installed Hunspell dictionary, accent-first suggestions, conservative grammar); gap #8 narrowed to the remaining languages |
+ | 2026-10-12 | trivial | #2 narrowed: direct run-level `w:contentPart` InkML survives DOCX edits and repeated saves; nested group/canvas ink and native rendering remain |
 diff --git a/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
 index be11038..5aa993d 100644
 --- a/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
