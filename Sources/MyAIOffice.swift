@@ -791,6 +791,9 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         let task = Process()
         task.executableURL = helper
         task.arguments = url.map { [$0.path] } ?? []
+        var environment = ProcessInfo.processInfo.environment
+        environment["MYAI_OFFICE_LANGUAGE"] = "zh-hans"
+        task.environment = environment
         do {
             try task.run()
             statusLabel.stringValue = "已打开 \(module.title)"

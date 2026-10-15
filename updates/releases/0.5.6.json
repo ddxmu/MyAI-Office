@@ -1,0 +1,21 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.5.6",
+  "releaseNotes": "修复 PowerPoint 中文占位框编辑与中文排版；补齐 Word、Excel、Power Point 中文界面和系统中文字体候选。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.6/MyAI-Office-0.5.6-arm64.zip",
+    "sha256": "7ed19e54729c08a385919c1d434df6de636b45d53113c8dd8a2ba37ccaf22922",
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.6/MyAI-Office-0.5.6-arm64.dmg",
+    "sha256": "d517419dd5017030b9b7cde630a024e09f02ff8f51e898b6febc80e3e9440e83"
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.5.5",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.5.6/MyAI-Office-0.5.5-to-0.5.6-arm64.delta.zip",
+      "sha256": "d858f1313506b0f4b7c01189d8e9f7f735b745d493a6dd246c40389048804819"
+    }
+  ]
+}
