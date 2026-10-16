@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.8.0",
+  "releaseNotes": "Excel 合并功能：支持合并后居中、合并单元格、合并内容、按行合并、按列合并、跨列居中，并补齐中文菜单和键盘提示。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.8.0/MyAI-Office-0.8.0-arm64.zip",
+    "sha256": "53dce220d9e2dfeba648a1e6ae13ab2aa0ecc365ffed860422f79cd209a21c51",
+    "size": 164098016,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.8.0/MyAI-Office-0.8.0-arm64.dmg",
+    "sha256": "075a2662a7f71904e6501c916de688ae040c6eb3e96ffbcc2ca2a1017cf1aa99",
+    "size": 163873155
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.7.7",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.8.0/MyAI-Office-0.7.7-to-0.8.0-arm64.bsdiff.zip",
+      "sha256": "646a6228b8a84f2310cb07ecc45b37017f1cada753c77e4c12f9d55c639e0f5a",
+      "size": 938777,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
