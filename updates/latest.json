@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "1.0.1",
-  "releaseNotes": "WPS 风格中文界面、Word 表格与段落布局、Excel 工作表交互和多模块发布整合。",
+  "latestVersion": "1.0.2",
+  "releaseNotes": "Excel 框线菜单中文化与 WPS 风格图标优化；修复中文界面显示，并同步 1.0.2 完整包与增量更新。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.1/MyAI-Office-1.0.1-arm64.zip",
-    "sha256": "e23bb2e6db272aae330925cc95181bcb4b90754a2c2cdc7b9f3412c7601c43e4",
-    "size": 165168336,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.2/MyAI-Office-1.0.2-arm64.zip",
+    "sha256": "57294e2f1dc68a5e5c8ecf25fcc9fdcb6e1630e287eb1e8d1a1f154cb874d815",
+    "size": 165170956,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.1/MyAI-Office-1.0.1-arm64.dmg",
-    "sha256": "124b41ff195d8de776c75fa908c58c9f25277b57718b4b6bd3d460ed122570fd",
-    "size": 164955518
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.2/MyAI-Office-1.0.2-arm64.dmg",
+    "sha256": "8f4bd8f05c8be482db2bbaaaa610a2e92003dc6aefaae5d474942c32f2b0773f",
+    "size": 164973553
   },
   "deltas": [
     {
-      "baseVersion": "0.10.1",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.1/MyAI-Office-0.10.1-to-1.0.1-arm64.bsdiff.zip",
-      "sha256": "499be800d55d41c786ccf5058fec019b9f11cb62839c410558d4d684dcbbb583",
-      "size": 5611365,
+      "baseVersion": "1.0.1",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.2/MyAI-Office-1.0.1-to-1.0.2-arm64.bsdiff.zip",
+      "sha256": "a700179700234fd45de7efed33bd17a5038f6775824ba8dab476ccbd92517577",
+      "size": 6324,
       "format": "bsdiff-v2"
     }
   ]
