@@ -45,7 +45,7 @@ index 678495f..fff8dbb 100644
    <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
    <a href="https://getartcraft.com/apps/gridcraft">GridCraft</a>
 diff --git a/ROADMAP.md b/ROADMAP.md
-index 070552d..5a9abb7 100644
+index 070552d..4e14b28 100644
 --- a/ROADMAP.md
 +++ b/ROADMAP.md
 @@ -2,7 +2,7 @@
@@ -53,23 +53,25 @@ index 070552d..5a9abb7 100644
  **Stage: alpha** · next: beta, ~25 points of "ready for real work" and ~160–240 h away
  
 -> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-12 · **Change:** minor (rows auto-fit oversized fonts on open and whole-row/column formatting) · **Target:** Microsoft Excel (Microsoft 365)
-+> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.6.1 legacy import); previous: minor (rows auto-fit oversized fonts on open and whole-row/column formatting) · **Target:** Microsoft Excel (Microsoft 365)
++> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.7.4 font picker chevrons); previous: patch (MyAI Office 0.7.1 CJK font picker and rendering) · **Target:** Microsoft Excel (Microsoft 365)
  
  GridCraft aims at full Microsoft Excel parity, and at being better in places: faster, open (XLSX
  is the native format), fully scriptable by agents (MCP, control channel, CLI), and on the web.
-@@ -132,6 +132,8 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
+@@ -132,6 +132,9 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
  
  | Date | What landed |
  |---|---|
++| 2026-10-16 | MyAI Office 0.7.4: font and font-size picker buttons now show an explicit dropdown chevron while keeping the existing popup and keyboard selection behavior. |
 +| 2026-10-16 | MyAI Office 0.7.1: persisted-language startup starts font discovery, including large macOS CJK collections and private suite fonts; Chinese aliases and typed picker choices bind actual workbook faces. |
 +| 2026-10-16 | MyAI Office 0.6.1: legacy XLS formatting import and XLSX round-trip regressions; private workbook remains outside source/release. |
  | 2026-10-12 | Rows auto-fit oversized fonts: opening a file and whole-row/column formatting grow non-custom rows to their tallest font (#833) |
  | 2026-10-12 | Number formats: parsing a format code is linear in its length (long runs of `[`, `,` or `/` no longer take quadratic time), and an unclosed `[` is a literal when splitting sections as well as when tokenizing (#810) |
  | 2026-10-12 | Number formats: a fraction denominator with 65,536 zeros no longer crashes; format codes are capped at 255 characters like Excel (longer codes display as General, `TEXT` gives `#VALUE!`) (#807) |
-@@ -193,6 +195,8 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
+@@ -193,6 +196,9 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
  
  | Date | Change | Summary |
  |---|---|---|
++| 2026-10-16 | patch | MyAI Office 0.7.4: visible font and font-size picker chevrons; popup selection behavior unchanged. |
 +| 2026-10-16 | patch | MyAI Office 0.7.1: selected Chinese fonts render through installed/private faces after language-specific startup; picker, catalog and XLSX reopen regressions. |
 +| 2026-10-16 | patch | MyAI Office 0.6.1: legacy XLS formatting import and XLSX round-trip regressions; private workbook remains outside source/release. |
  | 2026-10-12 | minor | Rows auto-fit oversized fonts on open and whole-row/column formatting (#833); progress log row |
@@ -567,11 +569,15 @@ index f96cdac..f4930e0 100644
          // anything that never reached a control (collapsed ribbon, tab switch) is dropped.
          self.ui.keytip_invoke = None;
 diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
-index 9c6d89e..6bac796 100644
+index 9c6d89e..519b234 100644
 --- a/crates/ui-egui/src/ribbon.rs
 +++ b/crates/ui-egui/src/ribbon.rs
-@@ -1066,9 +1066,13 @@ fn font_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
-     let resp = ui.add_sized([150.0, 24.0], egui::Button::new(egui::RichText::new(&name).font(theme::ui_font(12.5))));
+@@ -1063,12 +1063,16 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
+ 
+ fn font_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+     let name = st.font.name.clone();
+-    let resp = ui.add_sized([150.0, 24.0], egui::Button::new(egui::RichText::new(&name).font(theme::ui_font(12.5))));
++    let resp = combo_button(ui, &name, 150.0);
      control_keytip(app, ui, &resp, "home.fontName");
      let forced = invoke(app, "home.fontName");
 -    let items: Vec<(&str, String)> = FONTS.iter().map(|f| (*f, f.to_string())).collect();
@@ -587,7 +593,7 @@ index 9c6d89e..6bac796 100644
      }
  }
  
-@@ -1090,6 +1094,11 @@ pub const FONTS: &[&str] = &[
+@@ -1090,12 +1094,17 @@ pub const FONTS: &[&str] = &[
      "Times New Roman",
      "Trebuchet MS",
      "Verdana",
@@ -599,6 +605,34 @@ index 9c6d89e..6bac796 100644
  ];
  
  fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+     let size = st.font.size;
+     let label = if size.fract() == 0.0 { format!("{}", size as i32) } else { format!("{size}") };
+-    let resp = ui.add_sized([52.0, 24.0], egui::Button::new(egui::RichText::new(&label).font(theme::ui_font(12.5))));
++    let resp = combo_button(ui, &label, 52.0);
+     control_keytip(app, ui, &resp, "home.fontSize");
+     let forced = invoke(app, "home.fontSize");
+     let sizes = [8.0, 9.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 36.0, 48.0, 72.0];
+@@ -1114,6 +1123,20 @@ fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+     }
+ }
+ 
++/// A compact value button with the same frame as the ribbon inputs and a clear dropdown cue.
++/// The whole control remains the popup anchor, so clicking the value or the arrow behaves alike.
++fn combo_button(ui: &mut Ui, label: &str, width: f32) -> egui::Response {
++    let resp = ui.add_sized([width, 24.0], egui::Button::new(egui::RichText::new(label).font(theme::ui_font(12.5))));
++    let t = Tokens::get(ui.ctx());
++    icons::paint(
++        ui.painter(),
++        Rect::from_center_size(pos2(resp.rect.right() - 10.0, resp.rect.center().y + 1.0), vec2(10.0, 10.0)),
++        Icon::Chevron,
++        t.text_dim,
++    );
++    resp
++}
++
+ fn number_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+     let code = st.num_fmt.as_str().to_string();
+     let kind = gridcraft_engine::display::number_format(&code).kind();
 diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
 index 485b9a2..19684db 100644
 --- a/crates/ui-egui/src/theme.rs
@@ -990,6 +1024,34 @@ index 03e8672..8c3b0bb 100644
  | 2026-10-12 | minor | rows auto-fit oversized fonts on open and whole-row/column formatting (#833) |
  | 2026-10-12 | minor | Page Layout view: dragging margins on the rulers (#792) removed from the §14 remainder |
  | 2026-10-12 | minor | §13: Forecast Sheet Forecast Start (hindcast) landed (#785) |
+diff --git a/docs/ui-parity.md b/docs/ui-parity.md
+index 22e221e..4dcf561 100644
+--- a/docs/ui-parity.md
++++ b/docs/ui-parity.md
+@@ -1,6 +1,6 @@
+ # UI parity
+ 
+-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** minor (horizontal scrollbar in the sheet tab bar, #840) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
++> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** trivial (visible chevrons on font and font-size pickers) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
+ 
+ Interaction, controls and feel, against Excel. Part of [target-app-parity.md](target-app-parity.md).
+ **UI/UX fidelity: ~55% ready, 50–80 h** (estimated). Ribbon command coverage is measured
+@@ -16,6 +16,7 @@ Sources: `crates/ui-egui/src` (ribbon, grid, editor, formula bar, dialogs, panes
+ |---|---|---|---|
+ | Title bar, Quick Access Toolbar, AutoSave toggle | yes | yes | done; macOS window controls misaligned (#170), Dock icon size (#169) |
+ | Ribbon: tabs, groups, split buttons, galleries, contextual tabs | yes | yes (Table Design, Chart Design, Format, PivotTable, Header & Footer tabs) | done; missing contextual tabs for pictures, shapes, sparklines, slicers |
++| Font and font-size pickers | yes | yes | done; value buttons show a visible dropdown chevron and retain editable popup selection |
+ | Ribbon collapse, simplified ribbon, customize ribbon/QAT | yes | partial | customization missing (File ▸ Options is the one missing File command) |
+ | Ribbon: tabs, groups, split buttons, galleries, contextual tabs | yes | yes (Table Design, Chart Design, Format, PivotTable tabs) | done; missing contextual tabs for pictures, shapes, sparklines, header/footer, slicers |
+ | Ribbon collapse, simplified ribbon, customize ribbon/QAT | yes | partial | customization missing |
+@@ -161,6 +162,7 @@ scrollbar bugs 2–4 · pixel/feel pass against observed Excel 7–12.
+ 
+ | Date | Change | Summary |
+ |---|---|---|
++| 2026-10-16 | trivial | Font and font-size picker buttons show a visible dropdown chevron; the existing popup, keyboard navigation and typed font entry are unchanged. |
+ | 2026-10-12 | minor | The File view's recent list tells when each workbook was last changed, read off the UI thread |
+ | 2026-10-13 | minor | Horizontal scrollbar in the sheet tab bar: drag, track click pages, frozen columns excluded from the page (#840) |
+ | 2026-10-12 | minor | Ctrl+wheel zoom steps along a ladder of percentages about 20% apart that never skips 100%, gliding to each step with animations on, so a notch out undoes a notch in (it drifted: 100 → 122 → 101); Excel steps 15 points, see decisions.md |
 diff --git a/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in
 index 3cde6f9..9122253 100644
 --- a/packaging/linux/ai.storyteller.gridcraft.metainfo.xml.in

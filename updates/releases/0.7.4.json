@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.7.4",
+  "releaseNotes": "修复 MyAI Excel 字体和字号选择框缺少下箭头的问题；保留原有下拉选择、键盘导航和字体应用功能。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.4/MyAI-Office-0.7.4-arm64.zip",
+    "sha256": "323bf90e62f0d480599f37f2d1dc7cab7aaa7ebcf7b86513fcaa7caed447ec63",
+    "size": 221699999,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.4/MyAI-Office-0.7.4-arm64.dmg",
+    "sha256": "f44445af726f7b2bf79bf93fae4dff5afc33dbe14a6574eed06be31546d7007c",
+    "size": 221471591
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.7.3",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.4/MyAI-Office-0.7.3-to-0.7.4-arm64.bsdiff.zip",
+      "sha256": "c88ebc88e7004dfd7a4c096902bb3f3e8dd69f1393458ed5c19b8d17eb3b7e8b",
+      "size": 675887,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
