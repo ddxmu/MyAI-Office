@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.9.0",
+  "releaseNotes": "按系统语言自动适配 Excel、Word、PowerPoint 和 PDF 界面；补齐图表、版式、偏好设置等功能文案，并修复 PDF 技术支持入口的多语言目录覆盖。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.9.0/MyAI-Office-0.9.0-arm64.zip",
+    "sha256": "11b7693c50e8ba7eb1a4f786bdd6a304d0e6741059fb92cc5b6897e15a8b50fe",
+    "size": 164118329,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.9.0/MyAI-Office-0.9.0-arm64.dmg",
+    "sha256": "8c040c54a023a389b945b2127946dd12f6d4b0d038ced3220f94ed35d84e651f",
+    "size": 163898928
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.8.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.9.0/MyAI-Office-0.8.0-to-0.9.0-arm64.bsdiff.zip",
+      "sha256": "c4091943c2f29f3bcfbb3e724a1a2bec46281eb17cc0bd32ec37a7953e474628",
+      "size": 3104,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
