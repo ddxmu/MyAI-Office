@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.7.5",
-  "releaseNotes": "修复中文 DOCX 编辑界面把缩进、中文排版空格和表格尾随空格误标为蓝色双横线的问题；保留英文重复空格检查。",
+  "latestVersion": "0.7.6",
+  "releaseNotes": "修复中文 Word 表格边框显示、辅助网格线覆盖和合并单元格视觉错位。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.5/MyAI-Office-0.7.5-arm64.zip",
-    "sha256": "07123de0380592c1643029f420582524d06f157042b571f2218f008bda6ca67d",
-    "size": 164089666,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.6-arm64.zip",
+    "sha256": "1084e60054a472bc1a636bd34625ed5feded96dba1e048652fdc3ff197c67f9b",
+    "size": 164089613,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.5/MyAI-Office-0.7.5-arm64.dmg",
-    "sha256": "7b762e8f3c10e12a437e3e84a9d74217abfcd9d462288fba25f89e3c01971b82",
-    "size": 163878900
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.6-arm64.dmg",
+    "sha256": "ec6367db850f21e95193dd855b37ac8868e4fbb249972e52d2b27059efd1db16",
+    "size": 163876721
   },
   "deltas": [
     {
-      "baseVersion": "0.7.4",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.5/MyAI-Office-0.7.4-to-0.7.5-arm64.bsdiff.zip",
-      "sha256": "4520193dab59abb719db358ed1b05e433cea4cffa90e3493798acea42c962713",
-      "size": 912736,
+      "baseVersion": "0.7.5",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.5-to-0.7.6-arm64.bsdiff.zip",
+      "sha256": "ca3f783b0c2cbb0ff27c7a37ecb3e7c42708c929a6420766fd931a593b7b790d",
+      "size": 9298,
       "format": "bsdiff-v2"
     }
   ]

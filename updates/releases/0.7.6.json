@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.7.6",
+  "releaseNotes": "修复中文 Word 表格边框显示、辅助网格线覆盖和合并单元格视觉错位。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.6-arm64.zip",
+    "sha256": "1084e60054a472bc1a636bd34625ed5feded96dba1e048652fdc3ff197c67f9b",
+    "size": 164089613,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.6-arm64.dmg",
+    "sha256": "ec6367db850f21e95193dd855b37ac8868e4fbb249972e52d2b27059efd1db16",
+    "size": 163876721
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.7.5",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.5-to-0.7.6-arm64.bsdiff.zip",
+      "sha256": "ca3f783b0c2cbb0ff27c7a37ecb3e7c42708c929a6420766fd931a593b7b790d",
+      "size": 9298,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
