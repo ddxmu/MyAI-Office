@@ -222,6 +222,21 @@ index e713f66..c0c8581 100644
  
      let bar = nsapp.mainMenu().expect("a main menu");
      let tops: Vec<String> = (0..bar.numberOfItems()).filter_map(|i| bar.itemAtIndex(i)?.submenu()).map(|m| m.title().to_string()).collect();
+diff --git a/crates/engine/src/catalog.rs b/crates/engine/src/catalog.rs
+index d6b67e1..d00d68c 100644
+--- a/crates/engine/src/catalog.rs
++++ b/crates/engine/src/catalog.rs
+@@ -49,7 +49,10 @@ pub const CATALOG: &[(&str, &str, &str, &str)] = &[
+     ("home.wrapText", "Home", "Alignment", "Wrap Text"),
+     ("home.mergeCenter", "Home", "Alignment", "Merge & Center"),
+     ("home.mergeAcross", "Home", "Alignment", "Merge Across"),
++    ("home.mergeContents", "Home", "Alignment", "Merge Contents"),
+     ("home.mergeCells", "Home", "Alignment", "Merge Cells"),
++    ("home.mergeDown", "Home", "Alignment", "Merge Down"),
++    ("home.centerAcrossSelection", "Home", "Alignment", "Center Across Selection"),
+     ("home.unmergeCells", "Home", "Alignment", "Unmerge Cells"),
+     ("home.numberFormat", "Home", "Number", "Number Format"),
+     ("home.accounting", "Home", "Number", "Accounting Number Format"),
 diff --git a/crates/engine/src/cmd/file.rs b/crates/engine/src/cmd/file.rs
 index 7291ee8..dc7d59f 100644
 --- a/crates/engine/src/cmd/file.rs
@@ -245,6 +260,173 @@ index 7291ee8..dc7d59f 100644
      let d = s.doc()?;
      Ok(
          json!({"index": i, "title": d.display_title(), "sheets": d.wb.sheets.iter().map(|s| s.name.clone()).collect::<Vec<_>>(), "warnings": warnings}),
+diff --git a/crates/engine/src/cmd/format.rs b/crates/engine/src/cmd/format.rs
+index 4712351..09a1a95 100644
+--- a/crates/engine/src/cmd/format.rs
++++ b/crates/engine/src/cmd/format.rs
+@@ -1,6 +1,6 @@
+ //! Formatting: Home › Font, Alignment, Number, Styles, Cells › Format.
+ 
+-use gridcraft_core::{CellRef, RangeRef};
++use gridcraft_core::{CellRef, RangeRef, Value};
+ use gridcraft_model::*;
+ use serde_json::{Value as Json, json};
+ 
+@@ -121,7 +121,12 @@ pub fn specs() -> Vec<CommandSpec> {
+         ),
+         cmd!("home.mergeCenter", "Merge & Center", ["Home", "Alignment"], None, "{range?}", has_doc, |s, p| merge(s, p, "center")),
+         cmd!("home.mergeAcross", "Merge Across", ["Home", "Alignment"], None, "{range?}", has_doc, |s, p| merge(s, p, "across")),
++        cmd!("home.mergeContents", "Merge Contents", ["Home", "Alignment"], None, "{range?, separator?: string}", has_doc, |s, p| merge(
++            s, p, "contents"
++        )),
+         cmd!("home.mergeCells", "Merge Cells", ["Home", "Alignment"], None, "{range?}", has_doc, |s, p| merge(s, p, "cells")),
++        cmd!("home.mergeDown", "Merge Down", ["Home", "Alignment"], None, "{range?}", has_doc, |s, p| merge(s, p, "down")),
++        cmd!("home.centerAcrossSelection", "Center Across Selection", ["Home", "Alignment"], None, "{range?}", has_doc, center_across_selection),
+         cmd!("home.unmergeCells", "Unmerge Cells", ["Home", "Alignment"], None, "{range?}", has_doc, |s, p| merge(s, p, "unmerge")),
+         // Number
+         cmd!(
+@@ -559,6 +564,10 @@ fn orientation(s: &mut Session, p: &Json) -> Result<Json> {
+ fn merge(s: &mut Session, p: &Json, how: &str) -> Result<Json> {
+     let sheet = target_sheet(s, p)?;
+     let ranges = target_ranges(s, p)?;
++    if ranges.iter().any(|r| r.count() > 1_000_000) {
++        return Err(bad("home.merge", "selection too large"));
++    }
++    let separator = str_param(p, "separator").unwrap_or(" ").to_string();
+     let how =
+         if how == "center" && s.doc()?.wb.sheet(sheet).is_some_and(|sh| ranges.iter().all(|r| sh.merges.contains(r))) { "unmerge" } else { how };
+     edit(s, |cx| {
+@@ -566,6 +575,19 @@ fn merge(s: &mut Session, p: &Json, how: &str) -> Result<Json> {
+         // Areas whose merging changes: a merged cell blocks a dynamic array's spill.
+         let mut areas: Vec<RangeRef> = ranges.clone();
+         for r in &ranges {
++            let content_text = if how == "contents" {
++                let source = cx.wb.sheet(sheet).ok_or(EngineError::NoDocument)?;
++                Some(
++                    (r.start.row..=r.end.row)
++                        .flat_map(|row| (r.start.col..=r.end.col).map(move |col| CellRef::new(row, col)))
++                        .map(|c| crate::display::value_text(&cx.wb, source, c))
++                        .filter(|text| !text.is_empty())
++                        .collect::<Vec<_>>()
++                        .join(&separator),
++                )
++            } else {
++                None
++            };
+             let sh = cx.sheet_mut(sheet)?;
+             areas.extend(sh.merges.iter().filter(|m| m.intersects(r)));
+             sh.merges.retain(|m| !m.intersects(r));
+@@ -589,6 +611,47 @@ fn merge(s: &mut Session, p: &Json, how: &str) -> Result<Json> {
+                         }
+                     }
+                 }
++                "down" => {
++                    for col in r.start.col..=r.end.col {
++                        let m = RangeRef::new(CellRef::new(r.start.row, col), CellRef::new(r.end.row, col));
++                        if !m.is_single() {
++                            sh.merges.push(m);
++                            // As below: only the first value of each column survives.
++                            let others: Vec<CellRef> = sh.cells.iter_range(m).map(|(c, _)| c).filter(|c| *c != m.start).collect();
++                            for c in others {
++                                if let Some(mut cell) = sh.cells.get(c).cloned() {
++                                    cell.value = Value::Empty;
++                                    cell.formula = None;
++                                    sh.set_cell(c, cell);
++                                }
++                                touched.push((sheet, c));
++                            }
++                        }
++                    }
++                }
++                "contents" => {
++                    let text = content_text.unwrap_or_default();
++                    let others: Vec<CellRef> = sh.cells.iter_range(*r).map(|(c, _)| c).filter(|c| *c != r.start).collect();
++                    for c in others {
++                        if let Some(mut cell) = sh.cells.get(c).cloned() {
++                            cell.value = Value::Empty;
++                            cell.formula = None;
++                            sh.set_cell(c, cell);
++                        }
++                        touched.push((sheet, c));
++                    }
++                    if text.is_empty() {
++                        if let Some(mut cell) = sh.cells.get(r.start).cloned() {
++                            cell.value = Value::Empty;
++                            cell.formula = None;
++                            sh.set_cell(r.start, cell);
++                            touched.push((sheet, r.start));
++                        }
++                    } else {
++                        sh.set_value(r.start, Value::text(text));
++                        touched.push((sheet, r.start));
++                    }
++                }
+                 _ => {
+                     if !r.is_single() {
+                         sh.merges.push(*r);
+@@ -628,6 +691,10 @@ fn merge(s: &mut Session, p: &Json, how: &str) -> Result<Json> {
+     ok()
+ }
+ 
++fn center_across_selection(s: &mut Session, p: &Json) -> Result<Json> {
++    apply_style(s, p, |st| st.align.h = HAlign::CenterAcross)
++}
++
+ /// Ribbon format names → codes.
+ pub fn format_code_for(name: &str) -> &str {
+     match name {
+@@ -1137,6 +1204,51 @@ mod tests {
+         assert_eq!(v(&mut s, "D1"), json!(4.0));
+     }
+ 
++    #[test]
++    fn merge_down_keeps_the_first_value_of_each_column() {
++        let mut s = crate::Session::new();
++        s.new_workbook();
++        s.execute("range.setValues", json!({"range": "A1", "values": [[1, 2], [3, 4]]})).unwrap();
++        s.execute("home.mergeDown", json!({"range": "A1:B2"})).unwrap();
++        let d = s.doc().unwrap();
++        let sh = d.wb.active().unwrap();
++        assert!(sh.merges.contains(&RangeRef::parse("A1:A2").unwrap()));
++        assert!(sh.merges.contains(&RangeRef::parse("B1:B2").unwrap()));
++        let v = |s: &mut crate::Session, a: &str| s.execute("cell.get", json!({"cell": a})).unwrap()["value"].clone();
++        assert_eq!(v(&mut s, "A1"), json!(1.0));
++        assert_eq!(v(&mut s, "B1"), json!(2.0));
++        assert_eq!(v(&mut s, "A2"), Json::Null);
++        assert_eq!(v(&mut s, "B2"), Json::Null);
++    }
++
++    #[test]
++    fn merge_contents_joins_displayed_values_without_creating_a_merge() {
++        let mut s = crate::Session::new();
++        s.new_workbook();
++        s.execute("range.setValues", json!({"range": "A1", "values": [["one", 2], [3, ""]]})).unwrap();
++        s.execute("home.mergeContents", json!({"range": "A1:B2", "separator": " | "})).unwrap();
++        let d = s.doc().unwrap();
++        assert!(d.wb.active().unwrap().merges.is_empty());
++        let v = |s: &mut crate::Session, a: &str| s.execute("cell.get", json!({"cell": a})).unwrap()["value"].clone();
++        assert_eq!(v(&mut s, "A1"), json!("one | 2 | 3"));
++        assert_eq!(v(&mut s, "B1"), Json::Null);
++        assert_eq!(v(&mut s, "A2"), Json::Null);
++    }
++
++    #[test]
++    fn center_across_selection_sets_alignment_without_structural_merge() {
++        let mut s = crate::Session::new();
++        s.new_workbook();
++        s.execute("cell.set", json!({"cell": "A1", "input": "title"})).unwrap();
++        s.execute("home.centerAcrossSelection", json!({"range": "A1:C1"})).unwrap();
++        let d = s.doc().unwrap();
++        let sh = d.wb.active().unwrap();
++        assert!(sh.merges.is_empty());
++        assert_eq!(d.wb.styles.get(sh.style_id(CellRef::parse("A1").unwrap())).align.h, HAlign::CenterAcross);
++        assert_eq!(d.wb.styles.get(sh.style_id(CellRef::parse("B1").unwrap())).align.h, HAlign::CenterAcross);
++        assert_eq!(d.wb.styles.get(sh.style_id(CellRef::parse("C1").unwrap())).align.h, HAlign::CenterAcross);
++    }
++
+     #[test]
+     fn decimal_steps() {
+         let v = gridcraft_core::Value::Number(1.5);
 diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
 index ae499a1..f5d3201 100644
 --- a/crates/engine/src/tests.rs
@@ -447,7 +629,7 @@ index fb9236c..ee707bf 100644
          "(unnamed)" => "(sem nome)",
          "— VBA project (preserved, not run)" => "— Projeto VBA (preservado, não executado)",
 diff --git a/crates/ui-egui/src/i18n/zh.rs b/crates/ui-egui/src/i18n/zh.rs
-index 0017592..e466918 100644
+index 0017592..7be3bed 100644
 --- a/crates/ui-egui/src/i18n/zh.rs
 +++ b/crates/ui-egui/src/i18n/zh.rs
 @@ -2,6 +2,9 @@
@@ -460,7 +642,19 @@ index 0017592..e466918 100644
          "Paste" => "粘贴",
          "Paste Values" => "粘贴值",
          "Paste Formulas" => "粘贴公式",
-@@ -402,6 +405,63 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+@@ -27,7 +30,10 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+         "Wrap Text" => "自动换行",
+         "Merge & Center" => "合并后居中",
+         "Merge Cells" => "合并单元格",
+-        "Merge Across" => "跨行合并",
++        "Merge Contents" => "合并内容",
++        "Merge Across" => "按行合并",
++        "Merge Down" => "按列合并",
++        "Center Across Selection" => "跨列居中",
+         "Unmerge Cells" => "取消合并单元格",
+         "Fill Color" => "填充颜色",
+         "Font Color" => "字体颜色",
+@@ -402,6 +408,63 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "Workbook calculation" => "工作簿计算",
          "Enable iterative calculation" => "启用迭代计算",
          "Calculation settings are saved with the workbook." => "计算设置随工作簿一起保存。",
@@ -524,6 +718,67 @@ index 0017592..e466918 100644
          _ => return None,
      })
  }
+diff --git a/crates/ui-egui/src/keytips/keytip_table/generated.rs b/crates/ui-egui/src/keytips/keytip_table/generated.rs
+index 79920b5..51e4372 100644
+--- a/crates/ui-egui/src/keytips/keytip_table/generated.rs
++++ b/crates/ui-egui/src/keytips/keytip_table/generated.rs
+@@ -113,7 +113,10 @@ pub const SEQUENCES: &[(&str, Entry)] = &[
+     ("HM", Entry::Continue),  // Excel: Merge & Center Menu; group level: containment(Merge & Center)
+     ("HMA", Entry::Finish(Action::Command("home.mergeAcross"))), // Excel: Merge Across
+     ("HMC", Entry::Finish(Action::Command("home.mergeCenter"))), // Excel: Merge & Center
++    ("HMD", Entry::Finish(Action::Command("home.mergeDown"))), // Excel: Merge Down; column-wise merge
++    ("HME", Entry::Finish(Action::Command("home.centerAcrossSelection"))), // Excel: Center Across Selection
+     ("HMM", Entry::Finish(Action::Command("home.mergeCells"))), // Excel: Merge Cells
++    ("HMN", Entry::Finish(Action::Command("home.mergeContents"))), // Excel: Merge Contents
+     ("HMU", Entry::Finish(Action::Command("home.unmergeCells"))), // Excel: Unmerge Cells
+     ("HN", Entry::Finish(Action::Control("home.numberFormat"))), // Excel: Number Format; opens the number-format dropdown
+     ("HOA", Entry::Finish(Action::Command("home.autofitRowHeight"))), // Excel: AutoFit Row Height
+diff --git a/crates/ui-egui/src/keytips/keytips.json b/crates/ui-egui/src/keytips/keytips.json
+index 59aeadc..d21cc7d 100644
+--- a/crates/ui-egui/src/keytips/keytips.json
++++ b/crates/ui-egui/src/keytips/keytips.json
+@@ -721,6 +721,20 @@
+    "excel": "Merge & Center",
+    "note": ""
+   },
++  {
++   "seq": "HMD",
++   "kind": "command",
++   "target": "home.mergeDown",
++   "excel": "Merge Down",
++   "note": "column-wise merge"
++  },
++  {
++   "seq": "HME",
++   "kind": "command",
++   "target": "home.centerAcrossSelection",
++   "excel": "Center Across Selection",
++   "note": ""
++  },
+   {
+    "seq": "HMM",
+    "kind": "command",
+@@ -728,6 +742,13 @@
+    "excel": "Merge Cells",
+    "note": ""
+   },
++  {
++   "seq": "HMN",
++   "kind": "command",
++   "target": "home.mergeContents",
++   "excel": "Merge Contents",
++   "note": ""
++  },
+   {
+    "seq": "HMU",
+    "kind": "command",
+@@ -2523,4 +2544,4 @@
+    "note": "Alt+Q search box does not exist yet (issue #49)"
+   }
+  ]
+-}
+\ No newline at end of file
++}
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
 index f96cdac..f4930e0 100644
 --- a/crates/ui-egui/src/lib.rs
@@ -569,10 +824,24 @@ index f96cdac..f4930e0 100644
          // anything that never reached a control (collapsed ribbon, tab switch) is dropped.
          self.ui.keytip_invoke = None;
 diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
-index 9c6d89e..519b234 100644
+index 9c6d89e..e7bfee6 100644
 --- a/crates/ui-egui/src/ribbon.rs
 +++ b/crates/ui-egui/src/ribbon.rs
-@@ -1063,12 +1063,16 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
+@@ -774,8 +774,12 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
+                     ui,
+                     &[
+                         ("Merge & Center", "home.mergeCenter", json!({})),
+-                        ("Merge Across", "home.mergeAcross", json!({})),
+                         ("Merge Cells", "home.mergeCells", json!({})),
++                        ("Merge Contents", "home.mergeContents", json!({})),
++                        ("Merge Across", "home.mergeAcross", json!({})),
++                        ("Merge Down", "home.mergeDown", json!({})),
++                        ("Center Across Selection", "home.centerAcrossSelection", json!({})),
++                        ("-", "", json!(null)),
+                         ("Unmerge Cells", "home.unmergeCells", json!({})),
+                     ],
+                 );
+@@ -1063,12 +1067,16 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
  
  fn font_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
      let name = st.font.name.clone();
@@ -593,7 +862,7 @@ index 9c6d89e..519b234 100644
      }
  }
  
-@@ -1090,12 +1094,17 @@ pub const FONTS: &[&str] = &[
+@@ -1090,12 +1098,17 @@ pub const FONTS: &[&str] = &[
      "Times New Roman",
      "Trebuchet MS",
      "Verdana",
@@ -612,7 +881,7 @@ index 9c6d89e..519b234 100644
      control_keytip(app, ui, &resp, "home.fontSize");
      let forced = invoke(app, "home.fontSize");
      let sizes = [8.0, 9.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 36.0, 48.0, 72.0];
-@@ -1114,6 +1123,20 @@ fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+@@ -1114,6 +1127,20 @@ fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
      }
  }
  
@@ -659,6 +928,54 @@ index 485b9a2..19684db 100644
      drop_unparseable_fonts(&mut fonts);
      // Only families egui still has data for count as bound (a dropped face can empty a chain).
      bound.retain(|f| fonts.families.get(&FontFamily::Name(f.as_str().into())).is_some_and(|c| !c.is_empty()));
+diff --git a/crates/ui-egui/tests/keytips_generated.rs b/crates/ui-egui/tests/keytips_generated.rs
+index 6535548..8998356 100644
+--- a/crates/ui-egui/tests/keytips_generated.rs
++++ b/crates/ui-egui/tests/keytips_generated.rs
+@@ -819,6 +819,20 @@ fn keytip_hmc_() {
+     assert!(h.state().session.journal.iter().any(|(id, _)| id == "home.mergeCenter"), "HMC must journal home.mergeCenter");
+ }
+ 
++#[test]
++fn keytip_hmd_() {
++    let mut h = harness(blank());
++    sequence(&mut h, "HMD", false);
++    assert!(h.state().session.journal.iter().any(|(id, _)| id == "home.mergeDown"), "HMD must journal home.mergeDown");
++}
++
++#[test]
++fn keytip_hme_() {
++    let mut h = harness(blank());
++    sequence(&mut h, "HME", false);
++    assert!(h.state().session.journal.iter().any(|(id, _)| id == "home.centerAcrossSelection"), "HME must journal home.centerAcrossSelection");
++}
++
+ #[test]
+ fn keytip_hmm_() {
+     let mut h = harness(blank());
+@@ -826,6 +840,13 @@ fn keytip_hmm_() {
+     assert!(h.state().session.journal.iter().any(|(id, _)| id == "home.mergeCells"), "HMM must journal home.mergeCells");
+ }
+ 
++#[test]
++fn keytip_hmn_() {
++    let mut h = harness(blank());
++    sequence(&mut h, "HMN", false);
++    assert!(h.state().session.journal.iter().any(|(id, _)| id == "home.mergeContents"), "HMN must journal home.mergeContents");
++}
++
+ #[test]
+ fn keytip_hmu_() {
+     let mut h = harness(blank());
+@@ -2741,7 +2762,7 @@ fn keytip_q_() {
+ 
+ #[test]
+ fn generated_test_count_matches_the_table() {
+-    const EXPECTED: usize = 364;
++    const EXPECTED: usize = 367;
+     assert_eq!(gridcraft_ui_egui::keytips::keytip_table::SEQUENCES.len(), EXPECTED);
+ }
+ 
 diff --git a/crates/xlsx/src/tests/xls_tests.rs b/crates/xlsx/src/tests/xls_tests.rs
 index 91e63c1..cc845e0 100644
 --- a/crates/xlsx/src/tests/xls_tests.rs
@@ -1025,14 +1342,14 @@ index 03e8672..8c3b0bb 100644
  | 2026-10-12 | minor | Page Layout view: dragging margins on the rulers (#792) removed from the §14 remainder |
  | 2026-10-12 | minor | §13: Forecast Sheet Forecast Start (hindcast) landed (#785) |
 diff --git a/docs/ui-parity.md b/docs/ui-parity.md
-index 22e221e..4dcf561 100644
+index 22e221e..bb54423 100644
 --- a/docs/ui-parity.md
 +++ b/docs/ui-parity.md
 @@ -1,6 +1,6 @@
  # UI parity
  
 -> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** minor (horizontal scrollbar in the sheet tab bar, #840) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
-+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** trivial (visible chevrons on font and font-size pickers) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
++> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** minor (Excel-style merge menu: merge contents, across/down and center across selection) · **Target:** Microsoft Excel (Microsoft 365), Excel for Mac 16.113.4
  
  Interaction, controls and feel, against Excel. Part of [target-app-parity.md](target-app-parity.md).
  **UI/UX fidelity: ~55% ready, 50–80 h** (estimated). Ribbon command coverage is measured
@@ -1044,10 +1361,19 @@ index 22e221e..4dcf561 100644
  | Ribbon collapse, simplified ribbon, customize ribbon/QAT | yes | partial | customization missing (File ▸ Options is the one missing File command) |
  | Ribbon: tabs, groups, split buttons, galleries, contextual tabs | yes | yes (Table Design, Chart Design, Format, PivotTable tabs) | done; missing contextual tabs for pictures, shapes, sparklines, header/footer, slicers |
  | Ribbon collapse, simplified ribbon, customize ribbon/QAT | yes | partial | customization missing |
-@@ -161,6 +162,7 @@ scrollbar bugs 2–4 · pixel/feel pass against observed Excel 7–12.
+@@ -46,6 +47,7 @@ this logic, with one undo step.
+ | Click/drag/Shift/Ctrl selection, multi-area selection | rectangular drag works in one direction only in some cases (#28) |
+ | Selection outline glides to a new selection (Excel: "Provide feedback with animation") | done (10-11): 0.12 s, decelerating, with the fill and fill handle; View ▸ Animations (`view.animations`) turns it off. The timing is an estimate, not yet measured against Excel; the system's reduced-motion setting isn't followed yet |
+ | Fill handle: drag to fill series, double-click to fill down, right-drag menu | fill done (Ctrl+drag swaps copy and series); right-drag menu missing |
++| Merge dropdown: merge & center, merge cells, merge contents, merge across/down, center across selection | done; WPS/Excel-style selection menu; merge contents keeps the values in the upper-left cell without creating a structural merge |
+ | Drag-move and drag-copy cells (border drag, Ctrl/Option, Shift to insert) | done (M3) |
+ | In-cell editing, Enter/Tab movement, Alt/Option+Enter line breaks | done |
+ | Point mode (click/drag/arrow references), reference colouring, F4 | done |
+@@ -161,6 +163,8 @@ scrollbar bugs 2–4 · pixel/feel pass against observed Excel 7–12.
  
  | Date | Change | Summary |
  |---|---|---|
++| 2026-10-16 | minor | Added the Excel-style merge dropdown actions: merge contents, merge across/down, and center across selection; existing merge/unmerge actions remain available. |
 +| 2026-10-16 | trivial | Font and font-size picker buttons show a visible dropdown chevron; the existing popup, keyboard navigation and typed font entry are unchanged. |
  | 2026-10-12 | minor | The File view's recent list tells when each workbook was last changed, read off the UI thread |
  | 2026-10-13 | minor | Horizontal scrollbar in the sheet tab bar: drag, track click pages, frozen columns excluded from the page (#840) |
@@ -1078,347 +1404,3 @@ index 9a64b61..5aa11e8 100644
  
      <!-- An explicit command-line value wins. Otherwise retain the previous installation's
           choice, defaulting to off for a fresh install. Run only in the first sequence so the
-diff --git a/crates/xlsx/src/xls/formatting.rs b/crates/xlsx/src/xls/formatting.rs
-new file mode 100644
-index 0000000..ff85978
---- /dev/null
-+++ b/crates/xlsx/src/xls/formatting.rs
-@@ -0,0 +1,314 @@
-+//! BIFF8 Font, Palette and XF formatting, from [MS-XLS] 2.4.122, 2.4.188 and 2.4.353.
-+//! Keep font and palette references until all globals have been read: Palette often follows XF.
-+
-+use gridcraft_model::{
-+    Alignment, BorderLine, BorderStyle, Borders, Color, Fill, Font, HAlign, NumFmt, PatternType, Style, Theme, Underline, VAlign, VertAlign,
-+};
-+
-+use super::records::Cursor;
-+use crate::IoError;
-+
-+pub(super) struct FontRecord {
-+    font: Font,
-+    color: u16,
-+}
-+
-+impl FontRecord {
-+    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
-+        let height = c.u16()?;
-+        let flags = c.u16()?;
-+        let color = c.u16()?;
-+        let weight = c.u16()?;
-+        let escapement = c.u16()?;
-+        let underline = c.u8()?;
-+        c.skip(3)?; // family, character set, reserved
-+        let name = c.short_string()?;
-+        let mut font = Font {
-+            size: (f32::from(height) / 20.0).clamp(1.0, 409.5),
-+            bold: weight >= 700,
-+            italic: flags & 2 != 0,
-+            strike: flags & 8 != 0,
-+            underline: match underline {
-+                1 => Underline::Single,
-+                2 => Underline::Double,
-+                0x21 => Underline::SingleAccounting,
-+                0x22 => Underline::DoubleAccounting,
-+                _ => Underline::None,
-+            },
-+            vert: match escapement {
-+                1 => VertAlign::Superscript,
-+                2 => VertAlign::Subscript,
-+                _ => VertAlign::Baseline,
-+            },
-+            ..Font::default()
-+        };
-+        if !name.is_empty() {
-+            font.name = name;
-+        }
-+        Ok(Self { font, color })
-+    }
-+
-+    pub(super) fn name(&self) -> &str {
-+        &self.font.name
-+    }
-+
-+    pub(super) fn resolve(&self, palette: &[u32]) -> Font {
-+        Font { color: color(self.color, palette), ..self.font.clone() }
-+    }
-+}
-+
-+pub(super) struct Xf {
-+    font: u16,
-+    pub(super) format: u16,
-+    data: Option<[u8; 16]>,
-+}
-+
-+impl Xf {
-+    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
-+        let font = c.u16()?;
-+        let format = c.u16()?;
-+        // Keep accepting the short XFs accepted by the old reader; use default properties
-+        // for a missing tail, rather than interpreting zero padding as real formatting.
-+        let data = if c.remaining() >= 16 {
-+            let mut data = [0; 16];
-+            for b in &mut data {
-+                *b = c.u8()?;
-+            }
-+            Some(data)
-+        } else {
-+            None
-+        };
-+        Ok(Self { font, format, data })
-+    }
-+
-+    pub(super) fn resolve(&self, fonts: &[FontRecord], palette: &[u32], number_format: &str) -> Style {
-+        // FontIndex 4 is reserved. Indices above it are one greater than their array index.
-+        let index = match self.font {
-+            0..=3 => Some(usize::from(self.font)),
-+            5.. => Some(usize::from(self.font - 1)),
-+            _ => None,
-+        };
-+        let font = index.and_then(|i| fonts.get(i)).or_else(|| fonts.first()).map(|f| f.resolve(palette)).unwrap_or_default();
-+        let mut style = Style { font, num_fmt: NumFmt::new(number_format), ..Style::default() };
-+        let Some([p0, p1, align, rotation, indent, _, b0, b1, b2, b3, b4, b5, b6, b7, f0, f1]) = self.data else { return style };
-+        let lr = u32::from_le_bytes([b0, b1, b2, b3]);
-+        let tb = u32::from_le_bytes([b4, b5, b6, b7]);
-+        let fill = u16::from_le_bytes([f0, f1]);
-+        let border = |kind: u32, index: u32| {
-+            let style = border_style(kind as u8);
-+            if style == BorderStyle::None { BorderLine::default() } else { BorderLine { style, color: color(index as u16, palette) } }
-+        };
-+        let diagonal = border((tb >> 21) & 15, (tb >> 14) & 127);
-+        style.borders = Borders {
-+            left: border(lr & 15, (lr >> 16) & 127),
-+            right: border((lr >> 4) & 15, (lr >> 23) & 127),
-+            top: border((lr >> 8) & 15, tb & 127),
-+            bottom: border((lr >> 12) & 15, (tb >> 7) & 127),
-+            diag_down: if lr & (1 << 30) != 0 { diagonal } else { BorderLine::default() },
-+            diag_up: if lr & (1 << 31) != 0 { diagonal } else { BorderLine::default() },
-+        };
-+        let pattern = pattern((tb >> 26) as u8);
-+        if pattern != PatternType::None {
-+            style.fill = Fill { pattern, fg: color(fill & 127, palette), bg: color((fill >> 7) & 127, palette) };
-+        }
-+        style.align = Alignment {
-+            h: match align & 7 {
-+                1 => HAlign::Left,
-+                2 => HAlign::Center,
-+                3 => HAlign::Right,
-+                4 => HAlign::Fill,
-+                5 => HAlign::Justify,
-+                6 => HAlign::CenterAcross,
-+                7 => HAlign::Distributed,
-+                _ => HAlign::General,
-+            },
-+            v: match (align >> 4) & 7 {
-+                0 => VAlign::Top,
-+                1 => VAlign::Center,
-+                3 => VAlign::Justify,
-+                4 => VAlign::Distributed,
-+                _ => VAlign::Bottom,
-+            },
-+            wrap: align & 8 != 0,
-+            shrink: indent & 16 != 0,
-+            indent: indent & 15,
-+            rotation: match rotation {
-+                0..=90 => i16::from(rotation),
-+                91..=180 => 90 - i16::from(rotation),
-+                255 => 255,
-+                _ => 0,
-+            },
-+        };
-+        let protection = u16::from_le_bytes([p0, p1]);
-+        style.protection.locked = protection & 1 != 0;
-+        style.protection.hidden = protection & 2 != 0;
-+        style
-+    }
-+}
-+
-+/// XFExt colours override the older, lossy palette approximations in XF/Font records.
-+pub(super) struct XfExt {
-+    pub(super) index: usize,
-+    colors: Vec<(u16, [u8; 16])>,
-+    indent: Option<u8>,
-+}
-+
-+impl XfExt {
-+    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
-+        c.skip(14)?; // FrtHeader and reserved1
-+        let index = usize::from(c.u16()?);
-+        c.skip(2)?;
-+        let count = c.u16()?;
-+        let mut ext = Self { index, colors: Vec::new(), indent: None };
-+        for _ in 0..count {
-+            let kind = c.u16()?;
-+            let size = usize::from(c.u16()?).checked_sub(4).ok_or_else(|| super::invalid("short XFExt property"))?;
-+            if size > c.remaining() {
-+                return Err(super::invalid("truncated XFExt property"));
-+            }
-+            if matches!(kind, 4 | 5 | 7..=11 | 13) && size == 16 {
-+                let mut bytes = [0; 16];
-+                for b in &mut bytes {
-+                    *b = c.u8()?;
-+                }
-+                ext.colors.push((kind, bytes));
-+            } else if kind == 15 && size == 2 {
-+                ext.indent = Some(c.u16()?.min(250) as u8);
-+            } else {
-+                c.skip(size)?;
-+            }
-+        }
-+        Ok(ext)
-+    }
-+
-+    pub(super) fn apply(&self, style: &mut Style, palette: &[u32]) {
-+        for (kind, bytes) in &self.colors {
-+            let Some(color) = full_color(bytes, palette) else { continue };
-+            match kind {
-+                4 => style.fill.fg = color,
-+                5 => style.fill.bg = color,
-+                7 => style.borders.top.color = color,
-+                8 => style.borders.bottom.color = color,
-+                9 => style.borders.left.color = color,
-+                10 => style.borders.right.color = color,
-+                11 => {
-+                    style.borders.diag_up.color = color;
-+                    style.borders.diag_down.color = color;
-+                }
-+                13 => style.font.color = color,
-+                _ => {}
-+            }
-+        }
-+        if let Some(indent) = self.indent {
-+            style.align.indent = indent;
-+        }
-+    }
-+}
-+
-+fn full_color(b: &[u8; 16], palette: &[u32]) -> Option<Color> {
-+    let [t0, t1, s0, s1, r, g, bl, a, ..] = *b;
-+    let kind = u16::from_le_bytes([t0, t1]);
-+    let tint = (f32::from(i16::from_le_bytes([s0, s1])) / 32767.0).clamp(-1.0, 1.0);
-+    let value = u32::from_le_bytes([r, g, bl, a]);
-+    if kind == 3 && value < 12 {
-+        // Extended cell colours use background/text slots, not clrScheme XML order.
-+        return Some(Color::Theme(value as u8, (tint * 1000.0).round() as i16));
-+    }
-+    let color = match kind {
-+        0 => Color::Auto,
-+        1 => color(value.min(u32::from(u16::MAX)) as u16, palette),
-+        2 => Color::rgb(r, g, bl),
-+        _ => return None,
-+    };
-+    Some(match color {
-+        Color::Rgb(v) if tint != 0.0 => {
-+            let [r, g, b] = gridcraft_model::style::apply_tint([(v >> 16) as u8, (v >> 8) as u8, v as u8], f64::from(tint));
-+            Color::rgb(r, g, b)
-+        }
-+        _ => color,
-+    })
-+}
-+
-+pub(super) fn theme(c: &mut Cursor<'_, '_>) -> Result<Option<Theme>, IoError> {
-+    c.skip(12)?;
-+    let version = c.u32()?;
-+    if c.remaining() == 0 && version == 124226 {
-+        // Default Office 2007 theme, not GridCraft's own default palette.
-+        return Ok(Some(Theme {
-+            name: "Office".into(),
-+            colors: [0xFFFFFF, 0, 0xEEECE1, 0x1F497D, 0x4F81BD, 0xC0504D, 0x9BBB59, 0x8064A2, 0x4BACC6, 0xF79646, 0x0000FF, 0x800080],
-+            major_font: "Cambria".into(),
-+            minor_font: "Calibri".into(),
-+        }));
-+    }
-+    let bytes = c.rest();
-+    let mut pkg = crate::package::Package::open(&bytes)?;
-+    for part in ["theme/theme/theme1.xml", "theme/theme1.xml", "theme1.xml"] {
-+        if let Some(xml) = pkg.read_limited(part, 1024 * 1024)? {
-+            return Ok(Some(crate::theme::read_theme(&crate::xml::parse(&xml)?)));
-+        }
-+    }
-+    Ok(None)
-+}
-+
-+pub(super) fn palette(c: &mut Cursor<'_, '_>, colors: &mut [u32]) -> Result<(), IoError> {
-+    let count = usize::from(c.u16()?).min(56).min(c.remaining() / 4);
-+    for slot in colors.iter_mut().skip(8).take(count) {
-+        let (r, g, b) = (c.u8()?, c.u8()?, c.u8()?);
-+        c.u8()?; // reserved
-+        *slot = (u32::from(r) << 16) | (u32::from(g) << 8) | u32::from(b);
-+    }
-+    Ok(())
-+}
-+
-+fn color(index: u16, palette: &[u32]) -> Color {
-+    match index {
-+        64 => Color::Rgb(0),        // system window text
-+        65 => Color::Rgb(0xFFFFFF), // system window background
-+        _ => palette.get(usize::from(index)).copied().map(Color::Rgb).unwrap_or(Color::Auto),
-+    }
-+}
-+
-+fn border_style(index: u8) -> BorderStyle {
-+    match index {
-+        1 => BorderStyle::Thin,
-+        2 => BorderStyle::Medium,
-+        3 => BorderStyle::Dashed,
-+        4 => BorderStyle::Dotted,
-+        5 => BorderStyle::Thick,
-+        6 => BorderStyle::Double,
-+        7 => BorderStyle::Hair,
-+        8 => BorderStyle::MediumDashed,
-+        9 => BorderStyle::DashDot,
-+        10 => BorderStyle::MediumDashDot,
-+        11 => BorderStyle::DashDotDot,
-+        12 => BorderStyle::MediumDashDotDot,
-+        13 => BorderStyle::SlantDashDot,
-+        _ => BorderStyle::None,
-+    }
-+}
-+
-+fn pattern(index: u8) -> PatternType {
-+    use PatternType::*;
-+    match index {
-+        1 => Solid,
-+        2 => Gray50,
-+        3 => Gray75,
-+        4 => Gray25,
-+        5 => DarkHorizontal,
-+        6 => DarkVertical,
-+        7 => DarkDown,
-+        8 => DarkUp,
-+        9 => DarkGrid,
-+        10 => DarkTrellis,
-+        11 => LightHorizontal,
-+        12 => LightVertical,
-+        13 => LightDown,
-+        14 => LightUp,
-+        15 => LightGrid,
-+        16 => LightTrellis,
-+        17 => Gray125,
-+        18 => Gray0625,
-+        _ => None,
-+    }
-+}
-diff --git a/crates/ui-egui/tests/font_setup.rs b/crates/ui-egui/tests/font_setup.rs
-new file mode 100644
-index 0000000..6f9fab4
---- /dev/null
-+++ b/crates/ui-egui/tests/font_setup.rs
-@@ -0,0 +1,18 @@
-+//! Persisted-language startup must discover workbook fonts, just like default startup.
-+#![cfg(not(target_arch = "wasm32"))]
-+
-+use gridcraft_ui_egui::{SheetApp, fonts, i18n::Language};
-+use std::time::Duration;
-+
-+#[test]
-+fn chinese_context_setup_starts_the_font_catalog() {
-+    let context = egui::Context::default();
-+    SheetApp::setup_context_for_language(&context, false, Language::Zh);
-+    for _ in 0..1500 {
-+        if fonts::scan_done() {
-+            return;
-+        }
-+        std::thread::sleep(Duration::from_millis(10));
-+    }
-+    assert!(fonts::scan_done(), "language-specific startup never completed the font scan");
-+}
