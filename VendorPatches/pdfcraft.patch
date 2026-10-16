@@ -89,7 +89,7 @@ index 190cb3d..c720739 100644
      stdout_line(format_args!("Source:  {}", pdfcraft_engine::links::GITHUB))?;
      Ok(())
 diff --git a/apps/pdfcraft/src/main.rs b/apps/pdfcraft/src/main.rs
-index a1d2ad9..448bc08 100644
+index a1d2ad9..ca0709d 100644
 --- a/apps/pdfcraft/src/main.rs
 +++ b/apps/pdfcraft/src/main.rs
 @@ -47,13 +47,6 @@ mod windows_manifest;
@@ -124,7 +124,25 @@ index a1d2ad9..448bc08 100644
                  native_options(launch.integrated, launch.window_controls.is_some(), eframe::Renderer::Glow),
                  app_creator(
                      launch,
-@@ -293,17 +286,12 @@ fn retry_with_gl(choice: RendererChoice, app_started: bool) -> bool {
+@@ -284,6 +277,17 @@ fn renderer_choice(value: Option<&str>) -> RendererChoice {
+     }
+ }
+ 
++fn apply_myai_language(app: &mut PdfCraftApp) {
++    let Some(value) = std::env::var("MYAI_OFFICE_LANGUAGE").ok() else { return };
++    app.language = if value.eq_ignore_ascii_case(pdfcraft_ui_egui::i18n::AUTO) {
++        pdfcraft_ui_egui::i18n::AUTO.to_string()
++    } else {
++        pdfcraft_ui_egui::i18n::lang_from_tag(&value)
++            .map(|language| language.code().to_string())
++            .unwrap_or_else(|| pdfcraft_ui_egui::i18n::AUTO.to_string())
++    };
++}
++
+ /// Whether a failed run should be retried with OpenGL: only when wgpu was tried first by choice of
+ /// nobody, and it failed before the app was created (so while starting the renderer, not later).
+ fn retry_with_gl(choice: RendererChoice, app_started: bool) -> bool {
+@@ -293,17 +297,12 @@ fn retry_with_gl(choice: RendererChoice, app_started: bool) -> bool {
  /// The window and renderer settings for one run.
  fn native_options(integrated: bool, app_frame: bool, renderer: eframe::Renderer) -> eframe::NativeOptions {
      let mut viewport = egui::ViewportBuilder::default()
@@ -143,8 +161,16 @@ index a1d2ad9..448bc08 100644
      if integrated {
          viewport = viewport.with_fullsize_content_view(true).with_titlebar_shown(false).with_title_shown(false);
      }
+@@ -351,6 +350,7 @@ fn app_creator<'a>(
+         if let Some(json) = cc.storage.and_then(|s| s.get_string("pdfcraft").or_else(|| s.get_string(LEGACY_STORAGE_KEY))) {
+             app.restore(&json);
+         }
++        apply_myai_language(&mut app);
+         app.integrated_titlebar = integrated;
+         app.window_controls = window_controls;
+         app.system_text_scale = text_scale::system();
 diff --git a/crates/engine/src/commands.rs b/crates/engine/src/commands.rs
-index cf40386..0ffbd62 100644
+index cf40386..c31ad1e 100644
 --- a/crates/engine/src/commands.rs
 +++ b/crates/engine/src/commands.rs
 @@ -362,7 +362,7 @@ pub const COMMANDS: &[CommandSpec] = &[
@@ -152,12 +178,12 @@ index cf40386..0ffbd62 100644
      c("page.number", "Number pages…", PAGES, None, Assembly, "hash"),
      c("help.shortcuts", "Keyboard shortcuts", HELP, None, Nothing, "circle-help"),
 -    c("help.discord", "Join the ArtCraft Discord", HELP, None, Nothing, "messages-square"),
-+    c("help.support", "技术支持", HELP, None, Nothing, "circle-help"),
++    c("help.support", "Technical support", HELP, None, Nothing, "circle-help"),
      c("help.app_page", "PdfCraft web page", HELP, None, Nothing, "globe"),
      c("help.github", "PdfCraft on GitHub", HELP, None, Nothing, "code-xml"),
      c("help.website", "ArtCraft website", HELP, None, Nothing, "external-link"),
 diff --git a/crates/engine/src/links.rs b/crates/engine/src/links.rs
-index 5dd9aff..39a5d7c 100644
+index 5dd9aff..4c20344 100644
 --- a/crates/engine/src/links.rs
 +++ b/crates/engine/src/links.rs
 @@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
@@ -177,12 +203,12 @@ index 5dd9aff..39a5d7c 100644
 +/// In the order they are shown. Technical support comes first so help is one click away.
  pub const LINKS: &[Link] = &[
 -    Link { command: "help.discord", label: "Join the ArtCraft Discord", url: DISCORD, icon: "messages-square" },
-+    Link { command: "help.support", label: "技术支持", url: SUPPORT, icon: "circle-help" },
++    Link { command: "help.support", label: "Technical support", url: SUPPORT, icon: "circle-help" },
      Link { command: "help.app_page", label: "PdfCraft web page", url: APP_PAGE, icon: "globe" },
      Link { command: "help.github", label: "PdfCraft on GitHub", url: GITHUB, icon: "code-xml" },
      Link { command: "help.website", label: "ArtCraft website", url: WEBSITE, icon: "external-link" },
 diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
-index 9617bf6..2d33750 100644
+index 9617bf6..27d380f 100644
 --- a/crates/ui-egui/src/chrome.rs
 +++ b/crates/ui-egui/src/chrome.rs
 @@ -66,8 +66,8 @@ pub fn tab_strip(app: &mut PdfCraftApp, ui: &mut egui::Ui) {
@@ -192,17 +218,19 @@ index 9617bf6..2d33750 100644
 -                // Keep the two icon buttons, Discord's text/padding and three gaps outside the scrolling tabs.
 -                let controls_width = ui.fonts_mut(|f| f.layout_no_wrap("Discord".into(), theme::medium(13.0), t.text).size().x)
 +                // Keep the two icon buttons, the support label/padding and three gaps outside the scrolling tabs.
-+                let controls_width = ui.fonts_mut(|f| f.layout_no_wrap("技术支持".into(), theme::medium(13.0), t.text).size().x)
++                let controls_width = ui.fonts_mut(|f| f.layout_no_wrap(tl!("Technical support").into(), theme::medium(13.0), t.text).size().x)
                      + 2.0 * button
                      + 50.0
                      + window_controls::width(&controls.right);
-@@ -290,8 +290,9 @@ pub fn tab_strip(app: &mut PdfCraftApp, ui: &mut egui::Ui) {
+@@ -290,8 +290,11 @@ pub fn tab_strip(app: &mut PdfCraftApp, ui: &mut egui::Ui) {
                          app.dialog = Some(Dialog::Shortcuts);
                      }
                      // One click to the community, from anywhere in the app.
 -                    if widgets::ghost_button_sized(ui, "messages-square", "Discord", tab_h).on_hover_text(pdfcraft_engine::links::DISCORD).clicked() {
 -                        app.execute("help.discord");
-+                    if widgets::ghost_button_sized(ui, "circle-help", "技术支持", tab_h).on_hover_text(pdfcraft_engine::links::SUPPORT).clicked()
++                    if widgets::ghost_button_sized(ui, "circle-help", tl!("Technical support"), tab_h)
++                        .on_hover_text(pdfcraft_engine::links::SUPPORT)
++                        .clicked()
 +                    {
 +                        app.execute("help.support");
                      }
@@ -239,8 +267,195 @@ index 3e70f34..2229241 100644
              ui.add_space(22.0);
  
              egui::Frame::NONE
+diff --git a/crates/ui-egui/src/i18n/ar.tsv b/crates/ui-egui/src/i18n/ar.tsv
+index a8c7d53..d06dd0d 100644
+--- a/crates/ui-egui/src/i18n/ar.tsv
++++ b/crates/ui-egui/src/i18n/ar.tsv
+@@ -2375,3 +2375,4 @@ animation effects	Off	معطّلة
+ 	This document is trying to open a local file:	يحاول هذا المستند فتح ملف محلي:
+ 	Move tag earlier	نقل العلامة للأعلى
+ 	Move tag later	نقل العلامة للأسفل
++	Technical support	الدعم الفني
+diff --git a/crates/ui-egui/src/i18n/bg.tsv b/crates/ui-egui/src/i18n/bg.tsv
+index e107408..92d3154 100644
+--- a/crates/ui-egui/src/i18n/bg.tsv
++++ b/crates/ui-egui/src/i18n/bg.tsv
+@@ -2317,3 +2317,4 @@ animation effects	Off	Изключени
+ 	This document is trying to open a local file:	Този документ се опитва да отвори локален файл:
+ 	Move tag earlier	Преместване на етикета по-рано
+ 	Move tag later	Преместване на етикета по-късно
++	Technical support	Техническа поддръжка
+diff --git a/crates/ui-egui/src/i18n/cs.tsv b/crates/ui-egui/src/i18n/cs.tsv
+index 835388f..bd8fdc8 100644
+--- a/crates/ui-egui/src/i18n/cs.tsv
++++ b/crates/ui-egui/src/i18n/cs.tsv
+@@ -2428,3 +2428,4 @@ animation effects	Off	Vypnuto
+ 	This document is trying to open a local file:	Tento dokument se pokouší otevřít místní soubor:
+ 	Move tag earlier	Přesunout značku dříve
+ 	Move tag later	Přesunout značku později
++	Technical support	Technická podpora
+diff --git a/crates/ui-egui/src/i18n/de.tsv b/crates/ui-egui/src/i18n/de.tsv
+index 7a418b5..bcf3668 100644
+--- a/crates/ui-egui/src/i18n/de.tsv
++++ b/crates/ui-egui/src/i18n/de.tsv
+@@ -2355,3 +2355,4 @@ animation effects	Off	Aus
+ 	This document is trying to open a local file:	Dieses Dokument versucht, eine lokale Datei zu öffnen:
+ 	Move tag earlier	Tag früher verschieben
+ 	Move tag later	Tag später verschieben
++	Technical support	Technischer Support
+diff --git a/crates/ui-egui/src/i18n/el.tsv b/crates/ui-egui/src/i18n/el.tsv
+index 3a99376..c28f800 100644
+--- a/crates/ui-egui/src/i18n/el.tsv
++++ b/crates/ui-egui/src/i18n/el.tsv
+@@ -2364,3 +2364,4 @@ animation effects	Off	Ανενεργά
+ 	This document is trying to open a local file:	Αυτό το έγγραφο προσπαθεί να ανοίξει ένα τοπικό αρχείο:
+ 	Move tag earlier	Μετακίνηση ετικέτας νωρίτερα
+ 	Move tag later	Μετακίνηση ετικέτας αργότερα
++	Technical support	Τεχνική υποστήριξη
+diff --git a/crates/ui-egui/src/i18n/es.tsv b/crates/ui-egui/src/i18n/es.tsv
+index f693805..fd2811b 100644
+--- a/crates/ui-egui/src/i18n/es.tsv
++++ b/crates/ui-egui/src/i18n/es.tsv
+@@ -2484,3 +2484,4 @@ animation effects	Off	Desactivados
+ 	This document is trying to open a local file:	Este documento intenta abrir un archivo local:
+ 	Move tag earlier	Mover etiqueta antes
+ 	Move tag later	Mover etiqueta después
++	Technical support	Soporte técnico
+diff --git a/crates/ui-egui/src/i18n/fr.tsv b/crates/ui-egui/src/i18n/fr.tsv
+index 76be27c..edeeec8 100644
+--- a/crates/ui-egui/src/i18n/fr.tsv
++++ b/crates/ui-egui/src/i18n/fr.tsv
+@@ -2354,3 +2354,4 @@ animation effects	Off	Désactivés
+ 	This document is trying to open a local file:	Ce document tente d’ouvrir un fichier local :
+ 	Move tag earlier	Déplacer la balise plus tôt
+ 	Move tag later	Déplacer la balise plus tard
++	Technical support	Assistance technique
+diff --git a/crates/ui-egui/src/i18n/hu.tsv b/crates/ui-egui/src/i18n/hu.tsv
+index 221ad21..ba5c4d6 100644
+--- a/crates/ui-egui/src/i18n/hu.tsv
++++ b/crates/ui-egui/src/i18n/hu.tsv
+@@ -2353,3 +2353,4 @@ animation effects	Off	Ki
+ 	This document is trying to open a local file:	Ez a dokumentum egy helyi fájlt próbál megnyitni:
+ 	Move tag earlier	Címke korábbra helyezése
+ 	Move tag later	Címke későbbre helyezése
++	Technical support	Technikai támogatás
+diff --git a/crates/ui-egui/src/i18n/it.tsv b/crates/ui-egui/src/i18n/it.tsv
+index 94eeab1..85a107d 100644
+--- a/crates/ui-egui/src/i18n/it.tsv
++++ b/crates/ui-egui/src/i18n/it.tsv
+@@ -2363,3 +2363,4 @@ animation effects	Off	Disattivati
+ 	This document is trying to open a local file:	Questo documento sta tentando di aprire un file locale:
+ 	Move tag earlier	Sposta tag prima
+ 	Move tag later	Sposta tag dopo
++	Technical support	Supporto tecnico
+diff --git a/crates/ui-egui/src/i18n/ja.tsv b/crates/ui-egui/src/i18n/ja.tsv
+index 777410e..e1ca774 100644
+--- a/crates/ui-egui/src/i18n/ja.tsv
++++ b/crates/ui-egui/src/i18n/ja.tsv
+@@ -2354,3 +2354,4 @@ animation effects	Off	オフ
+ 	This document is trying to open a local file:	この文書はローカルファイルを開こうとしています：
+ 	Move tag earlier	タグを前へ移動
+ 	Move tag later	タグを後へ移動
++	Technical support	テクニカルサポート
+diff --git a/crates/ui-egui/src/i18n/kk.tsv b/crates/ui-egui/src/i18n/kk.tsv
+index 2ce5830..304d89f 100644
+--- a/crates/ui-egui/src/i18n/kk.tsv
++++ b/crates/ui-egui/src/i18n/kk.tsv
+@@ -2352,3 +2352,4 @@ animation effects	Off	Өшірулі
+ 	This document is trying to open a local file:	Бұл құжат жергілікті файлды ашуға әрекеттеніп жатыр:
+ 	Move tag earlier	Тегті ертерек жылжыту
+ 	Move tag later	Тегті кейінірек жылжыту
++	Technical support	Техникалық қолдау
+diff --git a/crates/ui-egui/src/i18n/lt.tsv b/crates/ui-egui/src/i18n/lt.tsv
+index 36c698c..11a55ca 100644
+--- a/crates/ui-egui/src/i18n/lt.tsv
++++ b/crates/ui-egui/src/i18n/lt.tsv
+@@ -2598,3 +2598,4 @@ key	Space	Tarpas
+ 	This document is trying to open a local file:	Šis dokumentas bando atverti vietinį failą:
+ 	Move tag earlier	Perkelti žymą anksčiau
+ 	Move tag later	Perkelti žymą vėliau
++	Technical support	Techninė pagalba
+diff --git a/crates/ui-egui/src/i18n/mod.rs b/crates/ui-egui/src/i18n/mod.rs
+index 18a0fc5..92d586f 100644
+--- a/crates/ui-egui/src/i18n/mod.rs
++++ b/crates/ui-egui/src/i18n/mod.rs
+@@ -340,6 +340,11 @@ pub fn system_lang() -> Lang {
+ 
+ #[cfg(not(target_arch = "wasm32"))]
+ fn detect_system_lang() -> Lang {
++    if let Some(value) = std::env::var("MYAI_OFFICE_LANGUAGE").ok().filter(|value| !value.eq_ignore_ascii_case(AUTO))
++        && let Some(language) = lang_from_tag(&value)
++    {
++        return language;
++    }
+     for var in ["LC_ALL", "LC_MESSAGES", "LANG"] {
+         if let Some(l) = std::env::var(var).ok().and_then(|v| language_override(&v)) {
+             return l;
+diff --git a/crates/ui-egui/src/i18n/pl.tsv b/crates/ui-egui/src/i18n/pl.tsv
+index b443c84..1e8731c 100644
+--- a/crates/ui-egui/src/i18n/pl.tsv
++++ b/crates/ui-egui/src/i18n/pl.tsv
+@@ -2334,3 +2334,4 @@ animation effects	Off	Wyłączone
+ 	This document is trying to open a local file:	Ten dokument próbuje otworzyć plik lokalny:
+ 	Move tag earlier	Przenieś znacznik wcześniej
+ 	Move tag later	Przenieś znacznik później
++	Technical support	Pomoc techniczna
+diff --git a/crates/ui-egui/src/i18n/pt-br.tsv b/crates/ui-egui/src/i18n/pt-br.tsv
+index 9b2a683..d1695ad 100644
+--- a/crates/ui-egui/src/i18n/pt-br.tsv
++++ b/crates/ui-egui/src/i18n/pt-br.tsv
+@@ -2368,3 +2368,4 @@ animation effects	Off	Desativados
+ 	This document is trying to open a local file:	Este documento está tentando abrir um arquivo local:
+ 	Move tag earlier	Mover tag para antes
+ 	Move tag later	Mover tag para depois
++	Technical support	Suporte técnico
+diff --git a/crates/ui-egui/src/i18n/ru.tsv b/crates/ui-egui/src/i18n/ru.tsv
+index 834e552..d551d89 100644
+--- a/crates/ui-egui/src/i18n/ru.tsv
++++ b/crates/ui-egui/src/i18n/ru.tsv
+@@ -2267,3 +2267,4 @@ animation effects	Off	Выкл
+ 	This document is trying to open a local file:	Этот документ пытается открыть локальный файл:
+ 	Move tag earlier	Переместить тег раньше
+ 	Move tag later	Переместить тег позже
++	Technical support	Техническая поддержка
+diff --git a/crates/ui-egui/src/i18n/sl.tsv b/crates/ui-egui/src/i18n/sl.tsv
+index 506e52e..727b547 100644
+--- a/crates/ui-egui/src/i18n/sl.tsv
++++ b/crates/ui-egui/src/i18n/sl.tsv
+@@ -2359,3 +2359,4 @@ animation effects	Off	Izklopljeni
+ 	This document is trying to open a local file:	Ta dokument poskuša odpreti lokalno datoteko:
+ 	Move tag earlier	Premakni oznako prej
+ 	Move tag later	Premakni oznako pozneje
++	Technical support	Tehnična podpora
+diff --git a/crates/ui-egui/src/i18n/te.tsv b/crates/ui-egui/src/i18n/te.tsv
+index 08c53e8..3dcead2 100644
+--- a/crates/ui-egui/src/i18n/te.tsv
++++ b/crates/ui-egui/src/i18n/te.tsv
+@@ -2267,3 +2267,4 @@ animation effects	Off	ఆఫ్
+ 	This document is trying to open a local file:	ఈ పత్రం ఒక స్థానిక ఫైల్‌ను తెరవడానికి ప్రయత్నిస్తోంది:
+ 	Move tag earlier	ట్యాగ్‌ను ముందుకు తరలించు
+ 	Move tag later	ట్యాగ్‌ను వెనుకకు తరలించు
++	Technical support	సాంకేతిక మద్దతు
+diff --git a/crates/ui-egui/src/i18n/tr.tsv b/crates/ui-egui/src/i18n/tr.tsv
+index eb03e7f..e2dce95 100644
+--- a/crates/ui-egui/src/i18n/tr.tsv
++++ b/crates/ui-egui/src/i18n/tr.tsv
+@@ -2350,3 +2350,4 @@ animation effects	Off	Kapalı
+ 	This document is trying to open a local file:	Bu belge yerel bir dosya açmaya çalışıyor:
+ 	Move tag earlier	Etiketi daha erken taşı
+ 	Move tag later	Etiketi daha geç taşı
++	Technical support	Teknik destek
+diff --git a/crates/ui-egui/src/i18n/uk.tsv b/crates/ui-egui/src/i18n/uk.tsv
+index eb1cea0..09d7869 100644
+--- a/crates/ui-egui/src/i18n/uk.tsv
++++ b/crates/ui-egui/src/i18n/uk.tsv
+@@ -2376,3 +2376,4 @@ animation effects	Off	Вимкнено
+ 	This document is trying to open a local file:	Цей документ намагається відкрити локальний файл:
+ 	Move tag earlier	Перемістити тег раніше
+ 	Move tag later	Перемістити тег пізніше
++	Technical support	Технічна підтримка
 diff --git a/crates/ui-egui/src/i18n/zh-hans.tsv b/crates/ui-egui/src/i18n/zh-hans.tsv
-index d13078e..1d7a36a 100644
+index d13078e..45f97a4 100644
 --- a/crates/ui-egui/src/i18n/zh-hans.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hans.tsv
 @@ -1822,10 +1822,10 @@
@@ -257,8 +472,13 @@ index d13078e..1d7a36a 100644
  	PdfCraft web page	PdfCraft 网页
  	PdfCraft on GitHub	GitHub 上的 PdfCraft
  	ArtCraft website	ArtCraft 官网
+@@ -2318,3 +2318,4 @@ animation effects	Off	关
+ 	This document is trying to open a local file:	此文档正尝试打开本地文件：
+ 	Move tag earlier	将标签前移
+ 	Move tag later	将标签后移
++	Technical support	技术支持
 diff --git a/crates/ui-egui/src/i18n/zh-hant.tsv b/crates/ui-egui/src/i18n/zh-hant.tsv
-index 9f8856a..8662043 100644
+index 9f8856a..de7319c 100644
 --- a/crates/ui-egui/src/i18n/zh-hant.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hant.tsv
 @@ -1766,10 +1766,10 @@
@@ -275,8 +495,13 @@ index 9f8856a..8662043 100644
  	PdfCraft web page	PdfCraft 網頁
  	PdfCraft on GitHub	GitHub 上的 PdfCraft
  	ArtCraft website	ArtCraft 網站
+@@ -2228,3 +2228,4 @@ animation effects	Off	關
+ 	This document is trying to open a local file:	此文件正嘗試開啟本機檔案：
+ 	Move tag earlier	將標記前移
+ 	Move tag later	將標記後移
++	Technical support	技術支援
 diff --git a/crates/ui-egui/src/widgets.rs b/crates/ui-egui/src/widgets.rs
-index 4f5aaa7..bf303f9 100644
+index 4f5aaa7..877bcd4 100644
 --- a/crates/ui-egui/src/widgets.rs
 +++ b/crates/ui-egui/src/widgets.rs
 @@ -519,14 +519,14 @@ pub fn artcraft_mark(ui: &mut egui::Ui, size: f32) -> Response {
@@ -292,7 +517,7 @@ index 4f5aaa7..bf303f9 100644
          ui.spacing_mut().item_spacing = vec2(8.0, 8.0);
          for (i, l) in pdfcraft_engine::links::LINKS.iter().enumerate() {
 -            let resp = if i == 0 { icon_pill(ui, l.icon, tl!("Join our Discord"), true) } else { icon_pill(ui, l.icon, tl!(l.label), false) };
-+            let resp = if i == 0 { icon_pill(ui, l.icon, "技术支持", true) } else { icon_pill(ui, l.icon, tl!(l.label), false) };
++            let resp = if i == 0 { icon_pill(ui, l.icon, tl!("Technical support"), true) } else { icon_pill(ui, l.icon, tl!(l.label), false) };
              if resp.on_hover_text(l.url).clicked() {
                  clicked = Some(l.command);
              }

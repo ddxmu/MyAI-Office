@@ -78,21 +78,27 @@ index a5b5cbb..67724fd 100644
  | 2026-10-13 | trivial | Progress log: comment balloon buttons work, empty comments can be deleted (#1085) |
  | 2026-10-12 | trivial | Progress log: sample-text formulas on Enter (#1067) |
 diff --git a/apps/wordcraft/src/main.rs b/apps/wordcraft/src/main.rs
-index 62b51d4..11d4f6e 100644
+index 62b51d4..f60b7b2 100644
 --- a/apps/wordcraft/src/main.rs
 +++ b/apps/wordcraft/src/main.rs
-@@ -150,6 +150,10 @@ fn prefs_enabled() -> bool {
+@@ -150,6 +150,16 @@ fn prefs_enabled() -> bool {
      std::env::var_os("WORDCRAFT_NO_PREFS").is_none()
  }
  
-+fn myai_chinese_ui() -> bool {
-+    std::env::var("MYAI_OFFICE_LANGUAGE").map(|value| matches!(value.to_ascii_lowercase().as_str(), "zh" | "zh-cn" | "zh-hans")).unwrap_or(false)
++fn apply_myai_language(app: &mut WordApp) {
++    let Some(value) = std::env::var("MYAI_OFFICE_LANGUAGE").ok() else { return };
++    let language = if value.eq_ignore_ascii_case(wordcraft_ui_egui::i18n::AUTO) {
++        wordcraft_ui_egui::i18n::system_lang()
++    } else {
++        wordcraft_ui_egui::i18n::lang_from_tag(&value).unwrap_or_else(wordcraft_ui_egui::i18n::system_lang)
++    };
++    app.ui.language = language.code().into();
 +}
 +
  fn load_prefs(app: &mut WordApp) {
      if !prefs_enabled() {
          return;
-@@ -221,11 +225,7 @@ fn services(file_dialog: file_dialogs::Hook, ctx: &egui::Context) -> Services {
+@@ -221,11 +231,7 @@ fn services(file_dialog: file_dialogs::Hook, ctx: &egui::Context) -> Services {
  
  /// Window, Dock and taskbar icon.
  fn app_icon() -> Option<egui::IconData> {
@@ -105,7 +111,7 @@ index 62b51d4..11d4f6e 100644
  }
  
  /// The commit the build came from (short), or `dev`.
-@@ -268,7 +268,7 @@ fn main() -> eframe::Result {
+@@ -268,7 +274,7 @@ fn main() -> eframe::Result {
      }
      let mut options = eframe::NativeOptions {
          viewport: egui::ViewportBuilder::default()
@@ -114,7 +120,7 @@ index 62b51d4..11d4f6e 100644
              .with_app_id("ai.storyteller.wordcraft")
              .with_inner_size([1440.0, 920.0])
              .with_min_inner_size([760.0, 480.0])
-@@ -308,7 +308,7 @@ fn main() -> eframe::Result {
+@@ -308,7 +314,7 @@ fn main() -> eframe::Result {
      #[cfg(target_os = "macos")]
      let apple_events = &apple_events;
      eframe::run_native(
@@ -123,13 +129,11 @@ index 62b51d4..11d4f6e 100644
          options,
          Box::new(move |cc| {
              // The system region picks the new document's paper, the units and the decimal
-@@ -320,6 +320,9 @@ fn main() -> eframe::Result {
+@@ -320,6 +326,7 @@ fn main() -> eframe::Result {
              session.system_region = region;
              let mut app = WordApp::new(session, services(file_dialog, &cc.egui_ctx));
              load_prefs(&mut app);
-+            if myai_chinese_ui() {
-+                app.ui.language = "zh-hans".into();
-+            }
++            apply_myai_language(&mut app);
              load_user_dictionary(&mut app);
              // A region chosen in File › Options replaces the system's for the first blank
              // document too (#838).
@@ -1703,6 +1707,25 @@ index 0a82ebf..01296a1 100644
 +	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/mod.rs b/crates/ui-egui/src/i18n/mod.rs
+index 328a5c6..a961ed3 100644
+--- a/crates/ui-egui/src/i18n/mod.rs
++++ b/crates/ui-egui/src/i18n/mod.rs
+@@ -278,8 +278,12 @@ pub fn system_lang() -> Lang {
+ fn detect_system_lang() -> Lang {
+     // An explicit override, then the platform's preferred UI languages (Windows display language,
+     // macOS preferred languages, `LC_ALL`/`LC_MESSAGES`/`LANG` on Unix, the browser on the web).
+-    if let Some(l) = std::env::var("WORDCRAFT_LANGUAGE").ok().and_then(|v| lang_from_tag(&v)) {
+-        return l;
++    for variable in ["MYAI_OFFICE_LANGUAGE", "WORDCRAFT_LANGUAGE"] {
++        if let Some(value) = std::env::var(variable).ok().filter(|value| !value.eq_ignore_ascii_case(AUTO))
++            && let Some(language) = lang_from_tag(&value)
++        {
++            return language;
++        }
+     }
+     let tags: Vec<String> = sys_locale::get_locales().take(16).collect();
+     first_supported(tags.iter().map(String::as_str)).unwrap_or(Lang::EN)
 diff --git a/crates/ui-egui/src/i18n/pl.tsv b/crates/ui-egui/src/i18n/pl.tsv
 index fa46d79..43b35d8 100644
 --- a/crates/ui-egui/src/i18n/pl.tsv

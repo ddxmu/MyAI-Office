@@ -77,8 +77,24 @@ index 070552d..4e14b28 100644
  | 2026-10-12 | minor | Rows auto-fit oversized fonts on open and whole-row/column formatting (#833); progress log row |
  | 2026-10-12 | minor | Progress log: multi-area row/column delete (#758) |
  | 2026-10-12 | trivial | Progress log: XLSX chart sheets kept on save (#727) |
+diff --git a/apps/gridcraft-web/src/web.rs b/apps/gridcraft-web/src/web.rs
+index c0fcb22..356c2f1 100644
+--- a/apps/gridcraft-web/src/web.rs
++++ b/apps/gridcraft-web/src/web.rs
+@@ -54,7 +54,10 @@ pub fn start() {
+                     let browser = gridcraft_ui_egui::i18n::Language::system();
+                     if !matches!(
+                         browser,
+-                        gridcraft_ui_egui::i18n::Language::Zh | gridcraft_ui_egui::i18n::Language::Ja | gridcraft_ui_egui::i18n::Language::Ko
++                        gridcraft_ui_egui::i18n::Language::Zh
++                            | gridcraft_ui_egui::i18n::Language::ZhHant
++                            | gridcraft_ui_egui::i18n::Language::Ja
++                            | gridcraft_ui_egui::i18n::Language::Ko
+                     ) {
+                         app.ui.language = browser;
+                     }
 diff --git a/apps/gridcraft/src/main.rs b/apps/gridcraft/src/main.rs
-index 7c0eb04..5230651 100644
+index 7c0eb04..c578e48 100644
 --- a/apps/gridcraft/src/main.rs
 +++ b/apps/gridcraft/src/main.rs
 @@ -32,7 +32,7 @@ impl eframe::App for App {
@@ -90,18 +106,24 @@ index 7c0eb04..5230651 100644
              }
              if let Some(m) = &self.1 {
                  m.poll(&mut self.0, ctx);
-@@ -92,6 +92,10 @@ fn prefs_enabled() -> bool {
+@@ -92,6 +92,16 @@ fn prefs_enabled() -> bool {
      std::env::var_os("GRIDCRAFT_NO_PREFS").is_none()
  }
  
-+fn myai_chinese_ui() -> bool {
-+    std::env::var("MYAI_OFFICE_LANGUAGE").map(|value| matches!(value.to_ascii_lowercase().as_str(), "zh" | "zh-cn" | "zh-hans")).unwrap_or(false)
++fn apply_myai_language(app: &mut SheetApp) {
++    let Some(value) = std::env::var("MYAI_OFFICE_LANGUAGE").ok() else { return };
++    let language = if value.eq_ignore_ascii_case("auto") {
++        gridcraft_ui_egui::i18n::Language::system()
++    } else {
++        gridcraft_ui_egui::i18n::Language::parse(&value).unwrap_or_else(gridcraft_ui_egui::i18n::Language::system)
++    };
++    app.ui.language = language;
 +}
 +
  /// Where the log files live: `logs` in the settings folder, next to `ui.json` (see `logging`).
  fn log_dir() -> Option<std::path::PathBuf> {
      Some(config_dir()?.join("logs"))
-@@ -221,12 +225,7 @@ fn open_with_system(target: &str) {
+@@ -221,12 +231,7 @@ fn open_with_system(target: &str) {
  }
  
  fn icon() -> Option<egui::IconData> {
@@ -115,17 +137,15 @@ index 7c0eb04..5230651 100644
  }
  
  fn main() -> eframe::Result<()> {
-@@ -302,6 +301,9 @@ fn main() -> eframe::Result<()> {
+@@ -302,6 +307,7 @@ fn main() -> eframe::Result<()> {
      app.after_engine(); // Show warnings from the sample.
      let control_port = control_port;
      load_prefs(&mut app);
-+    if myai_chinese_ui() {
-+        app.ui.language = gridcraft_ui_egui::i18n::Language::Zh;
-+    }
++    apply_myai_language(&mut app);
      // Files named on the command line (a double-click on Windows and Linux) open as File › Open
      // opens them: a password-protected one asks for its password, and errors are shown, not
      // only logged. Each replaces the untouched blank Book1, as a file opened from Finder does.
-@@ -309,7 +311,7 @@ fn main() -> eframe::Result<()> {
+@@ -309,7 +315,7 @@ fn main() -> eframe::Result<()> {
          app.open_path(f);
      }
      let mut viewport = egui::ViewportBuilder::default()
@@ -134,7 +154,7 @@ index 7c0eb04..5230651 100644
          .with_inner_size([1440.0, 900.0])
          .with_min_inner_size([640.0, 420.0])
          .with_app_id("ai.storyteller.gridcraft")
-@@ -344,7 +346,7 @@ fn main() -> eframe::Result<()> {
+@@ -344,7 +350,7 @@ fn main() -> eframe::Result<()> {
      let pending = std::cell::Cell::new(Some(app));
      let run = |options: eframe::NativeOptions| {
          eframe::run_native(
@@ -144,7 +164,7 @@ index 7c0eb04..5230651 100644
              Box::new(|cc| {
                  let Some(mut app) = pending.take() else {
 diff --git a/apps/gridcraft/src/native_menu.rs b/apps/gridcraft/src/native_menu.rs
-index 6985af3..1ce37cf 100644
+index 6985af3..25d8c1b 100644
 --- a/apps/gridcraft/src/native_menu.rs
 +++ b/apps/gridcraft/src/native_menu.rs
 @@ -4,7 +4,7 @@
@@ -174,7 +194,7 @@ index 6985af3..1ce37cf 100644
          let menu = Menu::new();
 -        let app_menu = Submenu::new("GridCraft", true);
 -        let about = MenuItem::with_id("dialog:about", "About GridCraft", true, None);
-+        let app_name = if language == Language::Zh { "MyAI Excel" } else { "GridCraft" };
++        let app_name = if matches!(language, Language::Zh | Language::ZhHant) { "MyAI Excel" } else { "GridCraft" };
 +        let app_menu = Submenu::new(app_name, true);
 +        let about = MenuItem::with_id("dialog:about", language.tr("About GridCraft"), true, None);
          let _ = app_menu.append_items(&[
@@ -616,6 +636,192 @@ index d5a8ea1..c99e608 100644
      #[test]
      fn style_names_map_to_weight_and_slant() {
          assert_eq!(style_weight("Bold"), 700.0);
+diff --git a/crates/ui-egui/src/i18n.rs b/crates/ui-egui/src/i18n.rs
+index 061698d..c3bf3a2 100644
+--- a/crates/ui-egui/src/i18n.rs
++++ b/crates/ui-egui/src/i18n.rs
+@@ -18,6 +18,7 @@ mod pt;
+ mod ru;
+ mod sr;
+ mod zh;
++mod zh_hant;
+ 
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+ #[serde(rename_all = "lowercase")]
+@@ -26,6 +27,8 @@ pub enum Language {
+     En,
+     Es,
+     Zh,
++    #[serde(rename = "zh-hant")]
++    ZhHant,
+     Ja,
+     Ko,
+     Ru,
+@@ -38,7 +41,8 @@ pub enum Language {
+ }
+ 
+ impl Language {
+-    pub const ALL: [Self; 11] = [Self::En, Self::Es, Self::Zh, Self::Ja, Self::Ko, Self::Ru, Self::PtBr, Self::De, Self::Cs, Self::Fr, Self::Sr];
++    pub const ALL: [Self; 12] =
++        [Self::En, Self::Es, Self::Zh, Self::ZhHant, Self::Ja, Self::Ko, Self::Ru, Self::PtBr, Self::De, Self::Cs, Self::Fr, Self::Sr];
+ 
+     /// The language's own name, shown in the switcher.
+     pub fn name(self) -> &'static str {
+@@ -46,6 +50,7 @@ impl Language {
+             Self::En => "English",
+             Self::Es => "Español",
+             Self::Zh => "简体中文",
++            Self::ZhHant => "繁體中文",
+             Self::Ja => "日本語",
+             Self::Ko => "한국어",
+             Self::Ru => "Русский",
+@@ -63,6 +68,7 @@ impl Language {
+             Self::En => "en",
+             Self::Es => "es",
+             Self::Zh => "zh",
++            Self::ZhHant => "zh-hant",
+             Self::Ja => "ja",
+             Self::Ko => "ko",
+             Self::Ru => "ru",
+@@ -79,9 +85,13 @@ impl Language {
+     }
+ 
+     fn from_tag(tag: &str) -> Option<Self> {
+-        match tag.trim().split(['-', '_']).next()?.to_ascii_lowercase().as_str() {
++        let base = tag.trim().split(['.', '@']).next()?;
++        let parts: Vec<String> = base.split(['-', '_']).filter(|part| !part.is_empty()).map(str::to_ascii_lowercase).collect();
++        let primary = parts.first()?.as_str();
++        match primary {
+             "en" => Some(Self::En),
+             "es" => Some(Self::Es),
++            "zh" if parts.iter().any(|part| matches!(part.as_str(), "hant" | "tw" | "hk" | "mo")) => Some(Self::ZhHant),
+             "zh" => Some(Self::Zh),
+             "ja" => Some(Self::Ja),
+             "ko" => Some(Self::Ko),
+@@ -100,6 +110,11 @@ impl Language {
+     pub fn system() -> Self {
+         #[cfg(not(target_arch = "wasm32"))]
+         {
++            if let Some(value) = std::env::var("MYAI_OFFICE_LANGUAGE").ok().filter(|value| !value.eq_ignore_ascii_case("auto"))
++                && let Some(language) = Self::from_tag(&value)
++            {
++                return language;
++            }
+             sys_locale::get_locale().and_then(|tag| Self::from_tag(&tag)).unwrap_or(Self::En)
+         }
+         #[cfg(target_arch = "wasm32")]
+@@ -120,8 +135,9 @@ impl Language {
+         let translated = match self {
+             Self::En => None,
+             Self::Es => es::translate(text),
+-            Self::Ja => JAPANESE.iter().find(|(english, _)| *english == text).map(|(_, translated)| *translated),
++            Self::Ja => EXTRA_JAPANESE.iter().chain(JAPANESE.iter()).find(|(english, _)| *english == text).map(|(_, translated)| *translated),
+             Self::Zh => zh::translate(text),
++            Self::ZhHant => zh_hant::translate(text),
+             Self::Ko => ko::translate(text),
+             Self::Ru => ru::translate(text),
+             Self::PtBr => pt::translate(text),
+@@ -590,6 +606,67 @@ const JAPANESE: &[(&str, &str)] = &[
+     ("Calculation settings are saved with the workbook.", "計算の設定はブックと共に保存されます。"),
+ ];
+ 
++// Chart-pane labels are kept separate from the complete catalog above because the other
++// languages use their own chart catalogs; they still share the same runtime lookup path.
++const EXTRA_JAPANESE: &[(&str, &str)] = &[
++    ("Format Chart Area", "グラフ エリアの書式設定"),
++    ("Chart Title", "グラフ タイトル"),
++    ("Chart Type", "グラフの種類"),
++    ("Legend", "凡例"),
++    ("None", "なし"),
++    ("Bottom", "下"),
++    ("Top", "上"),
++    ("Elements", "要素"),
++    ("Data Labels", "データ ラベル"),
++    ("Horizontal axis title:", "横軸のタイトル:"),
++    ("Vertical axis title:", "縦軸のタイトル:"),
++    ("Series", "系列"),
++    ("Colors & Layout", "色とレイアウト"),
++    ("Chart|None", "なし"),
++    ("Chart|Bottom", "下"),
++    ("Chart|Top", "上"),
++    ("Chart|Left", "左"),
++    ("Chart|Right", "右"),
++    ("Chart|Size", "サイズ"),
++    ("Column", "縦棒"),
++    ("Stacked", "積み上げ"),
++    ("Bar", "横棒"),
++    ("Line", "折れ線"),
++    ("Area", "面"),
++    ("Pie", "円"),
++    ("Doughnut", "ドーナツ"),
++    ("Scatter", "散布図"),
++    ("Radar", "レーダー"),
++    ("Layout", "レイアウト"),
++    ("Fill…", "塗りつぶし…"),
++    ("Title:", "タイトル:"),
++    ("Recommended Charts", "おすすめグラフ"),
++    ("All Charts", "すべてのグラフ"),
++    ("Clustered Column", "集合縦棒"),
++    ("Stacked Column", "積み上げ縦棒"),
++    ("100% Stacked Column", "100% 積み上げ縦棒"),
++    ("Clustered Bar", "集合横棒"),
++    ("Stacked Bar", "積み上げ横棒"),
++    ("100% Stacked Bar", "100% 積み上げ横棒"),
++    ("Line with Markers", "マーカー付き折れ線"),
++    ("Stacked Line", "積み上げ折れ線"),
++    ("Stacked Area", "積み上げ面"),
++    ("Scatter with Lines", "直線付き散布図"),
++    ("Histogram", "ヒストグラム"),
++    ("Waterfall", "ウォーターフォール"),
++    ("Funnel", "じょうご"),
++    ("Combo", "組み合わせ"),
++    ("Select a chart first.", "先にグラフを選択してください。"),
++    ("Select Data Source", "データ ソースの選択"),
++    ("Insert Chart", "グラフの挿入"),
++    ("Chart data range:", "グラフ データ範囲:"),
++    ("Legend Entries (Series)", "凡例項目 (系列)"),
++    ("Series in", "系列の方向"),
++    ("Format Chart pane", "グラフの書式設定ウィンドウ"),
++    ("Select a chart to format it.", "書式設定するグラフを選択してください。"),
++    ("The chart no longer exists.", "グラフは存在しません。"),
++];
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+@@ -614,6 +691,7 @@ mod tests {
+         }
+         assert_eq!(Language::Ja.tr("Data"), "データ");
+         assert_eq!(Language::Zh.tr("Data"), "数据");
++        assert_eq!(Language::ZhHant.tr("Data"), "資料");
+         assert_eq!(Language::Ko.tr("Data"), "데이터");
+         assert_eq!(Language::Ru.tr("Data"), "Данные");
+         assert_eq!(Language::PtBr.tr("Data"), "Dados");
+@@ -637,6 +715,7 @@ mod tests {
+         // A `context|label` key shows only its label in English and splits the translation.
+         assert_eq!(Language::En.tr("Page Layout|Orientation"), "Orientation");
+         assert_eq!(Language::Ja.tr("Page Layout|Orientation"), "印刷の向き");
++        assert_eq!(Language::ZhHant.tr("Chart|Right"), "右側");
+         assert_eq!(Language::Ja.tr("Orientation"), "方向");
+         assert_eq!(Language::Cs.tr("Page Layout|Orientation"), "Orientace");
+         assert_eq!(Language::Cs.tr("Orientation"), "Orientace textu");
+@@ -668,6 +747,8 @@ mod tests {
+         assert_eq!(Language::from_tag("en_US"), Some(Language::En));
+         assert_eq!(Language::from_tag("es_MX"), Some(Language::Es));
+         assert_eq!(Language::from_tag("zh-Hans-CN"), Some(Language::Zh));
++        assert_eq!(Language::from_tag("zh-Hant-TW"), Some(Language::ZhHant));
++        assert_eq!(Language::from_tag("zh-HK"), Some(Language::ZhHant));
+         assert_eq!(Language::from_tag("ko-KR"), Some(Language::Ko));
+         assert_eq!(Language::from_tag("RU_ru"), Some(Language::Ru));
+         assert_eq!(Language::from_tag("de-DE"), Some(Language::De));
+@@ -694,6 +775,7 @@ mod tests {
+         let restored: crate::UiState = serde_json::from_str("{}").unwrap();
+         assert_eq!(restored.language, Language::En);
+         assert_eq!(saved_language(&serde_json::json!({"language": "zh"})), Some(Language::Zh));
++        assert_eq!(saved_language(&serde_json::json!({"language": "zh-hant"})), Some(Language::ZhHant));
+     }
+ 
+     #[test]
 diff --git a/crates/ui-egui/src/i18n/pt.rs b/crates/ui-egui/src/i18n/pt.rs
 index fb9236c..ee707bf 100644
 --- a/crates/ui-egui/src/i18n/pt.rs
@@ -629,7 +835,7 @@ index fb9236c..ee707bf 100644
          "(unnamed)" => "(sem nome)",
          "— VBA project (preserved, not run)" => "— Projeto VBA (preservado, não executado)",
 diff --git a/crates/ui-egui/src/i18n/zh.rs b/crates/ui-egui/src/i18n/zh.rs
-index 0017592..7be3bed 100644
+index 0017592..f7b6c88 100644
 --- a/crates/ui-egui/src/i18n/zh.rs
 +++ b/crates/ui-egui/src/i18n/zh.rs
 @@ -2,6 +2,9 @@
@@ -654,7 +860,68 @@ index 0017592..7be3bed 100644
          "Unmerge Cells" => "取消合并单元格",
          "Fill Color" => "填充颜色",
          "Font Color" => "字体颜色",
-@@ -402,6 +408,63 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+@@ -230,6 +236,60 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+         "About\nGridCraft" => "关于\nGridCraft",
+         "Share" => "分享",
+         "Add Chart\nElement" => "添加图表\n元素",
++        "Format Chart Area" => "设置图表区格式",
++        "Chart Title" => "图表标题",
++        "Chart Type" => "图表类型",
++        "Legend" => "图例",
++        "None" => "无",
++        "Bottom" => "底部",
++        "Top" => "顶部",
++        "Elements" => "元素",
++        "Data Labels" => "数据标签",
++        "Horizontal axis title:" => "水平坐标轴标题：",
++        "Vertical axis title:" => "垂直坐标轴标题：",
++        "Series" => "系列",
++        "Colors & Layout" => "颜色和布局",
++        "Chart|None" => "无",
++        "Chart|Bottom" => "底部",
++        "Chart|Top" => "顶部",
++        "Chart|Left" => "左侧",
++        "Chart|Right" => "右侧",
++        "Chart|Size" => "大小",
++        "Column" => "柱形图",
++        "Stacked" => "堆积",
++        "Bar" => "条形图",
++        "Line" => "折线图",
++        "Area" => "面积图",
++        "Pie" => "饼图",
++        "Doughnut" => "圆环图",
++        "Scatter" => "散点图",
++        "Radar" => "雷达图",
++        "Layout" => "布局",
++        "Fill…" => "填充…",
++        "Title:" => "标题：",
++        "Recommended Charts" => "推荐图表",
++        "All Charts" => "所有图表",
++        "Clustered Column" => "簇状柱形图",
++        "Stacked Column" => "堆积柱形图",
++        "100% Stacked Column" => "百分比堆积柱形图",
++        "Clustered Bar" => "簇状条形图",
++        "Stacked Bar" => "堆积条形图",
++        "100% Stacked Bar" => "百分比堆积条形图",
++        "Line with Markers" => "带数据标记的折线图",
++        "Stacked Line" => "堆积折线图",
++        "Stacked Area" => "堆积面积图",
++        "Scatter with Lines" => "带直线的散点图",
++        "Histogram" => "直方图",
++        "Waterfall" => "瀑布图",
++        "Funnel" => "漏斗图",
++        "Combo" => "组合图",
++        "Select a chart first." => "请先选择图表。",
++        "Select Data Source" => "选择数据源",
++        "Insert Chart" => "插入图表",
++        "Chart data range:" => "图表数据区域：",
++        "Legend Entries (Series)" => "图例项（系列）",
++        "Series in" => "系列位于",
++        "Format Chart pane" => "图表格式窗格",
+         "Change\nChart Type" => "更改\n图表类型",
+         "Switch\nRow/Column" => "切换\n行/列",
+         "Select\nData" => "选择\n数据",
+@@ -402,6 +462,65 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "Workbook calculation" => "工作簿计算",
          "Enable iterative calculation" => "启用迭代计算",
          "Calculation settings are saved with the workbook." => "计算设置随工作簿一起保存。",
@@ -687,6 +954,8 @@ index 0017592..7be3bed 100644
 +        "Columns" => "列",
 +        "Sheet" => "工作表",
 +        "Chart" => "图表",
++        "Select a chart to format it." => "请选择图表后进行格式设置。",
++        "The chart no longer exists." => "图表已不存在。",
 +        "Sparklines…" => "迷你图…",
 +        "Function…" => "函数…",
 +        "Name…" => "名称…",
@@ -780,7 +1049,7 @@ index 59aeadc..d21cc7d 100644
 \ No newline at end of file
 +}
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index f96cdac..f4930e0 100644
+index f96cdac..d602c63 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -314,12 +314,12 @@ impl SheetApp {
@@ -797,7 +1066,18 @@ index f96cdac..f4930e0 100644
          ctx.set_fonts(theme::font_definitions_for_language(language));
          theme::apply(ctx, dark);
      }
-@@ -798,6 +798,14 @@ impl SheetApp {
+@@ -631,7 +631,9 @@ impl SheetApp {
+                         self.ui.language = l;
+                         Ok(json!({"language": l}))
+                     }
+-                    None => Err(format!("unknown language {code:?} (use \"en\", \"es\", \"zh\", \"ja\", \"ko\", \"ru\", \"pt\" or \"cs\")")),
++                    None => {
++                        Err(format!("unknown language {code:?} (use \"en\", \"es\", \"zh\", \"zh-hant\", \"ja\", \"ko\", \"ru\", \"pt\" or \"cs\")"))
++                    }
+                 }
+             }
+             "app.language.english" => {
+@@ -798,6 +800,14 @@ impl SheetApp {
              self.notice = None;
              return;
          }
@@ -812,7 +1092,7 @@ index f96cdac..f4930e0 100644
          let vba: Vec<&str> = msgs.iter().copied().filter(|m| m.to_lowercase().contains("macro") || m.contains("VBA")).collect();
          if !vba.is_empty() {
              self.notice = Some(Notice {
-@@ -990,6 +998,10 @@ impl SheetApp {
+@@ -990,6 +1000,10 @@ impl SheetApp {
  
      /// Per-frame logic (control channel, screenshots). Call before `ui`.
      pub fn logic(&mut self, ctx: &egui::Context) {
@@ -823,6 +1103,149 @@ index f96cdac..f4930e0 100644
          // A keytip control request lives one frame: the ribbon consumes it during `ui`, and
          // anything that never reached a control (collapsed ribbon, tab switch) is dropped.
          self.ui.keytip_invoke = None;
+diff --git a/crates/ui-egui/src/panes.rs b/crates/ui-egui/src/panes.rs
+index aaa9bec..367061a 100644
+--- a/crates/ui-egui/src/panes.rs
++++ b/crates/ui-egui/src/panes.rs
+@@ -16,6 +16,7 @@ pub fn show(app: &mut SheetApp, ui: &mut Ui) {
+         app.run_or_alert("review.showComments", json!({"on": false}));
+     }
+     let Some(pane) = app.grid.pane.clone().or_else(|| app.session.comments_pane.then(|| "comments".to_string())) else { return };
++    let lang = app.ui.language;
+     let t = Tokens::get(ui.ctx());
+     // Capped at half the window so a pane can never cover the sheet, whatever its content asks for.
+     let max = (ui.available_width() / 2.0).max(300.0);
+@@ -29,9 +30,9 @@ pub fn show(app: &mut SheetApp, ui: &mut Ui) {
+                 "formatChart" => "Format Chart Area",
+                 _ => "",
+             };
+-            ui.label(egui::RichText::new(title).font(theme::ui_bold(15.0)));
++            ui.label(egui::RichText::new(lang.tr(title)).font(theme::ui_bold(15.0)));
+             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-                if crate::widgets::icon_button(ui, crate::icons::Icon::Close, t.text_dim, "Close", vec2(22.0, 22.0)).clicked() {
++                if crate::widgets::icon_button(ui, crate::icons::Icon::Close, t.text_dim, lang.tr("Close"), vec2(22.0, 22.0)).clicked() {
+                     if pane == "comments" {
+                         app.run_or_alert("review.showComments", json!({"on": false}));
+                     }
+@@ -161,22 +162,23 @@ fn selection(app: &mut SheetApp, ui: &mut Ui) {
+ }
+ 
+ fn format_chart(app: &mut SheetApp, ui: &mut Ui) {
++    let lang = app.ui.language;
+     let Some(id) = app.selected_chart else {
+-        ui.label(egui::RichText::new("Select a chart to format it.").italics());
++        ui.label(egui::RichText::new(lang.tr("Select a chart to format it.")).italics());
+         return;
+     };
+     let Some(chart) = app.session.active().and_then(|d| d.wb.active().and_then(|s| s.charts.iter().find(|c| c.id == id).cloned())) else {
+-        ui.label("The chart no longer exists.");
++        ui.label(lang.tr("The chart no longer exists."));
+         return;
+     };
+     let theme = app.session.active().map(|d| d.wb.theme.clone()).unwrap_or_default();
+-    ui.collapsing("Chart Title", |ui| {
++    ui.collapsing(lang.tr("Chart Title"), |ui| {
+         let field = egui::Id::new(("gridcraft.chart_title", id));
+         if let Some(title) = crate::widgets::committed_text(ui, field, chart.title.as_deref().unwrap_or(""), None) {
+             app.run_or_alert("chart.set", json!({"chart": id, "title": title}));
+         }
+     });
+-    ui.collapsing("Chart Type", |ui| {
++    ui.collapsing(lang.tr("Chart Type"), |ui| {
+         ui.horizontal_wrapped(|ui| {
+             for (l, k, s) in [
+                 ("Column", "column", ""),
+@@ -189,47 +191,47 @@ fn format_chart(app: &mut SheetApp, ui: &mut Ui) {
+                 ("Scatter", "scatter", ""),
+                 ("Radar", "radar", ""),
+             ] {
+-                if ui.button(l).clicked() {
++                if ui.button(lang.tr(l)).clicked() {
+                     app.run_or_alert("chart.set", json!({"chart": id, "type": k, "subtype": s}));
+                 }
+             }
+         });
+     });
+-    ui.collapsing("Legend", |ui| {
++    ui.collapsing(lang.tr("Legend"), |ui| {
+         ui.horizontal(|ui| {
+             for (l, v) in [("None", "none"), ("Bottom", "bottom"), ("Top", "top"), ("Left", "left"), ("Right", "right")] {
+                 let cur = format!("{:?}", chart.legend).eq_ignore_ascii_case(v);
+-                if ui.selectable_label(cur, l).clicked() {
++                if ui.selectable_label(cur, lang.tr(&format!("Chart|{l}"))).clicked() {
+                     app.run_or_alert("chart.set", json!({"chart": id, "legend": v}));
+                 }
+             }
+         });
+     });
+-    ui.collapsing("Elements", |ui| {
++    ui.collapsing(lang.tr("Elements"), |ui| {
+         let mut dl = chart.data_labels;
+-        if ui.checkbox(&mut dl, "Data Labels").changed() {
++        if ui.checkbox(&mut dl, lang.tr("Data Labels")).changed() {
+             app.run_or_alert("chart.set", json!({"chart": id, "dataLabels": dl}));
+         }
+         let mut gl = chart.gridlines;
+-        if ui.checkbox(&mut gl, "Gridlines").changed() {
++        if ui.checkbox(&mut gl, lang.tr("Gridlines")).changed() {
+             app.run_or_alert("chart.set", json!({"chart": id, "gridlines": gl}));
+         }
+         ui.horizontal(|ui| {
+-            ui.label("Horizontal axis title:");
++            ui.label(lang.tr("Horizontal axis title:"));
+             let field = egui::Id::new(("gridcraft.chart_x_title", id));
+             if let Some(xt) = crate::widgets::committed_text(ui, field, chart.x_title.as_deref().unwrap_or(""), None) {
+                 app.run_or_alert("chart.set", json!({"chart": id, "xTitle": if xt.is_empty() { Json::Null } else { json!(xt) }}));
+             }
+         });
+         ui.horizontal(|ui| {
+-            ui.label("Vertical axis title:");
++            ui.label(lang.tr("Vertical axis title:"));
+             let field = egui::Id::new(("gridcraft.chart_y_title", id));
+             if let Some(yt) = crate::widgets::committed_text(ui, field, chart.y_title.as_deref().unwrap_or(""), None) {
+                 app.run_or_alert("chart.set", json!({"chart": id, "yTitle": if yt.is_empty() { Json::Null } else { json!(yt) }}));
+             }
+         });
+     });
+-    ui.collapsing("Series", |ui| {
++    ui.collapsing(lang.tr("Series"), |ui| {
+         let data = app.session.active().map(|d| gridcraft_chart::resolve(&d.wb, d.wb.active_sheet, &chart));
+         for (i, s) in chart.series.iter().enumerate() {
+             let name = data.as_ref().and_then(|d| d.series.get(i)).map(|x| x.name.clone()).unwrap_or_else(|| format!("Series {}", i + 1));
+@@ -240,7 +242,7 @@ fn format_chart(app: &mut SheetApp, ui: &mut Ui) {
+                 ui.painter().rect_filled(r, 2.0, col);
+                 ui.label(&name);
+                 ui.label(egui::RichText::new(&s.values).small().color(Color32::from_gray(110)));
+-                ui.menu_button("Fill…", |ui| {
++                ui.menu_button(lang.tr("Fill…"), |ui| {
+                     if let Some(c) = crate::widgets::color_palette(ui, &theme.colors, "Automatic") {
+                         app.run_or_alert(
+                             "chart.formatSelection",
+@@ -252,7 +254,7 @@ fn format_chart(app: &mut SheetApp, ui: &mut Ui) {
+             });
+         }
+     });
+-    ui.collapsing("Colors & Layout", |ui| {
++    ui.collapsing(lang.tr("Colors & Layout"), |ui| {
+         ui.horizontal_wrapped(|ui| {
+             for p in ["colorful", "monochrome", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6"] {
+                 if ui.button(p).clicked() {
+@@ -262,13 +264,13 @@ fn format_chart(app: &mut SheetApp, ui: &mut Ui) {
+         });
+         ui.horizontal(|ui| {
+             for n in 1..=6 {
+-                if ui.button(format!("Layout {n}")).clicked() {
++                if ui.button(format!("{} {n}", lang.tr("Layout"))).clicked() {
+                     app.run_or_alert("chart.quickLayout", json!({"chart": id, "layout": n}));
+                 }
+             }
+         });
+     });
+-    ui.collapsing("Size", |ui| {
++    ui.collapsing(lang.tr("Chart|Size"), |ui| {
+         // Keep the value being typed or dragged between frames; reloading it from the chart every frame threw the edit away.
+         let draft = egui::Id::new(("gridcraft.chart_size_draft", id));
+         let (mut w, mut h) = ui.data_mut(|d| d.get_temp::<(f32, f32)>(draft)).unwrap_or((chart.anchor.width, chart.anchor.height));
 diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
 index 9c6d89e..e7bfee6 100644
 --- a/crates/ui-egui/src/ribbon.rs
@@ -1404,3 +1827,117 @@ index 9a64b61..5aa11e8 100644
  
      <!-- An explicit command-line value wins. Otherwise retain the previous installation's
           choice, defaulting to off for a fresh install. Run only in the first sequence so the
+diff --git a/crates/ui-egui/src/i18n/zh_hant.rs b/crates/ui-egui/src/i18n/zh_hant.rs
+new file mode 100644
+index 0000000..050afd0
+--- /dev/null
++++ b/crates/ui-egui/src/i18n/zh_hant.rs
+@@ -0,0 +1,108 @@
++//! Traditional Chinese uses the complete Simplified Chinese catalog as its source and applies
++//! the corresponding script and common UI vocabulary at the display boundary. Keeping one source
++//! catalog prevents the four Excel surfaces from drifting apart while still honoring zh-Hant,
++//! zh-TW, zh-HK and zh-MO system locales.
++
++use std::collections::HashMap;
++use std::sync::{Mutex, OnceLock};
++
++static CACHE: OnceLock<Mutex<HashMap<String, &'static str>>> = OnceLock::new();
++
++pub(super) fn translate(text: &str) -> Option<&'static str> {
++    let source = super::zh::translate(text)?;
++    if source == text {
++        return Some(source);
++    }
++    let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
++    if let Ok(values) = cache.lock()
++        && let Some(value) = values.get(text)
++    {
++        return Some(*value);
++    }
++    let value = Box::leak(to_traditional(source).into_boxed_str());
++    if let Ok(mut values) = cache.lock() {
++        values.insert(text.to_owned(), value);
++    }
++    Some(value)
++}
++
++fn to_traditional(source: &str) -> String {
++    let mut value = source.to_owned();
++    for (simplified, traditional) in [
++        ("数据", "資料"),
++        ("图表", "圖表"),
++        ("版式", "版面配置"),
++        ("布局", "版面配置"),
++        ("首选项", "偏好設定"),
++        ("常规", "一般"),
++        ("编辑", "編輯"),
++        ("显示", "顯示"),
++        ("网格线", "網格線"),
++        ("网格", "網格"),
++        ("颜色", "顏色"),
++        ("标题", "標題"),
++        ("标签", "標籤"),
++        ("内容", "內容"),
++        ("设置", "設定"),
++        ("字体", "字體"),
++        ("复制", "複製"),
++        ("粘贴", "貼上"),
++        ("删除", "刪除"),
++        ("插入", "插入"),
++        ("动画", "動畫"),
++        ("录制", "錄製"),
++        ("审阅", "審閱"),
++        ("旁白", "旁白"),
++        ("控件", "控制項"),
++        ("播放", "播放"),
++        ("隐藏", "隱藏"),
++        ("自动", "自動"),
++        ("完成", "完成"),
++        ("简体", "簡體"),
++        ("帮助", "幫助"),
++        ("开始", "開始"),
++        ("文件", "檔案"),
++        ("打开", "開啟"),
++        ("保存", "儲存"),
++        ("关闭", "關閉"),
++        ("撤销", "復原"),
++        ("重做", "重做"),
++        ("取消", "取消"),
++        ("无", "無"),
++        ("顶部", "頂部"),
++        ("右侧", "右側"),
++        ("左侧", "左側"),
++        ("轴", "軸"),
++        ("选", "選"),
++        ("择", "擇"),
++        ("更改", "變更"),
++        ("图", "圖"),
++        ("标", "標"),
++        ("题", "題"),
++        ("类", "類"),
++        ("数", "數"),
++        ("据", "據"),
++        ("签", "籤"),
++        ("线", "線"),
++        ("顶", "頂"),
++        ("侧", "側"),
++        ("规", "規"),
++        ("显", "顯"),
++        ("动", "動"),
++    ] {
++        value = value.replace(simplified, traditional);
++    }
++    value
++}
++
++#[cfg(test)]
++mod tests {
++    use super::translate;
++
++    #[test]
++    fn common_excel_labels_use_traditional_script() {
++        assert_eq!(translate("Data"), Some("資料"));
++        assert_eq!(translate("Chart\nTitle"), Some("圖表\n標題"));
++        assert_eq!(translate("Gridlines"), Some("網格線"));
++    }
++}

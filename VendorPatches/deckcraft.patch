@@ -1,3 +1,43 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 4044fce..1c3a191 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1157,6 +1157,7 @@ dependencies = [
+  "log",
+  "serde",
+  "serde_json",
++ "sys-locale",
+  "toml",
+ ]
+ 
+@@ -4290,6 +4291,15 @@ dependencies = [
+  "syn 3.0.6",
+ ]
+ 
++[[package]]
++name = "sys-locale"
++version = "0.3.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "8eab9a99a024a169fe8a903cf9d4a3b3601109bcc13bd9e3c6fff259138626c4"
++dependencies = [
++ "libc",
++]
++
+ [[package]]
+ name = "tempfile"
+ version = "3.27.0"
+diff --git a/Cargo.toml b/Cargo.toml
+index b859615..57c1b79 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -50,6 +50,7 @@ unicode-bidi = "0.3"
+ unicode-segmentation = "1"
+ unicode-linebreak = "0.1"
+ chrono = { version = "0.4", default-features = false, features = ["clock"] }
++sys-locale = "0.3"
+ 
+ # text / rendering / formats
+ skrifa = "0.47"
 diff --git a/README.md b/README.md
 index f25aef2..e12fc93 100644
 --- a/README.md
@@ -64,7 +104,7 @@ index fd1d96e..ef47022 100644
          }
      }
 diff --git a/apps/deckcraft/src/main.rs b/apps/deckcraft/src/main.rs
-index 7b5e48b..75e547c 100644
+index 7b5e48b..234881b 100644
 --- a/apps/deckcraft/src/main.rs
 +++ b/apps/deckcraft/src/main.rs
 @@ -130,11 +130,13 @@ fn services() -> Services {
@@ -77,9 +117,9 @@ index 7b5e48b..75e547c 100644
  }
  
  fn main() -> eframe::Result {
-+    // MyAI Office presents the bundled editor in Simplified Chinese.  The locale layer only
++    // MyAI Office follows the operating-system interface language.  The locale layer only
 +    // changes display text; command ids and document data stay compatible with DeckCraft.
-+    deckcraft_ui_egui::locale::enable_chinese();
++    deckcraft_ui_egui::locale::configure();
      // First, so every start-up record (and the engine's panic hook, installed with the first
      // Session) is captured; see `logging`.
      let logger = logging::install();
@@ -340,6 +380,20 @@ index 1e2be17..414da0e 100644
  /// Glyph count and width of `text` laid out in one line of `family` at 40 pt, kern threshold `kern`.
  fn glyphs_and_width(family: &str, text: &str, kern: Option<f64>) -> (usize, f64) {
      let (p, mut sh) = setup(text, 2000.0, 300.0);
+diff --git a/crates/ui-egui/Cargo.toml b/crates/ui-egui/Cargo.toml
+index f08fa6c..6c0ec7d 100644
+--- a/crates/ui-egui/Cargo.toml
++++ b/crates/ui-egui/Cargo.toml
+@@ -23,6 +23,9 @@ serde = { workspace = true }
+ serde_json = { workspace = true }
+ log = { workspace = true }
+ 
++[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
++sys-locale = { workspace = true }
++
+ [target.'cfg(target_arch = "wasm32")'.dependencies]
+ js-sys = "0.3"
+ 
 diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
 index f1d0fde..a11d955 100644
 --- a/crates/ui-egui/src/backstage.rs
@@ -1853,23 +1907,85 @@ index 43d256f..18e39b0 100644
        <Directory Id="INSTALLFOLDER" Name="DeckCraft" />
 diff --git a/crates/ui-egui/src/locale.rs b/crates/ui-egui/src/locale.rs
 new file mode 100644
-index 0000000..62855fb
+index 0000000..7ece3ad
 --- /dev/null
 +++ b/crates/ui-egui/src/locale.rs
-@@ -0,0 +1,438 @@
+@@ -0,0 +1,752 @@
 +//! Small, deliberately localised display-text layer for the bundled MyAI Office editor.
 +//!
 +//! Command ids, file formats and the engine's persisted values remain in English.  Only text
-+//! that is presented to a user is translated, and the host enables this mode explicitly so the
-+//! upstream DeckCraft test harness keeps its English labels.
++//! that is presented to a user is translated, and the MyAI Office host selects the language from
++//! the operating system without changing DeckCraft's command ids or persisted document values.
 +
-+use std::sync::atomic::{AtomicBool, Ordering};
++use std::collections::HashMap;
++use std::sync::atomic::{AtomicU8, Ordering};
++use std::sync::{Mutex, OnceLock};
 +
-+static CHINESE: AtomicBool = AtomicBool::new(false);
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum Language {
++    En = 0,
++    ZhHans = 1,
++    ZhHant = 2,
++    Ja = 3,
++}
 +
-+/// Enable the Simplified Chinese interface for the MyAI Office desktop host.
++static LANGUAGE: AtomicU8 = AtomicU8::new(Language::En as u8);
++static TRADITIONAL_CACHE: OnceLock<Mutex<HashMap<String, &'static str>>> = OnceLock::new();
++
++fn language() -> Language {
++    match LANGUAGE.load(Ordering::Relaxed) {
++        1 => Language::ZhHans,
++        2 => Language::ZhHant,
++        3 => Language::Ja,
++        _ => Language::En,
++    }
++}
++
++fn from_tag(tag: &str) -> Option<Language> {
++    let base = tag.trim().split(['.', '@']).next()?;
++    let parts: Vec<String> = base.split(['-', '_']).filter(|part| !part.is_empty()).map(str::to_ascii_lowercase).collect();
++    let primary = parts.first()?.as_str();
++    match primary {
++        "en" => Some(Language::En),
++        "zh" if parts.iter().any(|part| matches!(part.as_str(), "hant" | "tw" | "hk" | "mo")) => Some(Language::ZhHant),
++        "zh" => Some(Language::ZhHans),
++        "ja" => Some(Language::Ja),
++        _ => None,
++    }
++}
++
++fn set_language(language: Language) {
++    LANGUAGE.store(language as u8, Ordering::Relaxed);
++}
++
++/// Select the interface language from the MyAI Office override or the operating system.
++pub fn configure() {
++    let explicit = std::env::var("MYAI_OFFICE_LANGUAGE").ok().filter(|value| !value.eq_ignore_ascii_case("auto")).and_then(|value| from_tag(&value));
++    let detected = explicit
++        .or_else(|| {
++            #[cfg(not(target_arch = "wasm32"))]
++            {
++                sys_locale::get_locale().and_then(|tag| from_tag(&tag))
++            }
++            #[cfg(target_arch = "wasm32")]
++            {
++                None
++            }
++        })
++        .unwrap_or(Language::En);
++    set_language(detected);
++    if enabled() {
++        load_cjk_fonts();
++    }
++}
++
++/// Enable the Simplified Chinese interface for callers that explicitly request it.
 +pub fn enable_chinese() {
-+    CHINESE.store(true, Ordering::Relaxed);
++    set_language(Language::ZhHans);
++    load_cjk_fonts();
++}
++
++fn load_cjk_fonts() {
 +    #[cfg(not(target_arch = "wasm32"))]
 +    {
 +        let db = deckcraft_fonts::FontDb::global();
@@ -1891,14 +2007,20 @@ index 0000000..62855fb
 +}
 +
 +pub fn enabled() -> bool {
-+    CHINESE.load(Ordering::Relaxed)
++    language() != Language::En
 +}
 +
 +/// Translate a user-visible label while preserving the caller's borrowed-string API.
 +pub fn tr(s: &str) -> &str {
-+    if !enabled() {
-+        return s;
++    match language() {
++        Language::En => s,
++        Language::ZhHans => tr_zh_hans(s),
++        Language::ZhHant => tr_zh_hant(s),
++        Language::Ja => tr_ja(s),
 +    }
++}
++
++fn tr_zh_hans(s: &str) -> &str {
 +    match s {
 +        "File" => "文件",
 +        "DeckCraft" => "MyAI Power Point",
@@ -2259,6 +2381,48 @@ index 0000000..62855fb
 +        "Use Timings" => "使用计时",
 +        "Play Narrations" => "播放旁白",
 +        "Show Media Controls" => "显示媒体控件",
++        "Title Slide" => "标题幻灯片",
++        "Title and Content" => "标题和内容",
++        "Section Header" => "节标题",
++        "Two Content" => "两栏内容",
++        "Comparison" => "比较",
++        "Title Only" => "仅标题",
++        "Blank" => "空白",
++        "Content with Caption" => "带标题的内容",
++        "Picture with Caption" => "带标题的图片",
++        "Title and Vertical Text" => "标题和竖排文字",
++        "Vertical Title and Text" => "竖排标题和文字",
++        "Format Chart Area" => "设置图表区格式",
++        "Chart Title" => "图表标题",
++        "Chart Type" => "图表类型",
++        "Legend" => "图例",
++        "Elements" => "元素",
++        "Data Labels" => "数据标签",
++        "Horizontal axis title:" => "水平坐标轴标题：",
++        "Vertical axis title:" => "垂直坐标轴标题：",
++        "Series" => "系列",
++        "Colors & Layout" => "颜色和布局",
++        "Size" => "大小",
++        "Column" => "柱形图",
++        "Stacked" => "堆积",
++        "Bar" => "条形图",
++        "Line" => "折线图",
++        "Area" => "面积图",
++        "Pie" => "饼图",
++        "Doughnut" => "圆环图",
++        "Scatter" => "散点图",
++        "Radar" => "雷达图",
++        "Preferences" => "首选项",
++        "General" => "常规",
++        "Dark appearance" => "深色外观",
++        "Interface size" => "界面大小",
++        "Editing" => "编辑",
++        "Show smart guides" => "显示智能参考线",
++        "Snap objects to grid" => "对象与网格对齐",
++        "Replace straight quotes with smart quotes" => "将直引号替换为智能引号",
++        "AutoCorrect as you type" => "键入时自动更正",
++        "Your name (comments):" => "批注中的姓名：",
++        "Done" => "完成",
 +        "Start Automatically" => "自动开始",
 +        "Play Across Slides" => "跨幻灯片播放",
 +        "Loop until Stopped" => "循环播放，直到停止",
@@ -2274,11 +2438,192 @@ index 0000000..62855fb
 +    }
 +}
 +
-+/// Translate an owned string when a direct egui widget needs an owned label.
-+pub fn owned(s: String) -> String {
-+    if !enabled() {
++fn tr_zh_hant(s: &str) -> &str {
++    let source = tr_zh_hans(s);
++    if source == s {
 +        return s;
 +    }
++    let cache = TRADITIONAL_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
++    if let Ok(values) = cache.lock()
++        && let Some(value) = values.get(s)
++    {
++        return *value;
++    }
++    let value = Box::leak(to_traditional(source).into_boxed_str());
++    if let Ok(mut values) = cache.lock() {
++        values.insert(s.to_owned(), value);
++    }
++    value
++}
++
++fn tr_ja(s: &str) -> &str {
++    match s {
++        "File" => "ファイル",
++        "DeckCraft" => "MyAI Power Point",
++        "Edit" => "編集",
++        "View" => "表示",
++        "Insert" => "挿入",
++        "Format" => "書式",
++        "Arrange" => "配置",
++        "Design" => "デザイン",
++        "Transitions" => "画面切り替え",
++        "Animations" => "アニメーション",
++        "Slide Show" => "スライド ショー",
++        "Record" => "記録",
++        "Review" => "校閲",
++        "Home" => "ホーム",
++        "Draw" => "描画",
++        "New" => "新規",
++        "Open" => "開く",
++        "Save" => "保存",
++        "Save As" => "名前を付けて保存",
++        "Print" => "印刷",
++        "Export" => "エクスポート",
++        "Options" => "オプション",
++        "Back" => "戻る",
++        "Close" => "閉じる",
++        "Layout" => "レイアウト",
++        "Reset Slide" => "スライドのリセット",
++        "Use Timings" => "タイミングを使用",
++        "Play Narrations" => "ナレーションを再生",
++        "Show Media Controls" => "メディア コントロールを表示",
++        "Title Slide" => "タイトル スライド",
++        "Title and Content" => "タイトルとコンテンツ",
++        "Section Header" => "セクション見出し",
++        "Two Content" => "2 つのコンテンツ",
++        "Comparison" => "比較",
++        "Title Only" => "タイトルのみ",
++        "Blank" => "白紙",
++        "Content with Caption" => "キャプション付きコンテンツ",
++        "Picture with Caption" => "キャプション付き画像",
++        "Title and Vertical Text" => "タイトルと縦書きテキスト",
++        "Vertical Title and Text" => "縦書きのタイトルとテキスト",
++        "Format Chart Area" => "グラフ エリアの書式設定",
++        "Chart Title" => "グラフ タイトル",
++        "Chart Type" => "グラフの種類",
++        "Legend" => "凡例",
++        "None" => "なし",
++        "Bottom" => "下",
++        "Top" => "上",
++        "Left" => "左",
++        "Right" => "右",
++        "Elements" => "要素",
++        "Data Labels" => "データ ラベル",
++        "Gridlines" => "目盛線",
++        "Horizontal axis title:" => "横軸のタイトル:",
++        "Vertical axis title:" => "縦軸のタイトル:",
++        "Series" => "系列",
++        "Colors & Layout" => "色とレイアウト",
++        "Size" => "サイズ",
++        "Column" => "縦棒",
++        "Stacked" => "積み上げ",
++        "Bar" => "横棒",
++        "Line" => "折れ線",
++        "Area" => "面",
++        "Pie" => "円",
++        "Doughnut" => "ドーナツ",
++        "Scatter" => "散布図",
++        "Radar" => "レーダー",
++        "Preferences" => "環境設定",
++        "General" => "一般",
++        "Dark appearance" => "ダーク表示",
++        "Interface size" => "インターフェイスのサイズ",
++        "Editing" => "編集",
++        "Show smart guides" => "スマート ガイドを表示",
++        "Snap objects to grid" => "オブジェクトをグリッドに合わせる",
++        "Replace straight quotes with smart quotes" => "直線引用符をスマート引用符に置き換える",
++        "AutoCorrect as you type" => "入力中にオートコレクトする",
++        "Your name (comments):" => "コメントに表示する名前:",
++        "Done" => "完了",
++        "English (United States)" => "英語 (米国)",
++        _ => s,
++    }
++}
++
++fn to_traditional(source: &str) -> String {
++    let mut value = source.to_owned();
++    for (simplified, traditional) in [
++        ("幻灯片", "投影片"),
++        ("演示文稿", "簡報"),
++        ("数据", "資料"),
++        ("计时", "計時"),
++        ("图表", "圖表"),
++        ("版式", "版面配置"),
++        ("布局", "版面配置"),
++        ("首选项", "偏好設定"),
++        ("常规", "一般"),
++        ("编辑", "編輯"),
++        ("显示", "顯示"),
++        ("网格线", "網格線"),
++        ("颜色", "顏色"),
++        ("标题", "標題"),
++        ("标签", "標籤"),
++        ("内容", "內容"),
++        ("设置", "設定"),
++        ("字体", "字體"),
++        ("复制", "複製"),
++        ("粘贴", "貼上"),
++        ("删除", "刪除"),
++        ("动画", "動畫"),
++        ("录制", "錄製"),
++        ("审阅", "審閱"),
++        ("控件", "控制項"),
++        ("隐藏", "隱藏"),
++        ("自动", "自動"),
++        ("开始", "開始"),
++        ("文件", "檔案"),
++        ("打开", "開啟"),
++        ("保存", "儲存"),
++        ("关闭", "關閉"),
++        ("撤销", "復原"),
++        ("简体", "簡體"),
++        ("帮助", "幫助"),
++        ("无", "無"),
++        ("顶部", "頂部"),
++        ("右侧", "右側"),
++        ("左侧", "左側"),
++        ("轴", "軸"),
++        ("图", "圖"),
++        ("标", "標"),
++        ("题", "題"),
++        ("数", "數"),
++        ("据", "據"),
++        ("签", "籤"),
++        ("线", "線"),
++        ("规", "規"),
++        ("显", "顯"),
++        ("动", "動"),
++    ] {
++        value = value.replace(simplified, traditional);
++    }
++    value
++}
++
++/// Translate an owned string when a direct egui widget needs an owned label.
++pub fn owned(s: String) -> String {
++    match language() {
++        Language::En => s,
++        Language::ZhHant => to_traditional(&owned_zh_hans(s)),
++        Language::Ja => match s.as_str() {
++            "Show" => "表示".into(),
++            "Hide" => "非表示".into(),
++            "Reopen" => "再開".into(),
++            "Resolve" => "解決".into(),
++            "Move Up" => "上へ移動".into(),
++            "Move Down" => "下へ移動".into(),
++            "Remove" => "削除".into(),
++            "Go to" => "移動".into(),
++            "Don't Save" => "保存しない".into(),
++            "Create PDF Document" => "PDF ドキュメントを作成".into(),
++            "Create Handouts" => "配布資料を作成".into(),
++            "Change File Type" => "ファイルの種類を変更".into(),
++            _ => s,
++        },
++        Language::ZhHans => owned_zh_hans(s),
++    }
++}
++
++fn owned_zh_hans(s: String) -> String {
 +    match s.as_str() {
 +        "Show" => "显示".into(),
 +        "Hide" => "隐藏".into(),
@@ -2293,5 +2638,28 @@ index 0000000..62855fb
 +        "Create Handouts" => "创建讲义".into(),
 +        "Change File Type" => "更改文件类型".into(),
 +        _ => s,
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::{Language, from_tag, tr_ja, tr_zh_hans, tr_zh_hant};
++
++    #[test]
++    fn system_tags_distinguish_chinese_scripts() {
++        assert_eq!(from_tag("en-US"), Some(Language::En));
++        assert_eq!(from_tag("zh-CN"), Some(Language::ZhHans));
++        assert_eq!(from_tag("zh-Hant-TW"), Some(Language::ZhHant));
++        assert_eq!(from_tag("ja-JP"), Some(Language::Ja));
++    }
++
++    #[test]
++    fn reference_labels_are_localized_in_all_supported_myai_languages() {
++        assert_eq!(tr_zh_hans("Use Timings"), "使用计时");
++        assert_eq!(tr_zh_hant("Use Timings"), "使用計時");
++        assert_eq!(tr_ja("Use Timings"), "タイミングを使用");
++        assert_eq!(tr_zh_hans("Title and Content"), "标题和内容");
++        assert_eq!(tr_zh_hant("Title and Content"), "標題和內容");
++        assert_eq!(tr_ja("Title and Content"), "タイトルとコンテンツ");
 +    }
 +}

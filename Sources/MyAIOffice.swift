@@ -881,7 +881,7 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
             configuration.activates = true
             configuration.createsNewApplicationInstance = true
             configuration.arguments = url.map { [$0.path] } ?? []
-            configuration.environment = ["MYAI_OFFICE_LANGUAGE": "zh-hans"]
+            configuration.environment = ["MYAI_OFFICE_LANGUAGE": "auto"]
             NSWorkspace.shared.openApplication(at: moduleApp, configuration: configuration) { [weak self] _, error in
                 DispatchQueue.main.async {
                     if let error {
@@ -905,7 +905,7 @@ final class SuiteWindowController: NSWindowController, NSWindowDelegate {
         task.executableURL = helper
         task.arguments = url.map { [$0.path] } ?? []
         var environment = ProcessInfo.processInfo.environment
-        environment["MYAI_OFFICE_LANGUAGE"] = "zh-hans"
+        environment["MYAI_OFFICE_LANGUAGE"] = "auto"
         task.environment = environment
         do {
             try task.run()
