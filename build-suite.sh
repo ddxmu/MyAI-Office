@@ -55,6 +55,10 @@ install_helper() {
             && cmp -s "$RESOURCES/MyAIOffice.icns" "$cached_app/Contents/Resources/MyAIOffice.icns" \
             && codesign --verify --deep --strict "$cached_app" 2>/dev/null; then
             ditto --noextattr --norsrc "$cached_app" "$module_app"
+            # Reused helpers keep their binary, but their visible release version must follow the
+            # enclosing MyAI Office application so all four modules stay on one release train.
+            plutil -replace CFBundleShortVersionString -string "$(plutil -extract CFBundleShortVersionString raw -o - "$ROOT/Info.plist")" \
+                "$module_app/Contents/Info.plist"
             echo "复用未改动模块：$label"
             return
         fi

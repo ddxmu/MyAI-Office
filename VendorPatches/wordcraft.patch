@@ -5513,15 +5513,6 @@ index da75c87..eeddcea 100644
      let mut dark_page = app.session.view.dark_mode;
      if ui
          .checkbox(&mut dark_page, tl!("Dark page (white text on black)"))
-@@ -180,7 +181,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
-     {
-         let _ = app.run("view.darkMode", json!({"value": dark_page}));
-     }
--    ui.checkbox(&mut app.ui.show_discord, tl!("Show the community button in the title bar"));
-+    ui.checkbox(&mut app.ui.show_discord, "在标题栏显示技术支持按钮");
-     default_app_button(app, ui);
-     ui.add_space(8.0);
-     section(ui, "Start-up");
 diff --git a/crates/ui-egui/src/previews.rs b/crates/ui-egui/src/previews.rs
 index 528e95f..cef69c1 100644
 --- a/crates/ui-egui/src/previews.rs
@@ -11725,3 +11716,116 @@ index 0000000..7066ea4
 +        assert!(anchor_rect(100.0, 250.0, viewport).is_none());
 +    }
 +}
+diff --git a/crates/ui-egui/src/table_mouse.rs b/crates/ui-egui/src/table_mouse.rs
+index f98c08f..bde9247 100644
+--- a/crates/ui-egui/src/table_mouse.rs
++++ b/crates/ui-egui/src/table_mouse.rs
+@@ -9,6 +9,7 @@
+ use egui::{Color32, Pos2, Rect, Shape, Stroke, Ui, vec2};
+ use serde_json::json;
+ use wordcraft_engine::cmd::table_mouse::{self, Spot, Target};
++use wordcraft_engine::cmd::table_resize::REACH;
+ use wordcraft_layout::DocLayout;
+ 
+ use crate::WordApp;
+@@ -37,7 +38,12 @@ fn available(app: &WordApp) -> bool {
+ fn target_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: Pos2) -> Option<(usize, f32, f32, f32, Target)> {
+     let (page, x, y) = crate::canvas::page_at(rects, layout, scale, p)?;
+     let reach = REACH_PX / page_scale(rects, layout, scale, page)?;
+-    let t = table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, reach)?;
++    // At low zoom, the screen-pixel resize reach can extend over the row selection bar. If the
++    // normal hit-test is blocked by that reach, retry with Word's actual border reach so the
++    // selection area remains usable while the border itself still belongs to resizing.
++    let t = table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, reach).or_else(|| {
++        (reach > REACH).then(|| table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, REACH)).flatten()
++    })?;
+     Some((page, x, y, reach, t))
+ }
+ 
+@@ -87,7 +93,8 @@ pub fn pointer(app: &mut WordApp, ui: &Ui, resp: &egui::Response, rects: &[Rect]
+         }
+         return true;
+     }
+-    if !available(app) || !(ui.input(|i| i.pointer.primary_pressed()) && resp.contains_pointer()) {
++    let pointer_on_page = latest.is_some_and(|p| rects.iter().any(|r| r.contains(p)));
++    if !available(app) || !(ui.input(|i| i.pointer.primary_pressed()) && pointer_on_page) {
+         return false;
+     }
+     let Some(p) = latest else { return false };
+@@ -171,7 +178,11 @@ pub fn paint(app: &WordApp, painter: &egui::Painter, t: &Tokens, layout: &DocLay
+             move_handle(painter, Rect::from_two_pos(a, b), t);
+         }
+     }
+-    let Some(target) = table_mouse::target_at(layout, doc, story, page, x, y, reach) else { return };
++    let Some(target) = table_mouse::target_at(layout, doc, story, page, x, y, reach).or_else(|| {
++        (reach > wordcraft_engine::cmd::table_resize::REACH)
++            .then(|| table_mouse::target_at(layout, doc, story, page, x, y, wordcraft_engine::cmd::table_resize::REACH))
++            .flatten()
++    }) else { return };
+     match table_mouse::insert_mark(&target) {
+         Some(m) => {
+             if let (Some(c), Some(a), Some(b)) = (s(m.center.0, m.center.1), s(m.from.0, m.from.1), s(m.to.0, m.to.1)) {
+diff --git a/crates/ui-egui/src/table_resize.rs b/crates/ui-egui/src/table_resize.rs
+index 33cfd26..fb36035 100644
+--- a/crates/ui-egui/src/table_resize.rs
++++ b/crates/ui-egui/src/table_resize.rs
+@@ -8,6 +8,7 @@
+ 
+ use egui::{Pos2, Rect, Stroke, Ui, pos2};
+ use serde_json::json;
++use wordcraft_engine::cmd::table_mouse::{self, Spot};
+ use wordcraft_engine::cmd::table_resize::{self, Edge, Plan, ResizeTarget, Share};
+ use wordcraft_layout::DocLayout;
+ 
+@@ -107,6 +108,26 @@ fn target_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: P
+     Some((page, x, y, t))
+ }
+ 
++/// At a zoomed-out view, the four screen-pixel resize reach can cover much of the row
++/// selection bar in page points. Keep the row-selection area ahead of resize hit-testing,
++/// while leaving the actual border (the engine's normal three-point reach) to resizing.
++fn row_selection_area_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: Pos2) -> bool {
++    let Some((page, x, y)) = crate::canvas::page_at(rects, layout, scale, p) else { return false };
++    matches!(
++        table_mouse::target_at(
++            layout,
++            &app.session.doc,
++            app.session.sel.focus.story,
++            page,
++            x,
++            y,
++            3.0,
++        )
++        .map(|target| target.spot),
++        Some(Spot::Row(_))
++    )
++}
++
+ /// Mouse input: a press on a border starts a drag (in the selected cells' rows only, when it's a
+ /// border of theirs), moving updates it, releasing applies it with the keys held then (Ctrl: the
+ /// columns right of the border share the change). `false` (nothing done) when the pointer isn't
+@@ -154,6 +175,9 @@ pub fn pointer(app: &mut WordApp, ui: &Ui, resp: &egui::Response, rects: &[Rect]
+         return false;
+     }
+     let Some(p) = latest else { return false };
++    if row_selection_area_at(app, layout, rects, scale, p) {
++        return false;
++    }
+     let Some((page, x, y, mut target)) = target_at(app, layout, rects, scale, p) else { return false };
+     target.limit_to_selection(&app.session, y);
+     app.canvas.table_resize = Some(ResizeDrag { page, from: (x, y), to: (x, y), target, ruler: false });
+@@ -208,7 +232,13 @@ pub fn cursor(app: &WordApp, ui: &Ui, resp: &egui::Response, layout: &DocLayout,
+     let edge = match &app.canvas.table_resize {
+         Some(d) => Some(d.target.edge),
+         None if resp.hovered() && available(app) => {
+-            ui.input(|i| i.pointer.latest_pos()).and_then(|p| target_at(app, layout, rects, scale, p)).map(|(_, _, _, t)| t.edge)
++            ui.input(|i| i.pointer.latest_pos()).and_then(|p| {
++                if row_selection_area_at(app, layout, rects, scale, p) {
++                    None
++                } else {
++                    target_at(app, layout, rects, scale, p).map(|(_, _, _, t)| t.edge)
++                }
++            })
+         }
+         None => None,
+     };

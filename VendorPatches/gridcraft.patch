@@ -7364,3 +7364,35 @@ index 0000000..29c8528
 +        assert!(sheet.rows.contains_key(&0));
 +    }
 +}
+diff --git a/crates/ui-egui/src/tabs.rs b/crates/ui-egui/src/tabs.rs
+index 42f8f19..610f3bd 100644
+--- a/crates/ui-egui/src/tabs.rs
++++ b/crates/ui-egui/src/tabs.rs
+@@ -11,7 +11,9 @@ use crate::icons::{self, Icon};
+ use crate::theme::{self, Tokens};
+ 
+ const SHEET_TABS_MIN_WIDTH: f32 = 100.0;
+-const SHEET_BAR_END_WIDTH: f32 = 190.0;
++// Reserve room for the add-sheet control and a WPS-like worksheet scrollbar that stays usable
++// even when the tab strip contains many sheets.
++const SHEET_BAR_END_WIDTH: f32 = 256.0;
+ 
+ /// The rename field asks for focus only while it has not got it yet. Asking again on the frame it lost focus (Enter or a click elsewhere)
+ /// would keep the field focused after it is closed, so the keyboard stayed stuck in the sheet name.
+diff --git a/crates/ui-egui/tests/cell_pictures.rs b/crates/ui-egui/tests/cell_pictures.rs
+index c35bdf0..a8080d8 100644
+--- a/crates/ui-egui/tests/cell_pictures.rs
++++ b/crates/ui-egui/tests/cell_pictures.rs
+@@ -54,7 +54,11 @@ fn image_meshes(h: &egui_kittest::Harness<'static, SheetApp>) -> Vec<(Rect, Rect
+                 for vertex in &mesh.vertices {
+                     bounds.extend_with(vertex.pos);
+                 }
+-                Some((bounds, shape.clip_rect))
++                // egui emits managed texture meshes for toolbar glyphs and icons as well. The
++                // synthetic picture in this test is a visible 2:1 raster, so exclude those
++                // small chrome quads instead of counting every texture-backed shape as a cell
++                // picture.
++                (bounds.width() > 50.0 && bounds.height() > 30.0).then_some((bounds, shape.clip_rect))
+             }
+             _ => None,
+         })
