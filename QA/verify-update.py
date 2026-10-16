@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import plistlib
 import shutil
 import stat
 import subprocess
@@ -56,6 +57,10 @@ with tempfile.TemporaryDirectory(prefix="myai-office-update-check-") as temporar
     extract(full, folder / "full")
     base = folder / "base/MyAI Office.app"
     expected = folder / "full/MyAI Office.app"
+    with (base / "Contents/Info.plist").open("rb") as source:
+        base_version = plistlib.load(source)["CFBundleShortVersionString"]
+    deltas = [asset for asset in manifest["deltas"] if asset["baseVersion"] == base_version]
+    assert deltas or not manifest["deltas"], f"No delta matches tested base {base_version}"
     baseline = inventory(base)
     target = inventory(expected)
     complete_metadata = json.loads((folder / "full/metadata.json").read_text())
@@ -63,7 +68,7 @@ with tempfile.TemporaryDirectory(prefix="myai-office-update-check-") as temporar
     stage(full, base, folder / "full-rebuilt.app")
     assert inventory(folder / "full-rebuilt.app") == target
 
-    for index, asset in enumerate(manifest["deltas"]):
+    for index, asset in enumerate(deltas):
         delta = package_dir / asset["url"].rsplit("/", 1)[1]
         staged = folder / f"delta-{index}.app"
         stage(delta, base, staged)

@@ -1,4 +1,4 @@
-"""Render every page and check DOC-to-DOCX round trips with MyAI's own native engine.
+"""Render every page and check DOC/DOCX round trips with MyAI's own native engine.
 
 Inputs and page images stay in the caller-selected local QA folder. No Office engine other
 than the specified MyAI executable is launched; never pass an original as an output path.

@@ -45,7 +45,7 @@ index 2929018..1f8b556 100644
    <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
    <a href="https://getartcraft.com/apps/wordcraft">WordCraft</a>
 diff --git a/ROADMAP.md b/ROADMAP.md
-index a5b5cbb..7958001 100644
+index a5b5cbb..67724fd 100644
 --- a/ROADMAP.md
 +++ b/ROADMAP.md
 @@ -2,7 +2,7 @@
@@ -53,21 +53,22 @@ index a5b5cbb..7958001 100644
  **Stage: alpha** · next: beta, ~15 points (60% → 75% ready for real work) and ~150–230 h away
  
 -> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** trivial (progress log: privacy options on save, #1062; previously trivial: progress log: equation pictures in theme colours on Windows, #1002; previously trivial: symbol fonts, #776; previously trivial: the save prompt answers from the keyboard, #861; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw tab ink, #307, and Draw Table and Eraser, #303, landed: catalog 402/434; previously minor: readiness table with hours per audience; full number back to the additive weighted sum, 60%; mainstream and essentials numbers added; alpha gate checked; previously major: full re-measure against Word for Mac 16.113.4; restructured to the craftrules progress-docs standard) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
-+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.7.2 DOC layout); previous: trivial (progress log: privacy options on save, #1062; previously trivial: progress log: equation pictures in theme colours on Windows, #1002; previously trivial: symbol fonts, #776; previously trivial: the save prompt answers from the keyboard, #861; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw tab ink, #307, and Draw Table and Eraser, #303, landed: catalog 402/434; previously minor: readiness table with hours per audience; full number back to the additive weighted sum, 60%; mainstream and essentials numbers added; alpha gate checked; previously major: full re-measure against Word for Mac 16.113.4; restructured to the craftrules progress-docs standard) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
++> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.7.3 DOCX TOC results); previous: patch (MyAI Office 0.7.2 DOC layout); previously: trivial (progress log: privacy options on save, #1062; previously trivial: progress log: equation pictures in theme colours on Windows, #1002; previously trivial: symbol fonts, #776; previously trivial: the save prompt answers from the keyboard, #861; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw tab ink, #307, and Draw Table and Eraser, #303, landed: catalog 402/434; previously minor: readiness table with hours per audience; full number back to the additive weighted sum, 60%; mainstream and essentials numbers added; alpha gate checked; previously major: full re-measure against Word for Mac 16.113.4; restructured to the craftrules progress-docs standard) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
  
  > **Printing update:** 2026-10-12 · direct desktop printing through craft-print; details below.
  
-@@ -135,6 +135,9 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
+@@ -135,6 +135,10 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
  
  | Date | What landed |
  |---|---|
++| 2026-10-16 | MyAI Office 0.7.3: DOCX complex HYPERLINK results keep their formatted runs, real tabs and nested PAGEREF fields through repeated saves, restoring TOC dotted leaders and right-aligned page numbers. Chinese font metrics and TOC pagination parity remain open. |
 +| 2026-10-16 | MyAI Office 0.7.2: nested DOC TOC results retain paragraphs without exposing instructions; per-row cell edges become shared-grid spans; empty-cell formatting, paragraph grid opt-outs and text-box insets are imported. Experimental section-grid/layout changes were withheld after private WPS comparisons exposed pagination differences. Full pagination parity remains open. |
 +| 2026-10-16 | MyAI Office 0.7.1: Chinese font aliases replace the imported East Asian typeface on selection; private suite fonts are discovered without system installation. |
 +| 2026-10-16 | MyAI Office 0.6.1: legacy DOC tables and header rules repaired from public specs; private originals are not committed. |
  | 2026-10-12 | Text boxes from older Word files (VML) keep their internal margins, Resize shape to fit text and vertical alignment, so letterhead address blocks and form headers sit where Word puts them instead of 7 pt in and 4 pt down. Hidden drawings stay hidden (they were drawn as empty boxes) and are kept on save |
  | 2026-10-13 | Word's privacy options are kept and honoured when saving .docx (#1062): with Remove personal information, comments and tracked changes are saved by "Author" and the file has no creator or last-modified-by; with Remove date and time, they are saved without dates. The open document keeps the real names and dates; `file.privacyOptions` sets both |
  | 2026-10-13 | A selected comment balloon's Delete, Reply and Resolve buttons work again (#1085): pressing them no longer counts as a click on the page that closes the balloon first, so a new empty comment, or any other, can be deleted from its balloon |
-@@ -287,6 +290,8 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
+@@ -287,6 +291,8 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
  
  | Date | Change | Summary |
  |---|---|---|
@@ -1101,6 +1102,77 @@ index ef3f269..3129225 100644
      assert_eq!(part.blocks.first().and_then(|b| b.as_para()).map(|p| p.text.as_str()), Some("Inside"));
  }
  
+diff --git a/crates/docx/src/read/story.rs b/crates/docx/src/read/story.rs
+index 7c50ebb..43333d9 100644
+--- a/crates/docx/src/read/story.rs
++++ b/crates/docx/src/read/story.rs
+@@ -86,9 +86,12 @@ fn enclosure(f: &FieldState) -> Option<wordcraft_doc::eq::Enclosure> {
+ }
+ 
+ /// Fields kept as ranges: those whose result another program writes, with formatting and often
+-/// several paragraphs (TOCs and citation managers' `ADDIN` fields).
++/// several paragraphs (TOCs and citation managers' `ADDIN` fields). A complex HYPERLINK result
++/// also keeps its runs: TOC links can contain a tab and a nested PAGEREF, not just atomic text.
+ fn is_range_instr(instr: &str) -> bool {
+-    super::is_toc(instr) || instr.trim_start().get(..5).is_some_and(|k| k.eq_ignore_ascii_case("ADDIN"))
++    super::is_toc(instr)
++        || instr.split_whitespace().next().is_some_and(|k| k.eq_ignore_ascii_case("HYPERLINK"))
++        || instr.trim_start().get(..5).is_some_and(|k| k.eq_ignore_ascii_case("ADDIN"))
+ }
+ 
+ /// The last paragraph of a block list: its last block, or inside a final table the last
+diff --git a/crates/docx/tests/toc_ranges.rs b/crates/docx/tests/toc_ranges.rs
+index d8010bd..ef01ffd 100644
+--- a/crates/docx/tests/toc_ranges.rs
++++ b/crates/docx/tests/toc_ranges.rs
+@@ -29,6 +29,47 @@ const END: &str = r#"<w:r><w:fldChar w:fldCharType="end"/></w:r>"#;
+ const PAGE: &str = r#"<w:fldSimple w:instr="PAGEREF Original"><w:r><w:t>7</w:t></w:r></w:fldSimple>"#;
+ const ENTRY: &str = r#"<w:hyperlink w:anchor="Original"><w:r><w:rPr><w:b/><w:i/></w:rPr><w:t>Scope</w:t></w:r><w:r><w:tab/></w:r>"#;
+ 
++#[test]
++fn complex_hyperlink_result_keeps_toc_tabs_formatting_and_nested_page_field() {
++    let body = format!(
++        r#"<w:p><w:pPr><w:tabs><w:tab w:val="right" w:leader="dot" w:pos="9000"/></w:tabs></w:pPr>{}{}<w:r><w:rPr><w:b/><w:rFonts w:ascii="Example Serif" w:eastAsia="Example CJK"/></w:rPr><w:t>Scope</w:t></w:r><w:r><w:tab/></w:r>{}<w:r><w:t>7</w:t></w:r>{END}{END}{END}</w:p>"#,
++        start("TOC"),
++        start(r#" HYPERLINK \l "Original" "#),
++        start("PAGEREF Original \\h"),
++    );
++    let mut doc = wordcraft_docx::read(&package(&body)).unwrap();
++    for _ in 0..3 {
++        let p = doc.body[0].as_para().unwrap();
++        assert!(p.text.contains('\t'), "the tab must remain a layout character, not an atomic field result");
++        assert_eq!(p.plain_text(), "Scope\t7");
++        let ranges = doc.field_ranges(StoryRef::Body);
++        assert_eq!(ranges.len(), 2);
++        assert_eq!(ranges[0].instr, "TOC");
++        assert_eq!(ranges[1].instr, r#"HYPERLINK \l "Original""#);
++        assert!(ranges.iter().all(|f| f.locked));
++        let props = p.props_of_char(p.text.find("Scope").unwrap());
++        assert_eq!(props.bold, Some(true));
++        assert_eq!(props.font.as_deref(), Some("Example Serif"));
++        assert_eq!(props.font_ea.as_deref(), Some("Example CJK"));
++        assert!(p.objects.iter().any(|o| matches!(o, InlineObject::Field { instr, result, .. } if instr == "PAGEREF Original \\h" && result == "7")));
++        assert_eq!(p.props.tabs.as_ref().unwrap()[0].leader, wordcraft_doc::props::TabLeader::Dot);
++        assert!(!doc.has_unbalanced_field_ranges());
++        doc = wordcraft_docx::read(&wordcraft_docx::write(&doc).unwrap()).unwrap();
++    }
++}
++
++#[test]
++fn hyperlink_nested_in_field_instruction_stays_an_instruction() {
++    let body = format!(
++        "<w:p>{}{}<w:r><w:t>target</w:t></w:r>{END}<w:r><w:instrText> = target</w:instrText><w:fldChar w:fldCharType=\"separate\"/><w:t>Visible</w:t></w:r>{END}</w:p>",
++        start("IF").replace(r#"<w:r><w:fldChar w:fldCharType="separate"/></w:r>"#, ""),
++        start("HYPERLINK Original"),
++    );
++    let doc = wordcraft_docx::read(&package(&body)).unwrap();
++    assert!(doc.field_ranges(StoryRef::Body).is_empty());
++    assert_eq!(doc.body[0].as_para().unwrap().plain_text(), "Visible");
++}
++
+ #[test]
+ fn unstyled_toc_keeps_range_nested_field_and_formatting_through_two_edited_saves() {
+     for split in [false, true] {
 diff --git a/crates/engine/src/cmd/format.rs b/crates/engine/src/cmd/format.rs
 index dc5503d..9c3ba0f 100644
 --- a/crates/engine/src/cmd/format.rs
@@ -1264,6 +1336,30 @@ index 883011b..3393a4f 100644
                  // Pictures, shapes and text boxes: drawn, their areas and text boxes' text.
                  if !p.objects.is_empty() {
                      let at = ObjFrame { page: frame, col: (0.0, width), para_y: y, table_chr: table.map(|t| &t.chr) };
+diff --git a/crates/layout/src/para.rs b/crates/layout/src/para.rs
+index 41f9fad..def1fc5 100644
+--- a/crates/layout/src/para.rs
++++ b/crates/layout/src/para.rs
+@@ -711,14 +711,11 @@ impl<'a> Builder<'a> {
+         let show = |c: char| sym.map_or(c, |m| m.show(c));
+         let primary_cs = rc_cs.as_ref().map(|r| wordcraft_fonts::word::resolve(&r.font, r.bold, r.italic).face);
+         // Chinese, Japanese and Korean characters use the run's East Asian font (`w:eastAsia`) when
+-        // it is installed and has them.
+-        let primary_ea = rc
+-            .font_ea
+-            .as_ref()
+-            .filter(|f| !f.eq_ignore_ascii_case(&rc.font) && text.chars().any(east_asian))
+-            .map(|f| wordcraft_fonts::word::resolve(f, rc.bold, rc.italic))
+-            .filter(|r| !r.substituted)
+-            .map(|r| r.face);
++        // it is installed (or a recognized alias resolves to a substitute) and has them.
++        let primary_ea = rc.font_ea.as_ref().filter(|f| !f.eq_ignore_ascii_case(&rc.font) && text.chars().any(east_asian)).and_then(|f| {
++            let r = wordcraft_fonts::word::resolve(f, rc.bold, rc.italic);
++            (!r.substituted || wordcraft_fonts::word::is_east_asian_alias(f)).then_some(r.face)
++        });
+         let use_levels = para_text && !self.levels.is_empty();
+         let context = if self.env.numeral == NumeralMode::Context && use_levels { context_digit_dirs(text, &self.levels, base) } else { Vec::new() };
+         // One fallback face for the run's East Asian characters: the first face in fallback order
 diff --git a/crates/layout/src/tests.rs b/crates/layout/src/tests.rs
 index afdf9d0..26feaf4 100644
 --- a/crates/layout/src/tests.rs
@@ -1665,18 +1761,32 @@ index ad4adcd..29c9570 100644
  /// A combo's scrolling list. Only the rows in view are built: the font menu lists every installed
  /// family and each preview loads that font, so building all rows loaded every font on the system
 diff --git a/docs/file-format-parity.md b/docs/file-format-parity.md
-index 641da4f..6ca63b0 100644
+index 641da4f..b49387a 100644
 --- a/docs/file-format-parity.md
 +++ b/docs/file-format-parity.md
 @@ -1,6 +1,6 @@
  # File-format parity with Microsoft Word
  
 -> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-13 · **Change:** trivial (VML text boxes keep their internal margins, fit to their text and vertical alignment; hidden drawings not shown; previously trivial: equations as MathML in HTML export, copy and paste, #816; previously trivial: symbol-font text exported as Unicode, #776; previously trivial: text-box margins, Resize shape to fit text and freeforms in groups, #743; previously trivial: formatted paste from the system clipboard's HTML and RTF, #687; previously trivial: independent complex-script formatting inheritance and round-trip regression tests; previously trivial: import/export fixes for TXT, RTF, ODT, HTML and LaTeX, #433–#440; previously major: first version; every format Word reads or writes, measured from the readers and writers on origin/main) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4, plus Word for Windows' extra formats
-+> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.7.2 DOC layout); previous: trivial (VML text boxes keep their internal margins, fit to their text and vertical alignment; hidden drawings not shown; previously trivial: equations as MathML in HTML export, copy and paste, #816; previously trivial: symbol-font text exported as Unicode, #776; previously trivial: text-box margins, Resize shape to fit text and freeforms in groups, #743; previously trivial: formatted paste from the system clipboard's HTML and RTF, #687; previously trivial: independent complex-script formatting inheritance and round-trip regression tests; previously trivial: import/export fixes for TXT, RTF, ODT, HTML and LaTeX, #433–#440; previously major: first version; every format Word reads or writes, measured from the readers and writers on origin/main) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4, plus Word for Windows' extra formats
++> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.7.3 DOCX TOC results); previous: patch (MyAI Office 0.7.2 DOC layout); previously: trivial (VML text boxes keep their internal margins, fit to their text and vertical alignment; hidden drawings not shown; previously trivial: equations as MathML in HTML export, copy and paste, #816; previously trivial: symbol-font text exported as Unicode, #776; previously trivial: text-box margins, Resize shape to fit text and freeforms in groups, #743; previously trivial: formatted paste from the system clipboard's HTML and RTF, #687; previously trivial: independent complex-script formatting inheritance and round-trip regression tests; previously trivial: import/export fixes for TXT, RTF, ODT, HTML and LaTeX, #433–#440; previously major: first version; every format Word reads or writes, measured from the readers and writers on origin/main) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4, plus Word for Windows' extra formats
  
  Every format Word opens or saves, what WordCraft does with it, and how it's tested. Fidelity is the
  share of a typical real-world file's content and formatting that survives (read: shows correctly;
-@@ -43,6 +43,15 @@ Weights are the share of a Word user's file traffic (estimate). Read/write: ✅
+@@ -14,6 +14,13 @@ occasional.
+ 
+ ## Formats
+ 
++MyAI Office 0.7.3: complex DOCX HYPERLINK results are range fields, retaining their styled runs,
++tab characters and nested PAGEREF objects. Existing paragraph tab stops can therefore draw TOC
++dotted leaders and align page numbers; instructions, locks and nesting survive repeated saves.
++This is not an automatic TOC refresh or a complete pagination/font-metrics repair.
++Separately specified East Asian font aliases now use their available substitute instead of
++being discarded as unknown fonts; the existing alias regression is exercised with release fonts.
++
+ Weights are the share of a Word user's file traffic (estimate). Read/write: ✅ yes, 🟡 partial,
+ ❌ no, — Word doesn't either.
+ 
+@@ -43,6 +50,15 @@ Weights are the share of a Word user's file traffic (estimate). Read/write: ✅
  
  ## DOCX in depth
  
@@ -1692,31 +1802,40 @@ index 641da4f..6ca63b0 100644
  Measured by grepping `crates/docx/src/read` and `src/write` for the OOXML elements (2026-10-10).
  
  | Feature | Read | Write | Notes |
-@@ -163,6 +172,8 @@ raise readiness estimates. No Word-derived files are fixtures.
+@@ -163,6 +179,9 @@ raise readiness estimates. No Word-derived files are fixtures.
  
  | Date | Change | Summary |
  |---|---|---|
++| 2026-10-16 | patch | Complex HYPERLINK cached result runs/tabs and nested PAGEREF retained; TOC leaders fixed without altering document pagination properties. |
 +| 2026-10-16 | patch | MyAI Office 0.7.2: nested TOC results, row-specific shared-grid spans, empty-cell formatting, paragraph grid opt-outs and text-box insets. Section-grid/layout experiments remain unreleased. |
 +| 2026-10-16 | patch | MyAI Office 0.6.1: external PAPX/table-property chains, separate row marks, fixed grids, RGB shading/cell borders and CJK font defaults read. Private two-page sample round-tripped to DOCX. |
  | 2026-10-12 | trivial | VML text boxes keep their internal margins (`inset`), fit to their text (`mso-fit-shape-to-text`) and vertical alignment (`v-text-anchor`); hidden drawings (`visibility:hidden`, `wp:docPr/@hidden`) are kept but not shown |
  | 2026-10-13 | trivial | Remove personal information / Remove date and time settings kept and honoured on save: anonymous annotation authors, no creator or last-modified-by, no annotation dates (#1062) |
  | 2026-10-12 | trivial | Direct run-level `w:contentPart` InkML keeps its relationship, content type and bytes through DOCX edits and repeated saves; nested group/canvas ink and native rendering remain missing |
 diff --git a/docs/gaps.md b/docs/gaps.md
-index a85a8f0..9a6c5a7 100644
+index a85a8f0..4a982dd 100644
 --- a/docs/gaps.md
 +++ b/docs/gaps.md
 @@ -1,6 +1,6 @@
  # Where WordCraft falls short of Word
  
 -> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** trivial (sample-text formulas on Enter, #1067; previously trivial: #29: copied equations as MathML, OMML open as #1297, #816; previously trivial: the Font list no longer keeps every previewed font in memory, #848; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw Table and Eraser landed, #303; previously minor: beta distance restated: ~15 points, ~150–230 h; previously: first version; every known shortfall from the 2026-10-10 re-measure, ranked) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
-+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.7.2 DOC layout); previous: trivial (sample-text formulas on Enter, #1067; previously trivial: #29: copied equations as MathML, OMML open as #1297, #816; previously trivial: the Font list no longer keeps every previewed font in memory, #848; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw Table and Eraser landed, #303; previously minor: beta distance restated: ~15 points, ~150–230 h; previously: first version; every known shortfall from the 2026-10-10 re-measure, ranked) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
++> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-16 · **Change:** patch (MyAI Office 0.7.3 DOCX TOC results); previous: patch (MyAI Office 0.7.2 DOC layout); previously: trivial (sample-text formulas on Enter, #1067; previously trivial: #29: copied equations as MathML, OMML open as #1297, #816; previously trivial: the Font list no longer keeps every previewed font in memory, #848; previously trivial: table column and row markers on the rulers, #700; previously trivial: table borders and the resize handle drag on the page, #217; previously trivial: formatting revisions landed, #41; previously trivial: Draw Table and Eraser landed, #303; previously minor: beta distance restated: ~15 points, ~150–230 h; previously: first version; every known shortfall from the 2026-10-10 re-measure, ranked) · **Target:** Microsoft Word (Microsoft 365) for Mac 16.113.4
  
  > **Printing update:** 2026-10-12 · direct desktop printing through craft-print; details below.
  
-@@ -13,6 +13,16 @@ Native save reliability: synthetic cases on macOS reproduced loss through the pr
+@@ -13,6 +13,24 @@ Native save reliability: synthetic cases on macOS reproduced loss through the pr
  
  ## Ranked
  
++MyAI Office 0.7.3 narrows DOCX TOC result fidelity: complex HYPERLINK fields retain real tabs,
++formatted runs and nested page references instead of flattening them into atomic text. Synthetic
++round-trip checks and private native/WPS comparisons cover the dotted-leader failure. The private
++document still places its TOC across a page boundary; Chinese font metrics and pagination remain
++unresolved, and no forced page breaks or global spacing changes are introduced.
++Release-font validation also exposed an ignored East Asian alias in mixed-script runs; recognized
++aliases now select their available substitute. This does not make substitutes metric-identical.
++
 +MyAI Office 0.6.1 narrows the legacy DOC compatibility gap: external paragraph/table properties, separate row terminators, fixed grids, shading, cell borders and CJK font defaults are now read. One private two-page document and synthetic regression cases were checked; this does not close the general pagination or corpus-validation gaps.
 +
 +MyAI Office 0.7.2 further covers nested TOC cached paragraphs, per-row column boundaries and
@@ -1730,10 +1849,11 @@ index a85a8f0..9a6c5a7 100644
  | # | Gap | B | Evidence | Impact | Hours | Doc |
  |---|---|---|---|---|---|---|
  | 1 | **DOCX never tested on real-world files.** No corpus of files from Word, Google Docs, LibreOffice and Pages has been opened, rendered and round-tripped and compared with Word page by page | B | No corpus in the repo; `crates/docx/tests` are synthetic fixtures (including omitted/empty paragraph defaults and imported TOC range preservation); "DOCX fidelity corpus: not started" since 2026-10-06. Field reports fixed one by one: a cover page's theme-coloured shapes (#611), freeforms inside groups and text-box margins and Resize to fit (#743) | Everyone: the files people receive are the files that break | 30–50 | [file-format-parity.md](file-format-parity.md) |
-@@ -80,6 +90,8 @@ The same gaps grouped the way the parity documents are, for agents working in on
+@@ -80,6 +98,9 @@ The same gaps grouped the way the parity documents are, for agents working in on
  
  | Date | Change | Summary |
  |---|---|---|
++| 2026-10-16 | patch | DOCX complex hyperlink result runs/tabs preserved for TOC leaders; pagination and Chinese font metrics are explicitly still open. |
 +| 2026-10-16 | patch | DOC import narrowed using synthetic regressions and private WPS/native comparisons; experimental grid layout is not shipped and full pagination parity remains open. |
 +| 2026-10-16 | patch | Legacy DOC table import narrowed: row marks, external properties, CJK fonts, shading and borders covered; general compatibility/pagination gaps remain. |
  | 2026-10-12 | trivial | Sample-text formulas on Enter (#1067) implemented; numerical limits not compared in Word |
