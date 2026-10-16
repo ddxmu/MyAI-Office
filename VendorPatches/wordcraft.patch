@@ -137,6 +137,129 @@ index 62b51d4..f60b7b2 100644
              load_user_dictionary(&mut app);
              // A region chosen in File › Options replaces the system's for the first blank
              // document too (#838).
+diff --git a/crates/doc/src/edit.rs b/crates/doc/src/edit.rs
+index 6c36f92..2a00ea2 100644
+--- a/crates/doc/src/edit.rs
++++ b/crates/doc/src/edit.rs
+@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
+ 
+ use crate::para::InlineObject;
+ use crate::props::{CharProps, ParaProps};
+-use crate::{Block, Blocks, DocError, Document, Paragraph, Part, PartKind, Path, Pos, Result, para_block};
++use crate::{Block, Blocks, Cell, DocError, Document, Paragraph, Part, PartKind, Path, Pos, Result, Row, StoryRef, Table, para_block};
+ 
+ /// A copied piece of a document: blocks, where the first and last paragraphs may be partial.
+ #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
+@@ -446,6 +446,52 @@ impl Document {
+         Fragment { blocks, parts }
+     }
+ 
++    /// Copy a rectangular selection of whole table cells as a table fragment.
++    ///
++    /// A normal range copy deliberately flattens a range that crosses paragraph containers. That
++    /// is right for text selections, but it loses the row/column shape of a Word table selection.
++    /// Keeping the selected cells in a small table lets the engine paste them into corresponding
++    /// destination cells instead of concatenating them into the cell at the caret.
++    pub fn copy_table_cells(&self, story: StoryRef, table: &Path, rows: (usize, usize), cols: (usize, usize)) -> Option<Fragment> {
++        let source = self.table(story, table)?;
++        let last_row = source.rows.len().checked_sub(1)?;
++        let last_col = source.cols().checked_sub(1)?;
++        let r0 = rows.0.min(rows.1).min(last_row);
++        let r1 = rows.0.max(rows.1).min(last_row);
++        let g0 = cols.0.min(cols.1).min(last_col);
++        let g1 = cols.0.max(cols.1).min(last_col);
++        let grid: Vec<f32> = (g0..=g1).map(|g| source.grid.get(g).copied().unwrap_or(72.0)).collect();
++        let width = grid.iter().sum();
++        let mut copied = Table { props: source.props.clone(), grid, rows: Vec::with_capacity(r1 - r0 + 1), controls: source.controls.clone() };
++        copied.props.width = Some(width);
++        copied.props.width_pct = None;
++        for r in r0..=r1 {
++            let Some(source_row) = source.rows.get(r) else { continue };
++            let mut row = Row { props: source_row.props.clone(), cells: Vec::new(), controls: source_row.controls.clone() };
++            let mut start = 0usize;
++            for source_cell in &source_row.cells {
++                let end = start.saturating_add(source_cell.span());
++                let from = start.max(g0);
++                let to = end.min(g1.saturating_add(1));
++                if from < to {
++                    let mut cell: Cell = source_cell.clone();
++                    cell.props.span = (to - from) as u32;
++                    cell.props.width = copied.grid.get(from - g0..to - g0).map(|v| v.iter().sum());
++                    row.cells.push(cell);
++                }
++                start = end;
++            }
++            if row.cells.is_empty() {
++                row.cells.push(Cell::empty());
++            }
++            copied.rows.push(row);
++        }
++        let mut blocks = vec![Block::Table(copied)];
++        crate::control::balance_blocks(&mut blocks);
++        let parts = self.text_box_parts(&blocks);
++        Some(Fragment { blocks, parts })
++    }
++
+     /// The whole body as a fragment (with its text boxes), to insert into another document.
+     pub fn body_fragment(&self) -> Fragment {
+         let blocks: Vec<Block> = self.body.iter().map(|b| (**b).clone()).collect();
+@@ -561,6 +607,56 @@ impl Document {
+         Some(id)
+     }
+ 
++    /// Replace destination table cells with the corresponding cells of a one-table fragment.
++    /// The destination table keeps its own cell formatting; the copied cell blocks carry the
++    /// source text and character/paragraph formatting.
++    pub fn insert_table_cells(&mut self, pos: &Pos, frag: &Fragment) -> Result<Pos> {
++        let Some((table_path, start_row, start_cell)) = pos.path.cell() else {
++            return Err(DocError::Invalid("the paste target is not a table cell".into()));
++        };
++        if frag.blocks.len() != 1 {
++            return Err(DocError::Invalid("the table fragment has more than one block".into()));
++        }
++        let mut blocks = frag.blocks.clone();
++        let mut budget = MAX_PASTED_BOXES;
++        self.adopt_text_boxes(&mut blocks, &frag.parts, 0, &mut budget);
++        let Some(Block::Table(source)) = blocks.into_iter().next() else {
++            return Err(DocError::Invalid("the fragment is not a table".into()));
++        };
++        let mut last_written = None;
++        {
++            let target = self.table_mut(pos.story, &table_path)?;
++            if target.rows.get(start_row).and_then(|row| row.cells.get(start_cell)).is_none() {
++                return Ok(pos.clone());
++            }
++            let start_grid = target.grid_col(start_row, start_cell);
++            for (source_row_index, source_row) in source.rows.iter().enumerate() {
++                let target_row_index = start_row.saturating_add(source_row_index);
++                if target_row_index >= target.rows.len() {
++                    break;
++                }
++                for (source_cell_index, source_cell) in source_row.cells.iter().enumerate() {
++                    let source_grid = source.grid_col(source_row_index, source_cell_index);
++                    let target_grid = start_grid.saturating_add(source_grid);
++                    let Some(target_cell_index) = target.cell_at_grid(target_row_index, target_grid) else { continue };
++                    let Some(target_cell) = target.rows.get_mut(target_row_index).and_then(|row| row.cells.get_mut(target_cell_index)) else {
++                        continue;
++                    };
++                    target_cell.blocks = source_cell.blocks.clone();
++                    last_written = Some((target_row_index, target_cell_index));
++                }
++            }
++        }
++        let Some((row, cell)) = last_written else { return Ok(pos.clone()) };
++        let mut prefix = table_path.0.clone();
++        prefix.extend([row as u32, cell as u32]);
++        let Some(path) = self.para_paths(pos.story).into_iter().filter(|path| path.0.starts_with(&prefix)).last() else {
++            return Ok(pos.clone());
++        };
++        let off = self.para(pos.story, &path).map_or(0, Paragraph::len);
++        Ok(Pos { story: pos.story, path, off })
++    }
++
+     /// Insert a fragment at `pos`; returns the position after the pasted content.
+     pub fn insert_fragment(&mut self, pos: &Pos, frag: &Fragment) -> Result<Pos> {
+         let mut blocks = frag.blocks.clone();
 diff --git a/crates/docbin/src/fkp.rs b/crates/docbin/src/fkp.rs
 index 8ed395a..b0dbe60 100644
 --- a/crates/docbin/src/fkp.rs
@@ -1177,6 +1300,63 @@ index d8010bd..ef01ffd 100644
  #[test]
  fn unstyled_toc_keeps_range_nested_field_and_formatting_through_two_edited_saves() {
      for split in [false, true] {
+diff --git a/crates/engine/src/cmd/edit.rs b/crates/engine/src/cmd/edit.rs
+index a61b0a9..927c0df 100644
+--- a/crates/engine/src/cmd/edit.rs
++++ b/crates/engine/src/cmd/edit.rs
+@@ -155,10 +155,14 @@ pub fn specs() -> Vec<CommandSpec> {
+ 
+ fn copy(s: &mut Session, _: &Value) -> CmdResult {
+     let (a, b) = s.sel.ordered();
+-    if a == b {
++    let cell_range = s.cell_range().cloned();
++    if a == b && cell_range.is_none() {
+         return Ok(json!({"text": ""}));
+     }
+-    let f = s.doc.copy_range(&a, &b);
++    // A whole-cell table selection must keep its row/column shape. A normal range copy flattens
++    // content that crosses cell containers into paragraphs, which makes paste concatenate every
++    // source cell into the one destination cell at the caret.
++    let f = cell_range.and_then(|r| s.doc.copy_table_cells(r.story, &r.table, r.rows, r.cols)).unwrap_or_else(|| s.doc.copy_range(&a, &b));
+     s.clipboard_text = f.clipboard_text();
+     s.clip_history.push(&f, &s.clipboard_text);
+     s.clipboard = Some(f);
+@@ -343,7 +347,7 @@ fn paste_text(s: &mut Session, v: &Value) -> CmdResult {
+     if text.is_empty() {
+         return Err(CmdError::Failed("the clipboard is empty".into()));
+     }
+-    super::paste_text(s, &text.replace("\r\n", "\r").replace('\n', "\r"))?;
++    super::paste::paste_text(s, &text)?;
+     sel_result(s)
+ }
+ 
+diff --git a/crates/engine/src/cmd/file.rs b/crates/engine/src/cmd/file.rs
+index 4ca72ab..ac22d4c 100644
+--- a/crates/engine/src/cmd/file.rs
++++ b/crates/engine/src/cmd/file.rs
+@@ -257,17 +257,11 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
+ /// Does `path` hold a Word 2003 XML Document already (so a plain save keeps that format)?
+ #[cfg(not(target_arch = "wasm32"))]
+ fn is_word_2003_file(path: &std::path::Path) -> bool {
+-    use std::io::Read;
+-    if crate::file_access::check_read(&path.to_string_lossy()).is_err() {
+-        return false;
+-    }
+-    let Ok(f) = std::fs::File::open(path) else { return false };
+-    let mut head = Vec::new();
+-    // The root element and its namespaces come first.
+-    if f.take(64 * 1024).read_to_end(&mut head).is_err() {
+-        return false;
+-    }
+-    wordcraft_docx::sniff_xml(&head) == wordcraft_docx::XmlKind::WordMl2003
++    let Ok(bytes) = crate::io::read_file(&path.to_string_lossy()) else { return false };
++    // The root element and its namespaces come first. Keep the sniff bounded even though the
++    // document bytes have already been loaded by the normal file-access gate.
++    let head_len = bytes.len().min(64 * 1024);
++    wordcraft_docx::sniff_xml(&bytes[..head_len]) == wordcraft_docx::XmlKind::WordMl2003
+ }
+ 
+ #[cfg(target_arch = "wasm32")]
 diff --git a/crates/engine/src/cmd/format.rs b/crates/engine/src/cmd/format.rs
 index dc5503d..9c3ba0f 100644
 --- a/crates/engine/src/cmd/format.rs
@@ -1190,6 +1370,111 @@ index dc5503d..9c3ba0f 100644
          })
      });
      apply(s, &|c| {
+diff --git a/crates/engine/src/cmd/paste.rs b/crates/engine/src/cmd/paste.rs
+index 7b86234..4414e4b 100644
+--- a/crates/engine/src/cmd/paste.rs
++++ b/crates/engine/src/cmd/paste.rs
+@@ -12,7 +12,7 @@ use std::sync::Arc;
+ 
+ use serde_json::{Value, json};
+ use wordcraft_doc::edit::Fragment;
+-use wordcraft_doc::{Block, Document, Paragraph};
++use wordcraft_doc::{Block, Cell, Document, Paragraph, Table};
+ 
+ use super::{delete_selection, sel_result};
+ use crate::{CmdError, CmdResult, CommandSpec, Selection, Session, p};
+@@ -125,7 +125,7 @@ fn paste_special(s: &mut Session, v: &Value) -> CmdResult {
+     };
+     let frag = match fmt {
+         "text" => {
+-            super::paste_text(s, &src.replace("\r\n", "\r").replace('\n', "\r"))?;
++            paste_text(s, &src)?;
+             let mut r = sel_result(s)?;
+             r["pastedAs"] = json!(fmt);
+             return Ok(r);
+@@ -173,6 +173,45 @@ fn has_content(d: &Document) -> bool {
+     })
+ }
+ 
++/// Turn tabular plain text into a small table fragment when the caret is in a table. This is the
++/// text-only equivalent of copying cells from another application such as Excel.
++pub(crate) fn table_fragment_from_text(s: &Session, text: &str) -> Option<Fragment> {
++    if !s.sel.focus.path.cell().is_some() || !text.contains('\t') {
++        return None;
++    }
++    let normalized = text.replace("\r\n", "\n").replace('\r', "\n");
++    let mut lines: Vec<&str> = normalized.split('\n').collect();
++    // Excel and Word commonly terminate a tabular clipboard payload with one line break; it is
++    // a separator, not an extra blank record.
++    if lines.len() > 1 && lines.last() == Some(&"") {
++        lines.pop();
++    }
++    if lines.is_empty() {
++        return None;
++    }
++    let cols = lines.iter().map(|line| line.split('\t').count()).max().unwrap_or(1).clamp(1, 63);
++    let width = s.sel.focus.path.cell().and_then(|(table, _, _)| s.doc.table(s.sel.focus.story, &table)).map(Table::total_width).unwrap_or(468.0);
++    let mut table = Table::new(lines.len(), cols, width);
++    for (row, line) in lines.iter().enumerate() {
++        for (col, value) in line.split('\t').take(cols).enumerate() {
++            if let Some(cell) = table.rows.get_mut(row).and_then(|r| r.cells.get_mut(col)) {
++                *cell = Cell::with_text(value);
++            }
++        }
++    }
++    Some(Fragment { blocks: vec![Block::Table(table)], ..Default::default() })
++}
++
++/// Paste plain text with the table-cell distribution used by Paste Text Only. Text without tabular
++/// separators keeps the ordinary paragraph paste path.
++pub(crate) fn paste_text(s: &mut Session, text: &str) -> Result<(), CmdError> {
++    if let Some(frag) = table_fragment_from_text(s, text) {
++        insert(s, frag)
++    } else {
++        super::paste_text(s, &text.replace("\r\n", "\r").replace('\n', "\r"))
++    }
++}
++
+ /// Another program's formatted copy, from the system clipboard's HTML, else its RTF (#687), as a
+ /// fragment of this document. `None` when neither is given, either is larger than
+ /// [`MAX_PASTE_BYTES`], or it holds nothing to paste (the caller pastes the text then).
+@@ -203,7 +242,7 @@ pub fn paste_fragment(s: &mut Session, v: &Value) -> Result<Fragment, CmdError>
+         return Ok(f);
+     }
+     match text {
+-        Some(t) if !t.is_empty() => Ok(Fragment::from_text(&t)),
++        Some(t) if !t.is_empty() => Ok(table_fragment_from_text(s, &t).unwrap_or_else(|| Fragment::from_text(&t))),
+         _ => Err(CmdError::Failed("the clipboard is empty".into())),
+     }
+ }
+@@ -244,6 +283,27 @@ pub fn merge_formatting(s: &Session, frag: &mut Fragment) {
+ /// Replace the selection with `frag`, marking it as an insertion under Track Changes.
+ pub fn insert(s: &mut Session, mut frag: Fragment) -> Result<(), CmdError> {
+     super::controls::prepare_edit(s)?;
++    let table_paste = frag.blocks.len() == 1 && frag.blocks.first().is_some_and(|b| b.as_table().is_some()) && s.sel.focus.path.cell().is_some();
++    if table_paste {
++        let at = delete_selection(s)?;
++        if s.doc.settings.track_changes {
++            let rid = super::new_revision(s, wordcraft_doc::RevisionKind::Insert);
++            for b in &mut frag.blocks {
++                each_para(b, 0, &mut |p| {
++                    for run in &mut p.runs {
++                        run.props.ins = Some(rid);
++                        run.props.del = None;
++                        run.props.fmt_change = None;
++                    }
++                    p.mark.ins = None;
++                    p.mark.del = None;
++                });
++            }
++        }
++        let end = s.doc.insert_table_cells(&at, &frag)?;
++        s.sel = Selection::caret(end);
++        return Ok(());
++    }
+     let at = delete_selection(s)?;
+     let track = s.doc.settings.track_changes;
+     let mut rid = None;
 diff --git a/crates/engine/src/session.rs b/crates/engine/src/session.rs
 index 722f9c6..ce0cef6 100644
 --- a/crates/engine/src/session.rs
@@ -1227,7 +1512,7 @@ index 722f9c6..ce0cef6 100644
              styles_pane: false,
              style_inspector: false,
 diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
-index 143cc47..b3885a1 100644
+index 143cc47..cfd0a80 100644
 --- a/crates/engine/src/tests.rs
 +++ b/crates/engine/src/tests.rs
 @@ -3063,8 +3063,8 @@ fn page_and_table_gridlines_toggle_independently() {
@@ -1241,7 +1526,37 @@ index 143cc47..b3885a1 100644
      assert_eq!(run(&mut s, "table.viewGridlines", json!({"value": false}))["value"], false);
  
      assert_eq!(run(&mut s, "view.gridlines", json!({}))["value"], true);
-@@ -4921,6 +4921,21 @@ fn format_font_sets_the_asian_and_latin_fonts_separately() {
+@@ -4301,6 +4301,29 @@ fn table_texts(s: &Session) -> Vec<Vec<String>> {
+     t.rows.iter().map(|r| r.cells.iter().map(|c| c.blocks.iter().filter_map(|b| b.as_para()).map(|p| p.text.clone()).collect()).collect()).collect()
+ }
+ 
++#[test]
++fn copying_table_cells_pastes_into_corresponding_cells() {
++    let cell = |r: u32, c: u32| json!({"story": "body", "path": [0, r, c, 0], "off": 0});
++    let mut s = table_from("日期\t编制人\t审批人\n旧日期\t旧编制\t旧审批");
++    run(&mut s, "table.selectRow", json!({}));
++    run(&mut s, "edit.copy", json!({}));
++    assert_eq!(s.clipboard_text, "日期\t编制人\t审批人");
++    run(&mut s, "caret.set", json!({"pos": cell(1, 0)}));
++    run(&mut s, "edit.paste", json!({}));
++    assert_eq!(table_texts(&s), [["日期", "编制人", "审批人"], ["日期", "编制人", "审批人"]]);
++    run(&mut s, "edit.undo", json!({}));
++    assert_eq!(table_texts(&s), [["日期", "编制人", "审批人"], ["旧日期", "旧编制", "旧审批"]]);
++}
++
++#[test]
++fn tabular_text_paste_fills_rows_and_columns() {
++    let cell = |r: u32, c: u32| json!({"story": "body", "path": [0, r, c, 0], "off": 0});
++    let mut s = table_from("A\tB\tC\nD\tE\tF\nG\tH\tI");
++    run(&mut s, "caret.set", json!({"pos": cell(1, 1)}));
++    run(&mut s, "edit.pasteText", json!({"text": "新一\t新二\n新三\t新四"}));
++    assert_eq!(table_texts(&s), [["A", "B", "C"], ["D", "新一", "新二"], ["G", "新三", "新四"]]);
++}
++
+ #[test]
+ fn delete_columns_deletes_every_selected_column() {
+     // Issue #431: only the selection's focus column went.
+@@ -4921,6 +4944,21 @@ fn format_font_sets_the_asian_and_latin_fonts_separately() {
      assert!(s.run("format.font", &json!({})).is_err() && s.run("format.font", &json!({"eastAsia": " "})).is_err());
  }
  
@@ -2306,3 +2621,138 @@ index c0fa1f0..d2afbf0 100644
  
      <!-- Installer UI (#198): WixUI_Minimal is welcome + license, progress, then a finish page so
           people can see the install worked. Its dialogs and bitmaps are WiX's own
+diff --git a/crates/ui-egui/src/paragraph_layout.rs b/crates/ui-egui/src/paragraph_layout.rs
+new file mode 100644
+index 0000000..7066ea4
+--- /dev/null
++++ b/crates/ui-egui/src/paragraph_layout.rs
+@@ -0,0 +1,129 @@
++//! The small table paragraph-layout button shown beside a table selection.
++//!
++//! Word shows this control next to table text rather than putting the two actions in the main
++//! ribbon. The actions still go through the normal command path, so they work for text in one
++//! cell as well as whole-cell, row, column and table selections.
++
++use egui::{Order, Rect, Vec2, pos2, vec2};
++use serde_json::json;
++use wordcraft_engine::cmd::table_mouse::cell_rects;
++use wordcraft_layout::{DocLayout, Placed};
++
++use crate::table_resize::{page_scale, to_screen};
++use crate::{WordApp, widgets};
++
++const BUTTON_W: f32 = 34.0;
++const BUTTON_H: f32 = 22.0;
++const BUTTON_GAP: f32 = 6.0;
++const VIEWPORT_PAD: f32 = 4.0;
++
++/// Whether the table control is appropriate for the current editing state.
++pub(crate) fn visible(app: &WordApp) -> bool {
++    app.ui.show_paragraph_layout_button
++        && app.session.math.is_none()
++        && !app.session.view.read_mode
++        && !app.ui.backstage
++        && app.dialog.is_none()
++        && app.colors.is_none()
++        && !app.canvas.context_menu_open
++        && !app.canvas.drag_selecting()
++        && app.canvas.table_drag.is_none()
++        && (app.session.cell_range().is_some() || app.session.sel.focus.path.cell().is_some())
++}
++
++/// Position the button just outside a table's left edge, keeping it inside the canvas viewport.
++/// This pure geometry is also used by the unit tests; document/page lookup happens in
++/// [`button_for_table`].
++pub(crate) fn anchor_rect(table_left: f32, table_top: f32, viewport: Rect) -> Option<Rect> {
++    if !table_left.is_finite() || !table_top.is_finite() || !viewport.is_finite() || !viewport.is_positive() {
++        return None;
++    }
++    if table_top < viewport.top() - BUTTON_H || table_top > viewport.bottom() {
++        return None;
++    }
++    let x = (table_left - BUTTON_W - BUTTON_GAP)
++        .clamp(viewport.left() + VIEWPORT_PAD, (viewport.right() - BUTTON_W - VIEWPORT_PAD).max(viewport.left() + VIEWPORT_PAD));
++    let y = (table_top - 2.0).clamp(viewport.top() + VIEWPORT_PAD, (viewport.bottom() - BUTTON_H - VIEWPORT_PAD).max(viewport.top() + VIEWPORT_PAD));
++    Some(Rect::from_min_size(pos2(x, y), vec2(BUTTON_W, BUTTON_H)))
++}
++
++/// Find a visible cell belonging to the current cell or cell-range selection and turn its page
++/// coordinates into the screen rectangle used by the floating control.
++fn button_for_table(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, viewport: Rect) -> Option<Rect> {
++    let candidate = if let Some(range) = app.session.cell_range() {
++        cell_rects(layout, &app.session.doc, range).into_iter().min_by(|(pa, a), (pb, b)| {
++            let ay = rects.get(*pa).map_or(f32::MAX, |p| p.min.y + a.y * scale);
++            let by = rects.get(*pb).map_or(f32::MAX, |p| p.min.y + b.y * scale);
++            ay.total_cmp(&by).then_with(|| a.x.total_cmp(&b.x))
++        })
++    } else {
++        let (table, row, cell) = app.session.sel.focus.path.cell()?;
++        layout.pages.iter().enumerate().find_map(|(page, p)| {
++            p.items.iter().find_map(|item| match item {
++                Placed::Cell { rect, covered: false, table: item_table, row: item_row, cell: item_cell, story }
++                    if *story == app.session.sel.focus.story && *item_table == table && *item_row == row && *item_cell == cell =>
++                {
++                    Some((page, *rect))
++                }
++                _ => None,
++            })
++        })
++    }?;
++    let (page, cell) = candidate;
++    let page_rect = rects.get(page)?;
++    if !page_rect.intersects(viewport) {
++        return None;
++    }
++    let page_scale = page_scale(rects, layout, scale, page)?;
++    let top_left = to_screen(rects, layout, scale, page, cell.x, cell.y)?;
++    // Keep the scale lookup meaningful for very small or malformed pages; to_screen already
++    // applies it, and this guard prevents a button from being placed on a zero-sized cell.
++    (page_scale.is_finite() && cell.w > 0.0 && cell.h > 0.0).then(|| anchor_rect(top_left.x, top_left.y, viewport)).flatten()
++}
++
++/// Draw the button and its two table paragraph actions.
++pub(crate) fn show(app: &mut WordApp, ctx: &egui::Context, layout: &DocLayout, rects: &[Rect], scale: f32, viewport: Rect) {
++    if !visible(app) {
++        return;
++    }
++    let Some(button) = button_for_table(app, layout, rects, scale, viewport) else { return };
++    let area = egui::Area::new(egui::Id::new("wc_paragraph_layout_button")).order(Order::Foreground).interactable(true).fixed_pos(button.min);
++    area.show(ctx, |ui| {
++        ui.set_min_size(Vec2::new(BUTTON_W, BUTTON_H));
++        widgets::menu_button(ui, app, "paragraphLayout", None, "Table Layout", false, "", |ui, app| {
++            ui.set_min_width(200.0);
++            if ui.button(tl!("Clear Paragraph Layout")).clicked() {
++                if let Err(e) = app.run("para.reset", json!({})) {
++                    app.status(e);
++                }
++                app.canvas.want_focus = true;
++                ui.close();
++            }
++            if ui.button(tl!("Hide Paragraph Layout Button")).clicked() {
++                app.ui.show_paragraph_layout_button = false;
++                ui.close();
++            }
++        });
++    });
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use egui::Pos2;
++
++    #[test]
++    fn button_stays_inside_the_viewport() {
++        let viewport = Rect::from_min_size(Pos2::new(10.0, 20.0), Vec2::new(300.0, 200.0));
++        let button = anchor_rect(16.0, 24.0, viewport).expect("valid anchor");
++        assert!(viewport.contains(button.min));
++        assert!(viewport.contains(button.max - vec2(0.1, 0.1)));
++    }
++
++    #[test]
++    fn invalid_or_offscreen_anchor_is_hidden() {
++        let viewport = Rect::from_min_size(Pos2::ZERO, Vec2::new(300.0, 200.0));
++        assert!(anchor_rect(f32::NAN, 20.0, viewport).is_none());
++        assert!(anchor_rect(100.0, 250.0, viewport).is_none());
++    }
++}
