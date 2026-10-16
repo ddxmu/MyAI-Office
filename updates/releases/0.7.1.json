@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.7.1",
+  "releaseNotes": "修复 Word、Excel 打开文档后中文字体只改名称不改字形；同步东亚字体、恢复中文界面字体加载，支持中文别名与大字库，新增 OFL 朱雀仿宋兼容字库。建议保存文档并退出办公模块后再更新。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.1/MyAI-Office-0.7.1-arm64.zip",
+    "sha256": "6940d30bc3c6bdf9126e5bb6de5bc52af9233be569817a28fb6a9abc4d64afee",
+    "size": 221693203,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.1/MyAI-Office-0.7.1-arm64.dmg",
+    "sha256": "e63da916e515702544c4dfcc0966800297b51c661d925dd4ea6c4f8b0d0823ad",
+    "size": 221447507
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.7.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.1/MyAI-Office-0.7.0-to-0.7.1-arm64.bsdiff.zip",
+      "sha256": "22ddb0994b76a4d1d560c8ea8e3fee68c84662a2c5a9d74ae4d09137cd82f37a",
+      "size": 9050118,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
