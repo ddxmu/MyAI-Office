@@ -1,24 +1,31 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.7.2",
-  "releaseNotes": "修复旧 DOC 目录域代码泄漏、整行合并与空白单元格格式，补读段落网格开关和文本框内边距。本版不启用尚未验收的文档网格排版；复杂分页仍有差异。不使用 LibreOffice。更新前请保存文件并退出编辑模块。",
+  "latestVersion": "0.7.3",
+  "releaseNotes": "修复 DOCX 目录点线缺失、页码挤在文字后面，以及中西文字体分开指定时中文别名被忽略的问题。保留目录格式与域结构；目录跨页、中文复杂分页仍未完全修好，不改全局行距，不使用 LibreOffice。更新前请保存文件并退出编辑模块。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.2/MyAI-Office-0.7.2-arm64.zip",
-    "sha256": "19f5f0fc77522923f61c9f72a389bae23441c36906191a4d7221b2ae1ec5b0e0",
-    "size": 221698983,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.3/MyAI-Office-0.7.3-arm64.zip",
+    "sha256": "f9c6d25d7372f652596906b147b083841b3d05421e8fbcfb2446a75d3b395831",
+    "size": 221699433,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.2/MyAI-Office-0.7.2-arm64.dmg",
-    "sha256": "3dc978c3f495538746d8afcf0f999d0210443bf82f87a498f0f8c33d4d55f46d",
-    "size": 221449552
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.3/MyAI-Office-0.7.3-arm64.dmg",
+    "sha256": "56fdd2a6a01d01056fc4fe2fbe52cfb7878dd95bac7c72c160a55e4a92ddd001",
+    "size": 221464280
   },
   "deltas": [
     {
+      "baseVersion": "0.7.2",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.3/MyAI-Office-0.7.2-to-0.7.3-arm64.bsdiff.zip",
+      "sha256": "777889b3a92e9070727001e39eadc550803e36171ee568b9a3f7070c2a74810a",
+      "size": 1095364,
+      "format": "bsdiff-v2"
+    },
+    {
       "baseVersion": "0.7.1",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.2/MyAI-Office-0.7.1-to-0.7.2-arm64.bsdiff.zip",
-      "sha256": "f7e4809cbb7c99a7a2a2544826287a8bd6ab6adc8d85a28078ed825b013d9c18",
-      "size": 1924218,
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.3/MyAI-Office-0.7.1-to-0.7.3-arm64.bsdiff.zip",
+      "sha256": "87d1e2180606adee4afde7f93cdfd56eb53de25635c330376228fc880723ef19",
+      "size": 1977489,
       "format": "bsdiff-v2"
     }
   ]
