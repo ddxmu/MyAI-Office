@@ -17,8 +17,8 @@
     {
       "baseVersion": "0.7.6",
       "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.7/MyAI-Office-0.7.6-to-0.7.7-arm64.bsdiff.zip",
-      "sha256": "50e8798f77fd20dd4b06c205874d2486ed8ebb3dbae5d31de2674e9bec77f2d4",
-      "size": 3093,
+      "sha256": "dd2e05e2e759f94372bca03f9921b8102917c31007f6089cdd09a858622fb574",
+      "size": 1244994,
       "format": "bsdiff-v2"
     }
   ]
