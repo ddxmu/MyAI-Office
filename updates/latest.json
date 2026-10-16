@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.9.0",
-  "releaseNotes": "按系统语言自动适配 Excel、Word、PowerPoint 和 PDF 界面；补齐图表、版式、偏好设置等功能文案，并修复 PDF 技术支持入口的多语言目录覆盖。",
+  "latestVersion": "0.10.0",
+  "releaseNotes": "修复 Word 表格批量复制粘贴：保留单元格行列结构，按目标表格逐格粘贴；改进旧版 Office 文件兼容检测。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.9.0/MyAI-Office-0.9.0-arm64.zip",
-    "sha256": "11b7693c50e8ba7eb1a4f786bdd6a304d0e6741059fb92cc5b6897e15a8b50fe",
-    "size": 164118329,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.10.0-arm64.zip",
+    "sha256": "d43116af4d977b4bac8edc61a7d7de73592531ccb14d7563a3f60663b4a80a7d",
+    "size": 164144060,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.9.0/MyAI-Office-0.9.0-arm64.dmg",
-    "sha256": "8c040c54a023a389b945b2127946dd12f6d4b0d038ced3220f94ed35d84e651f",
-    "size": 163898928
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.10.0-arm64.dmg",
+    "sha256": "d4d2a40d890e3b87912d4a761bb4b4b1d50bad1551696c8a219d12d73daf579d",
+    "size": 163929769
   },
   "deltas": [
     {
-      "baseVersion": "0.8.0",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.9.0/MyAI-Office-0.8.0-to-0.9.0-arm64.bsdiff.zip",
-      "sha256": "c4091943c2f29f3bcfbb3e724a1a2bec46281eb17cc0bd32ec37a7953e474628",
-      "size": 3104,
+      "baseVersion": "0.9.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.9.0-to-0.10.0-arm64.bsdiff.zip",
+      "sha256": "a5b3a7b0f53ed47ca9988b3634e806d73a96e4625d2f5074cccf34f481a590a6",
+      "size": 1814851,
       "format": "bsdiff-v2"
     }
   ]

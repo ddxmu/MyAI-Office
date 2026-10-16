@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.10.0",
+  "releaseNotes": "修复 Word 表格批量复制粘贴：保留单元格行列结构，按目标表格逐格粘贴；改进旧版 Office 文件兼容检测。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.10.0-arm64.zip",
+    "sha256": "d43116af4d977b4bac8edc61a7d7de73592531ccb14d7563a3f60663b4a80a7d",
+    "size": 164144060,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.10.0-arm64.dmg",
+    "sha256": "d4d2a40d890e3b87912d4a761bb4b4b1d50bad1551696c8a219d12d73daf579d",
+    "size": 163929769
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.9.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.9.0-to-0.10.0-arm64.bsdiff.zip",
+      "sha256": "a5b3a7b0f53ed47ca9988b3634e806d73a96e4625d2f5074cccf34f481a590a6",
+      "size": 1814851,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
