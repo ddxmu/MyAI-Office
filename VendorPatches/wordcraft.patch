@@ -1186,10 +1186,57 @@ index dc5503d..9c3ba0f 100644
          })
      });
      apply(s, &|c| {
+diff --git a/crates/engine/src/session.rs b/crates/engine/src/session.rs
+index 722f9c6..ce0cef6 100644
+--- a/crates/engine/src/session.rs
++++ b/crates/engine/src/session.rs
+@@ -111,8 +111,9 @@ pub struct ViewState {
+     pub ruler: bool,
+     /// View › Show › Gridlines: the drawing grid over the page's text area (on screen only).
+     pub gridlines: bool,
+-    /// Table Layout › View Gridlines: outlines of table cells (on screen only); on by default, as in Word.
+-    #[serde(default = "on")]
++    /// Table Layout › View Gridlines: outlines of table cells (on screen only). Real table
++    /// borders remain the document's own formatting; gridlines are an opt-in editing aid.
++    #[serde(default = "off")]
+     pub table_gridlines: bool,
+     pub nav_pane: bool,
+     pub styles_pane: bool,
+@@ -182,8 +183,8 @@ pub struct ViewState {
+     pub design_mode: bool,
+ }
+ 
+-fn on() -> bool {
+-    true
++fn off() -> bool {
++    false
+ }
+ 
+ fn default_read_width() -> f32 {
+@@ -208,7 +209,7 @@ impl Default for ViewState {
+             marks: false,
+             ruler: true,
+             gridlines: false,
+-            table_gridlines: true,
++            table_gridlines: false,
+             nav_pane: false,
+             styles_pane: false,
+             style_inspector: false,
 diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
-index 143cc47..881fa6f 100644
+index 143cc47..b3885a1 100644
 --- a/crates/engine/src/tests.rs
 +++ b/crates/engine/src/tests.rs
+@@ -3063,8 +3063,8 @@ fn page_and_table_gridlines_toggle_independently() {
+     let mut s = s();
+     run(&mut s, "text.insert", json!({"text": "Hello"}));
+     let undo = s.undo_labels();
+-    // Table cell outlines are on by default, as in Word; the page grid is off.
+-    assert!(!s.view.gridlines && s.view.table_gridlines);
++    // Table cell outlines are opt-in; the page grid is off. Document borders remain visible.
++    assert!(!s.view.gridlines && !s.view.table_gridlines);
+     assert_eq!(run(&mut s, "table.viewGridlines", json!({"value": false}))["value"], false);
+ 
+     assert_eq!(run(&mut s, "view.gridlines", json!({}))["value"], true);
 @@ -4921,6 +4921,21 @@ fn format_font_sets_the_asian_and_latin_fonts_separately() {
      assert!(s.run("format.font", &json!({})).is_err() && s.run("format.font", &json!({"eastAsia": " "})).is_err());
  }
