@@ -1546,6 +1546,18 @@ index 28dc72f..6f9e5f3 100644
                      let (r, resp) = ui.allocate_exact_size(vec2(200.0, 32.0), Sense::click());
                      resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(label)));
                      if resp.hovered() {
+diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
+index 49860fe..8c6fbcf 100644
+--- a/crates/ui-egui/src/canvas.rs
++++ b/crates/ui-egui/src/canvas.rs
+@@ -1362,6 +1362,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+     {
+         crate::mini_toolbar::show(app, ui.ctx(), sel, area);
+     }
++    crate::paragraph_layout::show(app, ui.ctx(), &layout, &rects, geo.scale, area);
+     if app.session.view.read_mode {
+         // Fixed navigation chrome, independent of the horizontally moving columns.
+         let step = app.session.view.read_width * app.canvas.scale + GAP;
 diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
 index 7e7483a..dcb18a2 100644
 --- a/crates/ui-egui/src/chrome.rs
@@ -1592,11 +1604,205 @@ index de25080..ef5203f 100644
              || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
              || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
      }
+diff --git a/crates/ui-egui/src/i18n/bg.tsv b/crates/ui-egui/src/i18n/bg.tsv
+index 013fdc1..4d02c90 100644
+--- a/crates/ui-egui/src/i18n/bg.tsv
++++ b/crates/ui-egui/src/i18n/bg.tsv
+@@ -2474,3 +2474,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Без дата и час на коментарите и проследените промени при запазване
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Документът, който редактирате, запазва имената и датите; само записаният файл ги пропуска.
+ 	Privacy Settings	Текущи настройки за поверителност
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/cs.tsv b/crates/ui-egui/src/i18n/cs.tsv
+index a7b8f04..54d99fe 100644
+--- a/crates/ui-egui/src/i18n/cs.tsv
++++ b/crates/ui-egui/src/i18n/cs.tsv
+@@ -2090,3 +2090,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Při ukládání vynechat datum a čas komentářů a sledovaných změn
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Upravovaný dokument si jména a data ponechá; vynechá je jen uložený soubor.
+ 	Privacy Settings	Aktuální nastavení soukromí
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/de.tsv b/crates/ui-egui/src/i18n/de.tsv
+index 78c03ca..a2ba4c4 100644
+--- a/crates/ui-egui/src/i18n/de.tsv
++++ b/crates/ui-egui/src/i18n/de.tsv
+@@ -2084,3 +2084,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Beim Speichern Datum und Uhrzeit von Kommentaren und nachverfolgten Änderungen weglassen
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Das bearbeitete Dokument behält Namen und Daten; nur die gespeicherte Datei lässt sie weg.
+ 	Privacy Settings	Aktuelle Datenschutzeinstellungen
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/es.tsv b/crates/ui-egui/src/i18n/es.tsv
+index d9dbabb..f473661 100644
+--- a/crates/ui-egui/src/i18n/es.tsv
++++ b/crates/ui-egui/src/i18n/es.tsv
+@@ -2451,3 +2451,6 @@ preview	Title	Título
+ 	Leave out the date and time of comments and tracked changes when saving	Omitir la fecha y la hora de los comentarios y los cambios controlados al guardar
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	El documento que editas conserva los nombres y las fechas; solo el archivo guardado los omite.
+ 	Privacy Settings	Configuración de privacidad actual
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/et.tsv b/crates/ui-egui/src/i18n/et.tsv
+index 94de44c..7d741cc 100644
+--- a/crates/ui-egui/src/i18n/et.tsv
++++ b/crates/ui-egui/src/i18n/et.tsv
+@@ -2119,3 +2119,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Jäta salvestamisel välja kommentaaride ja jälitatud muudatuste kuupäev ja kellaaeg
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Redigeeritav dokument säilitab nimed ja kuupäevad; need jäetakse välja ainult salvestatud failist.
+ 	Privacy Settings	Praegused privaatsussätted
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/fr.tsv b/crates/ui-egui/src/i18n/fr.tsv
+index c459e24..e26d1bf 100644
+--- a/crates/ui-egui/src/i18n/fr.tsv
++++ b/crates/ui-egui/src/i18n/fr.tsv
+@@ -2093,3 +2093,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Omettre la date et l’heure des commentaires et des modifications suivies à l’enregistrement
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Le document en cours de modification garde les noms et les dates ; seul le fichier enregistré les omet.
+ 	Privacy Settings	Paramètres de confidentialité actuels
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/hu.tsv b/crates/ui-egui/src/i18n/hu.tsv
+index 03baf13..0300ab8 100644
+--- a/crates/ui-egui/src/i18n/hu.tsv
++++ b/crates/ui-egui/src/i18n/hu.tsv
+@@ -2483,3 +2483,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Mentéskor a megjegyzések és a követett módosítások dátumának és idejének elhagyása
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	A szerkesztett dokumentum megtartja a neveket és a dátumokat; csak a mentett fájlból maradnak ki.
+ 	Privacy Settings	Jelenlegi adatvédelmi beállítások
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/it.tsv b/crates/ui-egui/src/i18n/it.tsv
+index 70ae803..51ffb74 100644
+--- a/crates/ui-egui/src/i18n/it.tsv
++++ b/crates/ui-egui/src/i18n/it.tsv
+@@ -2469,3 +2469,6 @@ preview	Title	Esempio
+ 	Leave out the date and time of comments and tracked changes when saving	Ometti data e ora di commenti e revisioni al salvataggio
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Il documento che stai modificando conserva nomi e date; solo il file salvato li omette.
+ 	Privacy Settings	Impostazioni di privacy attuali
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/ja.tsv b/crates/ui-egui/src/i18n/ja.tsv
+index 0a82ebf..01296a1 100644
+--- a/crates/ui-egui/src/i18n/ja.tsv
++++ b/crates/ui-egui/src/i18n/ja.tsv
+@@ -2085,3 +2085,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	保存時にコメントと変更履歴の日時を含めない
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	編集中のドキュメントには名前と日時が残ります。保存したファイルにだけ含まれません。
+ 	Privacy Settings	現在のプライバシー設定
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/pl.tsv b/crates/ui-egui/src/i18n/pl.tsv
+index fa46d79..43b35d8 100644
+--- a/crates/ui-egui/src/i18n/pl.tsv
++++ b/crates/ui-egui/src/i18n/pl.tsv
+@@ -2478,3 +2478,6 @@ preview	Title	Tytuł
+ 	Leave out the date and time of comments and tracked changes when saving	Pomiń datę i godzinę komentarzy i śledzonych zmian przy zapisywaniu
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Edytowany dokument zachowuje nazwiska i daty; pomija je tylko zapisany plik.
+ 	Privacy Settings	Bieżące ustawienia prywatności
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/pt-br.tsv b/crates/ui-egui/src/i18n/pt-br.tsv
+index 83f870b..1324f6c 100644
+--- a/crates/ui-egui/src/i18n/pt-br.tsv
++++ b/crates/ui-egui/src/i18n/pt-br.tsv
+@@ -2097,3 +2097,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Omitir a data e a hora dos comentários e das alterações controladas ao salvar
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	O documento que você está editando mantém os nomes e as datas; só o arquivo salvo os omite.
+ 	Privacy Settings	Configurações de privacidade atuais
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/ru.tsv b/crates/ui-egui/src/i18n/ru.tsv
+index 6b20dcb..f95d7df 100644
+--- a/crates/ui-egui/src/i18n/ru.tsv
++++ b/crates/ui-egui/src/i18n/ru.tsv
+@@ -2484,3 +2484,6 @@ preview	Title	Пример
+ 	Leave out the date and time of comments and tracked changes when saving	Не сохранять дату и время примечаний и отслеживаемых изменений
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Редактируемый документ сохраняет имена и даты; их не будет только в сохранённом файле.
+ 	Privacy Settings	Текущие параметры конфиденциальности
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/sr-latn.tsv b/crates/ui-egui/src/i18n/sr-latn.tsv
+index 8dd5be1..d999d1b 100644
+--- a/crates/ui-egui/src/i18n/sr-latn.tsv
++++ b/crates/ui-egui/src/i18n/sr-latn.tsv
+@@ -2095,3 +2095,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Izostavi datum i vreme komentara i praćenih izmena pri čuvanju
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Dokument koji uređujete zadržava imena i datume; izostavlja ih samo sačuvana datoteka.
+ 	Privacy Settings	Trenutna podešavanja privatnosti
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/sr.tsv b/crates/ui-egui/src/i18n/sr.tsv
+index 3c35a31..d46c64a 100644
+--- a/crates/ui-egui/src/i18n/sr.tsv
++++ b/crates/ui-egui/src/i18n/sr.tsv
+@@ -2099,3 +2099,6 @@
+ 	Leave out the date and time of comments and tracked changes when saving	Изостави датум и време коментара и праћених измена при чувању
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Документ који уређујете задржава имена и датуме; изоставља их само сачувана датотека.
+ 	Privacy Settings	Тренутна подешавања приватности
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/tr.tsv b/crates/ui-egui/src/i18n/tr.tsv
+index 32d528e..a202b47 100644
+--- a/crates/ui-egui/src/i18n/tr.tsv
++++ b/crates/ui-egui/src/i18n/tr.tsv
+@@ -2483,3 +2483,6 @@ preview	Title	Örnek
+ 	Leave out the date and time of comments and tracked changes when saving	Kaydederken açıklamaların ve izlenen değişikliklerin tarih ve saatini dahil etme
+ 	The document you are editing keeps the names and dates; only the saved file leaves them out.	Düzenlediğiniz belge adları ve tarihleri korur; yalnızca kaydedilen dosya bunları içermez.
+ 	Privacy Settings	Geçerli gizlilik ayarları
++	Show the paragraph layout button for table selections	Show the paragraph layout button for table selections
++	Clear Paragraph Layout	Clear Paragraph Layout
++	Hide Paragraph Layout Button	Hide Paragraph Layout Button
+diff --git a/crates/ui-egui/src/i18n/uk.tsv b/crates/ui-egui/src/i18n/uk.tsv
+index aa1ba4d..d1c6021 100644
+--- a/crates/ui-egui/src/i18n/uk.tsv
++++ b/crates/ui-egui/src/i18n/uk.tsv
+@@ -167,6 +167,7 @@
+ 	Borders	Межі
+ 	Search	Пошук
+ 	Show the mini toolbar when text is selected	Показувати міні-панель інструментів під час виділення тексту
++	Show the paragraph layout button for table selections	Показувати кнопку макета абзацу для вибраних клітинок таблиці
+ 	Spaces	Пробіли
+ 	Spelling	Правопис
+ 	Spelling and grammar are checked in English (United States).	Правопис і граматика перевіряються англійською (США).
+@@ -244,6 +245,8 @@
+ 	Clear Character Style	Очистити стиль символів
+ 	Clear Formatting Level	Очистити рівень форматування
+ 	Clear Paragraph Formatting	Очистити форматування абзацу
++	Clear Paragraph Layout	Очистити макет абзацу
++	Hide Paragraph Layout Button	Приховати кнопку макета абзацу
+ 	Click a border between two cells to merge them. Esc stops.	Клацніть межу між двома клітинками, щоб об'єднати їх. Esc завершує.
+ 	Clipboard	Буфер обміну
+ 	Clipboard Pane	Панель буфера обміну
 diff --git a/crates/ui-egui/src/i18n/zh-hans.tsv b/crates/ui-egui/src/i18n/zh-hans.tsv
-index 9eab713..2ce2878 100644
+index 9eab713..8eb8b20 100644
 --- a/crates/ui-egui/src/i18n/zh-hans.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hans.tsv
-@@ -292,7 +292,7 @@
+@@ -197,6 +197,7 @@
+ 	Border\nPainter	边框刷
+ 	Borders	边框
+ 	Show the mini toolbar when text is selected	选择文本时显示浮动工具栏
++	Show the paragraph layout button for table selections	选择表格文字时显示段落布局按钮
+ 	Spaces	空格
+ 	Spelling	拼写
+ 	Spelling and grammar are checked in English (United States).	拼写和语法按英语（美国）检查。
+@@ -292,7 +293,7 @@
  	Comment	批注
  	Comments	批注
  	Comments Pane	批注窗格
@@ -1605,7 +1811,7 @@ index 9eab713..2ce2878 100644
  	Compact	紧凑
  	Compare	比较
  	Compress Pictures	压缩图片
-@@ -347,8 +347,8 @@
+@@ -347,8 +348,8 @@
  	Dictate	听写
  	Different First Page	首页不同
  	Different Odd & Even Pages	奇偶页不同
@@ -1616,7 +1822,7 @@ index 9eab713..2ce2878 100644
  	Display	显示
  	Display for Review	显示以供审阅
  	Distribute Columns	平均分布各列
-@@ -507,8 +507,8 @@
+@@ -507,8 +508,8 @@
  	Inspect Document	检查文档
  	Interface language:	界面语言：
  	Italic	倾斜
@@ -1627,11 +1833,28 @@ index 9eab713..2ce2878 100644
  	Justify	两端对齐
  	Keep Lines Together	段中不分页
  	Keep lines together	段中不分页
+@@ -1081,6 +1082,8 @@
+ 	Direct formatting	直接格式
+ 	Reset to Normal	重置为正文
+ 	Clear Paragraph Formatting	清除段落格式
++	Clear Paragraph Layout	清除段落布局
++	Hide Paragraph Layout Button	隐藏段落布局按钮
+ 	Clear Character Style	清除字符样式
+ 	Clear Character Formatting	清除字符格式
+ 	Paste Special	选择性粘贴
 diff --git a/crates/ui-egui/src/i18n/zh-hant.tsv b/crates/ui-egui/src/i18n/zh-hant.tsv
-index 0b968cc..c546f14 100644
+index 0b968cc..c4d9c03 100644
 --- a/crates/ui-egui/src/i18n/zh-hant.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hant.tsv
-@@ -281,7 +281,7 @@
+@@ -186,6 +186,7 @@
+ 	Border\nPainter	框線複製
+ 	Borders	框線
+ 	Show the mini toolbar when text is selected	選取文字時顯示迷你工具列
++	Show the paragraph layout button for table selections	選取表格文字時顯示段落版面配置按鈕
+ 	Spaces	空格
+ 	Spelling	拼字
+ 	Spelling and grammar are checked in English (United States).	拼字和文法依英文（美國）檢查。
+@@ -281,7 +282,7 @@
  	Comment	註解
  	Comments	註解
  	Comments Pane	註解窗格
@@ -1640,7 +1863,7 @@ index 0b968cc..c546f14 100644
  	Compact	緊密
  	Compare	比較
  	Compress Pictures	壓縮圖片
-@@ -336,8 +336,8 @@
+@@ -336,8 +337,8 @@
  	Dictate	聽寫
  	Different First Page	首頁不同
  	Different Odd & Even Pages	奇偶頁不同
@@ -1651,7 +1874,7 @@ index 0b968cc..c546f14 100644
  	Display	顯示
  	Display for Review	顯示以供檢閱
  	Distribute Columns	平均分配欄寬
-@@ -496,8 +496,8 @@
+@@ -496,8 +497,8 @@
  	Inspect Document	檢查文件
  	Interface language:	介面語言：
  	Italic	斜體
@@ -1662,6 +1885,35 @@ index 0b968cc..c546f14 100644
  	Justify	左右對齊
  	Keep Lines Together	段落中不分頁
  	Keep lines together	段落中不分頁
+@@ -1070,6 +1071,8 @@
+ 	Direct formatting	直接格式設定
+ 	Reset to Normal	重設為內文
+ 	Clear Paragraph Formatting	清除段落格式設定
++	Clear Paragraph Layout	清除段落版面配置
++	Hide Paragraph Layout Button	隱藏段落版面配置按鈕
+ 	Clear Character Style	清除字元樣式
+ 	Clear Character Formatting	清除字元格式設定
+ 	Paste Special	選擇性貼上
+diff --git a/crates/ui-egui/src/icons.rs b/crates/ui-egui/src/icons.rs
+index 87ae0eb..adfb91e 100644
+--- a/crates/ui-egui/src/icons.rs
++++ b/crates/ui-egui/src/icons.rs
+@@ -201,6 +201,15 @@ pub fn paint(p: &Painter, r: Rect, name: &str, c: Color32, accent: Color32) {
+             pen.line_c(&[(11.5, 14.5), (14.0, 17.0), (16.5, 14.5)], a);
+         }
+         "pilcrow" => pen.text(10.0, 10.5, 15.0, "¶", c, false),
++        "paragraphLayout" => {
++            // A small paragraph-layout control: a framed cell with its paragraph lines and
++            // corner handles, kept distinct from the table icon used by Insert Table.
++            pen.rect(4.0, 4.0, 16.0, 16.0, c);
++            pen.lines(7.0, 13.0, &[7.0, 10.0, 13.0]);
++            for (x, y) in [(4.0, 4.0), (16.0, 4.0), (4.0, 16.0), (16.0, 16.0)] {
++                pen.fcircle(x, y, 1.35, a);
++            }
++        }
+         "alignLeft" => {
+             pen.lines(3.0, 17.0, &[4.0, 10.0, 16.0]);
+             ().then_lines(&pen, 3.0, 12.0, &[7.0, 13.0])
 diff --git a/crates/ui-egui/src/keytips.rs b/crates/ui-egui/src/keytips.rs
 index c50ebd4..d6f95c2 100644
 --- a/crates/ui-egui/src/keytips.rs
@@ -1676,10 +1928,35 @@ index c50ebd4..d6f95c2 100644
              vec![m("Shading", "table.shading"), m("Borders", "table.borders"), c("Border Painter", "table.borderPainter")]
          }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index af0385e..eff13e0 100644
+index af0385e..b2e40cc 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
-@@ -1172,7 +1172,7 @@ impl WordApp {
+@@ -61,6 +61,7 @@ pub mod mini_toolbar;
+ pub mod objects;
+ pub mod options;
+ pub mod panes;
++pub mod paragraph_layout;
+ pub mod paste_picture;
+ pub mod previews;
+ pub mod print_page;
+@@ -254,6 +255,8 @@ pub struct UiState {
+     pub recent_count: usize,
+     /// File › Options › General: show the mini toolbar over a selection.
+     pub mini_toolbar: bool,
++    /// File › Options › General: show the paragraph-layout button beside table selections.
++    pub show_paragraph_layout_button: bool,
+     /// File › Options › General: start on File › Home (Blank document, templates, Recent) when
+     /// the app opens without a document (#766); on, as in Word. See [`WordApp::start_screen`].
+     pub start_screen: bool,
+@@ -309,6 +312,7 @@ impl Default for UiState {
+             options_pane: "general".into(),
+             recent_count: 12,
+             mini_toolbar: true,
++            show_paragraph_layout_button: true,
+             start_screen: true,
+             print_backgrounds: false,
+             update_fields_before_print: false,
+@@ -1172,7 +1176,7 @@ impl WordApp {
                  ));
              }
              "ui.discord" => {
@@ -1689,10 +1966,18 @@ index af0385e..eff13e0 100644
              }
              "ui.caretAnimation" => {
 diff --git a/crates/ui-egui/src/options.rs b/crates/ui-egui/src/options.rs
-index da75c87..5e2de9f 100644
+index da75c87..eeddcea 100644
 --- a/crates/ui-egui/src/options.rs
 +++ b/crates/ui-egui/src/options.rs
-@@ -180,7 +180,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
+@@ -172,6 +172,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
+     theme_picker(app, ui);
+     interface_size_picker(app, ui);
+     ui.checkbox(&mut app.ui.mini_toolbar, tl!("Show the mini toolbar when text is selected"));
++    ui.checkbox(&mut app.ui.show_paragraph_layout_button, tl!("Show the paragraph layout button for table selections"));
+     let mut dark_page = app.session.view.dark_mode;
+     if ui
+         .checkbox(&mut dark_page, tl!("Dark page (white text on black)"))
+@@ -180,7 +181,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
      {
          let _ = app.run("view.darkMode", json!({"value": dark_page}));
      }
