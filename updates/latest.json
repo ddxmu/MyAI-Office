@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.7.6",
-  "releaseNotes": "修复中文 Word 表格边框显示、辅助网格线覆盖和合并单元格视觉错位。",
+  "latestVersion": "0.7.7",
+  "releaseNotes": "Word 表格段落布局浮动按钮：支持清除段落布局，并可隐藏按钮。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.6-arm64.zip",
-    "sha256": "1084e60054a472bc1a636bd34625ed5feded96dba1e048652fdc3ff197c67f9b",
-    "size": 164089613,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.7/MyAI-Office-0.7.7-arm64.zip",
+    "sha256": "e7d4b4bdf30dc33aa6a7a71aa1e2a1416030d78c0f383fc89c1a38a274e0c21b",
+    "size": 164088768,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.6-arm64.dmg",
-    "sha256": "ec6367db850f21e95193dd855b37ac8868e4fbb249972e52d2b27059efd1db16",
-    "size": 163876721
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.7/MyAI-Office-0.7.7-arm64.dmg",
+    "sha256": "d16cc9761674d45ed3cd051629bc57541e9c103320202ed9bc0223ee5b6e4d05",
+    "size": 163867488
   },
   "deltas": [
     {
-      "baseVersion": "0.7.5",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.6/MyAI-Office-0.7.5-to-0.7.6-arm64.bsdiff.zip",
-      "sha256": "ca3f783b0c2cbb0ff27c7a37ecb3e7c42708c929a6420766fd931a593b7b790d",
-      "size": 9298,
+      "baseVersion": "0.7.6",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.7/MyAI-Office-0.7.6-to-0.7.7-arm64.bsdiff.zip",
+      "sha256": "50e8798f77fd20dd4b06c205874d2486ed8ebb3dbae5d31de2674e9bec77f2d4",
+      "size": 3093,
       "format": "bsdiff-v2"
     }
   ]
