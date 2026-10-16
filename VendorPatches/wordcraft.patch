@@ -1420,6 +1420,72 @@ index 63f6764..f781411 100644
                          self.backend.describe()
                      ),
                  }))
+diff --git a/crates/proof/src/lib.rs b/crates/proof/src/lib.rs
+index f9eead1..f942d9d 100644
+--- a/crates/proof/src/lib.rs
++++ b/crates/proof/src/lib.rs
+@@ -672,6 +672,9 @@ pub fn check_grammar(text: &str) -> Vec<Issue> {
+         if i > 0 && text.get(..i).is_some_and(|t| t.ends_with(' ')) {
+             continue;
+         }
++        if !is_english_extra_space(text, i) {
++            continue;
++        }
+         v.push(Issue {
+             start: i,
+             end: i + 2,
+@@ -708,6 +711,36 @@ pub fn check_grammar(text: &str) -> Vec<Issue> {
+     v
+ }
+ 
++/// Chinese and other East Asian documents commonly use spaces for indentation and visual
++/// separation around full-width punctuation. Those spaces are formatting, not English grammar
++/// errors, even when the run has no explicit proofing language.
++fn is_english_extra_space(text: &str, start: usize) -> bool {
++    let Some(before) = text.get(..start).and_then(|prefix| prefix.chars().next_back()) else { return false };
++    let Some(after) = text.get(start + 2..).and_then(|suffix| suffix.chars().next()) else { return false };
++    !before.is_whitespace() && !after.is_whitespace() && !is_cjk_or_fullwidth(before) && !is_cjk_or_fullwidth(after)
++}
++
++fn is_cjk_or_fullwidth(c: char) -> bool {
++    matches!(
++        c,
++        '\u{1100}'..='\u{11ff}'
++            | '\u{2e80}'..='\u{2fff}'
++            | '\u{3000}'..='\u{303f}'
++            | '\u{3040}'..='\u{30ff}'
++            | '\u{3100}'..='\u{312f}'
++            | '\u{3130}'..='\u{318f}'
++            | '\u{31a0}'..='\u{31bf}'
++            | '\u{3400}'..='\u{4dbf}'
++            | '\u{4e00}'..='\u{9fff}'
++            | '\u{a960}'..='\u{a97f}'
++            | '\u{ac00}'..='\u{d7ff}'
++            | '\u{f900}'..='\u{faff}'
++            | '\u{fe30}'..='\u{fe4f}'
++            | '\u{ff00}'..='\u{ffef}'
++            | '\u{20000}'..='\u{2ffff}'
++    )
++}
++
+ fn starts_consonant_sound(w: &str) -> bool {
+     let l = w.to_lowercase();
+     ["uni", "use", "usu", "eu", "one", "once", "ubiq", "uti", "ure", "uro"].iter().any(|p| l.starts_with(p))
+@@ -817,6 +850,14 @@ mod tests {
+         assert!(check_grammar("A university is an hour away.").is_empty(), "{:?}", check_grammar("A university is an hour away."));
+     }
+ 
++    #[test]
++    fn chinese_layout_spaces_are_not_extra_space_grammar_errors() {
++        for text in ["  中电信数智科技（安徽）有限公司", "  编写：  阮  超", "  审核：  胡  彪", "2026-8-14         "] {
++            let issues = check_grammar(text);
++            assert!(issues.iter().all(|issue| issue.message != "Extra space"), "{text}: {issues:?}");
++        }
++    }
++
+     #[test]
+     fn ellipses_do_not_start_sentences() {
+         for text in [
 diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
 index 28dc72f..6f9e5f3 100644
 --- a/crates/ui-egui/src/backstage.rs

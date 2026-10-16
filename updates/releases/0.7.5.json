@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.7.5",
+  "releaseNotes": "修复中文 DOCX 编辑界面把缩进、中文排版空格和表格尾随空格误标为蓝色双横线的问题；保留英文重复空格检查。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.5/MyAI-Office-0.7.5-arm64.zip",
+    "sha256": "07123de0380592c1643029f420582524d06f157042b571f2218f008bda6ca67d",
+    "size": 164089666,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.5/MyAI-Office-0.7.5-arm64.dmg",
+    "sha256": "7b762e8f3c10e12a437e3e84a9d74217abfcd9d462288fba25f89e3c01971b82",
+    "size": 163878900
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.7.4",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.5/MyAI-Office-0.7.4-to-0.7.5-arm64.bsdiff.zip",
+      "sha256": "4520193dab59abb719db358ed1b05e433cea4cffa90e3493798acea42c962713",
+      "size": 912736,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
