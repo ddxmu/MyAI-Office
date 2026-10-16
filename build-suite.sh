@@ -93,6 +93,10 @@ swiftc -O -target arm64-apple-macos13.0 \
     "$ROOT/Sources/MyAIUpdateReceipt.swift"
 
 cp "$ROOT/Info.plist" "$APP/Contents/Info.plist"
+# Keep the Finder “Open With” label independent from the internal release version.
+# CFBundleShortVersionString remains available to the updater and diagnostics.
+plutil -replace CFBundleDisplayName -string "MyAI Office" "$APP/Contents/Info.plist"
+plutil -replace CFBundleName -string "MyAI Office" "$APP/Contents/Info.plist"
 
 (cd "$ROOT/Assets/Fonts" && shasum -a 256 -c SHA256SUMS)
 mkdir -p "$RESOURCES/Fonts"
@@ -165,6 +169,7 @@ do
 done
 
 cp "$ROOT/THIRD-PARTY-NOTICES.md" "$RESOURCES/THIRD-PARTY/THIRD-PARTY-NOTICES.md"
+cp "$WORD/crates/ui-egui/assets/tabler/LICENSE" "$RESOURCES/THIRD-PARTY/Tabler-Icons-MIT.txt"
 
 if command -v plutil >/dev/null 2>&1; then
     plutil -lint "$APP/Contents/Info.plist"

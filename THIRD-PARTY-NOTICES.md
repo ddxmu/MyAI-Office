@@ -8,6 +8,8 @@ MyAI Office bundles modified builds of the following clean-room Rust projects:
 - PdfCraft — https://github.com/storytold/pdfcraft
 - craft-fonts — https://github.com/storytold/craft-fonts
 
+Word and Excel toolbar icons use Tabler Icons 3.49.0 by Paweł Kuna and the Tabler contributors (https://github.com/tabler/tabler-icons), under the MIT License. The upstream outline paths are retained with a 1.75px, theme-tinted stroke. The copyright and license are bundled in `Tabler-Icons-MIT.txt`; per-icon attribution is recorded in each module's `ATTRIBUTION.md`.
+
 The additional, unmodified Zhuque Fangsong v0.212 font is by TrionesType / Zhejiang JadeFoci Techonology Co. LTD (https://github.com/TrionesType/zhuque). It is separately licensed under SIL OFL-1.1; the full copyright and license are in `ZhuqueFangsong-OFL.txt`. Its source and checksum are recorded in `Assets/Fonts/README.md`. It is a compatibility substitute when FangSong is unavailable, not a copy of Microsoft's FangSong or any font extracted from WPS.
 
 The Office source repositories and the packaged modules are distributed under the upstream terms, currently `MIT OR Apache-2.0`. The exact license text is copied into the adjacent files in this directory during packaging.
