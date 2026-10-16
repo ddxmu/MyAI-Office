@@ -1041,6 +1041,82 @@ index 6c36f92..2a00ea2 100644
      /// Insert a fragment at `pos`; returns the position after the pasted content.
      pub fn insert_fragment(&mut self, pos: &Pos, frag: &Fragment) -> Result<Pos> {
          let mut blocks = frag.blocks.clone();
+diff --git a/crates/doc/src/props.rs b/crates/doc/src/props.rs
+index f963c14..620770d 100644
+--- a/crates/doc/src/props.rs
++++ b/crates/doc/src/props.rs
+@@ -744,6 +744,13 @@ pub struct ParaProps {
+     pub space_before: Option<f32>,
+     #[serde(skip_serializing_if = "Option::is_none")]
+     pub space_after: Option<f32>,
++    /// Spacing before in hundredths of a line (`w:beforeLines`). When present, Word ignores the
++    /// absolute `space_before` value for layout but the original value is retained for fallback.
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub space_before_lines: Option<f32>,
++    /// Spacing after in hundredths of a line (`w:afterLines`).
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub space_after_lines: Option<f32>,
+     /// HTML-style automatic space before (`w:beforeAutospacing`): 14 pt, none at the top of the
+     /// document or of a table cell, and collapsing with the space after the paragraph above.
+     #[serde(skip_serializing_if = "Option::is_none")]
+@@ -827,7 +834,7 @@ pub struct ParaProps {
+ 
+ impl ParaProps {
+     pub fn overlay(&mut self, patch: &ParaProps) {
+-        overlay_fields!(self, patch; style, align, indent_left, indent_right, indent_first, indent_left_chars, indent_right_chars, indent_first_chars, space_before, space_after, space_before_auto, space_after_auto, line_spacing,
++        overlay_fields!(self, patch; style, align, indent_left, indent_right, indent_first, indent_left_chars, indent_right_chars, indent_first_chars, space_before, space_after, space_before_lines, space_after_lines, space_before_auto, space_after_auto, line_spacing,
+             contextual_spacing, mirror_indents, keep_next, keep_lines, page_break_before, widow_control, outline_level, numbering, tabs, shading, borders,
+             suppress_hyphens, suppress_line_numbers, bidi, drop_cap, frame, kinsoku, word_wrap, overflow_punct, top_line_punct, auto_space_de, auto_space_dn,
+             snap_to_grid);
+diff --git a/crates/doc/src/resolve.rs b/crates/doc/src/resolve.rs
+index 4ef0137..48e94d7 100644
+--- a/crates/doc/src/resolve.rs
++++ b/crates/doc/src/resolve.rs
+@@ -151,6 +151,12 @@ pub struct ResolvedPara {
+     pub indent_first: f32,
+     pub space_before: f32,
+     pub space_after: f32,
++    /// Original line-relative spacing (`w:beforeLines` / `w:afterLines`) in hundredths of a line.
++    /// The layout engine resolves these against the section's document-grid pitch when present.
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub space_before_lines: Option<f32>,
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub space_after_lines: Option<f32>,
+     /// The space before or after is automatic (HTML-style, [`AUTO_SPACING`]): see
+     /// `ParaProps::space_before_auto`.
+     #[serde(default)]
+@@ -196,6 +202,22 @@ pub struct ResolvedPara {
+ const MAX_INDENT: f32 = 1584.0; // 22"
+ 
+ impl ResolvedPara {
++    /// Apply OOXML line-relative paragraph spacing using the section's document-grid pitch.
++    /// Absolute `before`/`after` values remain the fallback when a document has no grid.
++    pub fn apply_line_relative_spacing(&mut self, line_pitch: Option<f32>) {
++        let Some(pitch) = line_pitch.filter(|v| v.is_finite() && *v > 0.0) else { return };
++        if !self.before_auto {
++            if let Some(lines) = self.space_before_lines {
++                self.space_before = (pitch * lines / 100.0).clamp(0.0, 1584.0);
++            }
++        }
++        if !self.after_auto {
++            if let Some(lines) = self.space_after_lines {
++                self.space_after = (pitch * lines / 100.0).clamp(0.0, 1584.0);
++            }
++        }
++    }
++
+     /// Visual (left, right) indents. Indents, like alignment, are logical: `indent_left` is the
+     /// start (leading) edge, which is the right edge of a right-to-left paragraph (ISO 29500
+     /// `w:ind/@w:start`, read from `w:left` too).
+@@ -230,6 +252,8 @@ impl ResolvedPara {
+             indent_first: clampi(p.indent_first),
+             space_before: if p.space_before_auto == Some(true) { AUTO_SPACING } else { p.space_before.unwrap_or(0.0).clamp(0.0, 1584.0) },
+             space_after: if p.space_after_auto == Some(true) { AUTO_SPACING } else { p.space_after.unwrap_or(0.0).clamp(0.0, 1584.0) },
++            space_before_lines: p.space_before_lines.filter(|v| v.is_finite()).map(|v| v.clamp(0.0, 158_400.0)),
++            space_after_lines: p.space_after_lines.filter(|v| v.is_finite()).map(|v| v.clamp(0.0, 158_400.0)),
+             before_auto: p.space_before_auto == Some(true),
+             after_auto: p.space_after_auto == Some(true),
+             line_spacing: match p.line_spacing.unwrap_or_default() {
 diff --git a/crates/docbin/src/fkp.rs b/crates/docbin/src/fkp.rs
 index 8ed395a..b0dbe60 100644
 --- a/crates/docbin/src/fkp.rs
@@ -2010,6 +2086,27 @@ index ef3f269..3129225 100644
      assert_eq!(part.blocks.first().and_then(|b| b.as_para()).map(|p| p.text.as_str()), Some("Inside"));
  }
  
+diff --git a/crates/docx/src/read/props.rs b/crates/docx/src/read/props.rs
+index ce16683..dca482e 100644
+--- a/crates/docx/src/read/props.rs
++++ b/crates/docx/src/read/props.rs
+@@ -292,6 +292,16 @@ impl PropCtx {
+                     if let Some(v) = tw(k, "w:after") {
+                         p.space_after = Some(v.max(0.0));
+                     }
++                    // Word stores line-relative spacing in hundredths of a line. Keep the raw
++                    // value so a DOCX round-trip does not silently replace it with the point
++                    // fallback above; layout can use the document grid when available.
++                    let lines = |name: &str| k.attr(name).and_then(int).map(|v| v.clamp(0, 158_400) as f32);
++                    if let Some(v) = lines("w:beforeLines") {
++                        p.space_before_lines = Some(v);
++                    }
++                    if let Some(v) = lines("w:afterLines") {
++                        p.space_after_lines = Some(v);
++                    }
+                     // HTML-style automatic spacing; "0" switches an inherited one off.
+                     let auto = |name| k.attr(name).map(|v| matches!(v.trim(), "1" | "true" | "on"));
+                     if let Some(a) = auto("w:beforeAutospacing") {
 diff --git a/crates/docx/src/read/story.rs b/crates/docx/src/read/story.rs
 index 7c50ebb..43333d9 100644
 --- a/crates/docx/src/read/story.rs
@@ -2029,6 +2126,59 @@ index 7c50ebb..43333d9 100644
  }
  
  /// The last paragraph of a block list: its last block, or inside a final table the last
+diff --git a/crates/docx/src/write/props.rs b/crates/docx/src/write/props.rs
+index 16ed267..4cc0bf7 100644
+--- a/crates/docx/src/write/props.rs
++++ b/crates/docx/src/write/props.rs
+@@ -297,12 +297,16 @@ pub fn ppr_inner(w: &mut W, p: &ParaProps, framed: bool, num_change: Option<&Cha
+     toggle(w, "w:snapToGrid", p.snap_to_grid);
+     if p.space_before.is_some()
+         || p.space_after.is_some()
++        || p.space_before_lines.is_some()
++        || p.space_after_lines.is_some()
+         || p.line_spacing.is_some()
+         || p.space_before_auto.is_some()
+         || p.space_after_auto.is_some()
+     {
+         let before = p.space_before.map(|v| twips(v.max(0.0)));
+         let after = p.space_after.map(|v| twips(v.max(0.0)));
++        let before_lines = p.space_before_lines.map(|v| n(round(v.clamp(0.0, 158_400.0))));
++        let after_lines = p.space_after_lines.map(|v| n(round(v.clamp(0.0, 158_400.0))));
+         let line = p.line_spacing.map(|l| match l {
+             LineSpacing::Multiple(m) => (n(round(m.clamp(0.06, 132.0) * 240.0)), "auto"),
+             LineSpacing::AtLeast(v) => (twips(v.abs()), "atLeast"),
+@@ -312,12 +316,18 @@ pub fn ppr_inner(w: &mut W, p: &ParaProps, framed: bool, num_change: Option<&Cha
+         if let Some(b) = &before {
+             a.push(("w:before", b));
+         }
++        if let Some(b) = &before_lines {
++            a.push(("w:beforeLines", b));
++        }
+         if let Some(on) = p.space_before_auto {
+             a.push(("w:beforeAutospacing", if on { "1" } else { "0" }));
+         }
+         if let Some(x) = &after {
+             a.push(("w:after", x));
+         }
++        if let Some(x) = &after_lines {
++            a.push(("w:afterLines", x));
++        }
+         if let Some(on) = p.space_after_auto {
+             a.push(("w:afterAutospacing", if on { "1" } else { "0" }));
+         }
+diff --git a/crates/docx/tests/roundtrip.rs b/crates/docx/tests/roundtrip.rs
+index 791cf20..c58c8f9 100644
+--- a/crates/docx/tests/roundtrip.rs
++++ b/crates/docx/tests/roundtrip.rs
+@@ -141,6 +141,8 @@ fn every_para_prop_round_trips() {
+         indent_first_chars: Some(-1.0),
+         space_before: Some(6.0),
+         space_after: Some(12.0),
++        space_before_lines: Some(50.0),
++        space_after_lines: Some(100.0),
+         space_before_auto: Some(true),
+         space_after_auto: Some(false),
+         line_spacing: Some(LineSpacing::Multiple(1.5)),
 diff --git a/crates/docx/tests/toc_ranges.rs b/crates/docx/tests/toc_ranges.rs
 index d8010bd..ef01ffd 100644
 --- a/crates/docx/tests/toc_ranges.rs
@@ -2545,7 +2695,7 @@ index b3c5965..69655d3 100644
      fn resolves_weights_named_as_their_own_family() {
          // Word stores a Medium face as the family "Inter Medium" (#219).
 diff --git a/crates/layout/src/lib.rs b/crates/layout/src/lib.rs
-index 883011b..242b14a 100644
+index 883011b..c02dd65 100644
 --- a/crates/layout/src/lib.rs
 +++ b/crates/layout/src/lib.rs
 @@ -452,7 +452,7 @@ struct Key {
@@ -2640,7 +2790,18 @@ index 883011b..242b14a 100644
      };
      let sections = doc.sections();
      let web = matches!(opts.view, ViewMode::Web | ViewMode::Draft | ViewMode::Outline);
-@@ -2769,8 +2822,9 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
+@@ -2701,7 +2754,9 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
+     // Floating objects anchored here join the page's wrap areas before the text is laid out; if
+     // the paragraph then starts somewhere else (another column or page, or contextual spacing
+     // drops its space before), they are placed again there.
+-    let space_before = ctx.doc.styles.resolve_para(&p.props).space_before;
++    let mut resolved = ctx.doc.styles.resolve_para(&p.props);
++    resolved.apply_line_relative_spacing(ctx.grid.line);
++    let space_before = resolved.space_before;
+     let excl_mark = pb.excl.len();
+     let guess = pb.y + space_before;
+     let label = ctx.next_label(p);
+@@ -2769,8 +2824,9 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
      // Keep lines together: if it doesn't fit but would on an empty column, move it. Keep with
      // next alone moves a paragraph only when it would fit here by itself (Word for Windows): one
      // that doesn't breaks as usual, its last lines going over with the next paragraph.
@@ -2652,7 +2813,7 @@ index 883011b..242b14a 100644
          // (Against the whole column: balanced columns grow to hold it.)
          if pb.y + need > pb.bottom && !pb.at_top() && need <= pb.uncapped_bottom() - pb.top {
              pb.advance(block, body_top);
-@@ -3134,7 +3188,8 @@ fn next_first_line(ctx: &mut Ctx, block: usize, width: f32, depth: usize) -> f32
+@@ -3134,7 +3190,8 @@ fn next_first_line(ctx: &mut Ctx, block: usize, width: f32, depth: usize) -> f32
              };
              let _ = rp;
              let pl = para::layout_para(p, &env);
@@ -2663,7 +2824,7 @@ index 883011b..242b14a 100644
              } else {
                  pl.rp.space_before + pl.lines.first().map(|l| l.height).unwrap_or(0.0)
 diff --git a/crates/layout/src/para.rs b/crates/layout/src/para.rs
-index 41f9fad..1805a0a 100644
+index 41f9fad..6b1769c 100644
 --- a/crates/layout/src/para.rs
 +++ b/crates/layout/src/para.rs
 @@ -408,6 +408,9 @@ pub struct Grid {
@@ -2676,7 +2837,7 @@ index 41f9fad..1805a0a 100644
  }
  
  impl Grid {
-@@ -418,11 +421,17 @@ impl Grid {
+@@ -418,11 +421,19 @@ impl Grid {
          let font_size = if size.is_finite() { size.clamp(1.0, 1584.0) } else { 10.5 };
          let chars = s.grid_char_pitch(font_size);
          let snap_all = s.doc_grid.is_some_and(|g| g.kind == wordcraft_doc::section::DocGridType::SnapToChars);
@@ -2686,6 +2847,8 @@ index 41f9fad..1805a0a 100644
 +        // narrow: only current-compatibility CJK documents in that legacy range opt in.
 +        let legacy_wps =
 +            (15.0..17.7).contains(&line) && doc.settings.compat_mode >= wordcraft_doc::COMPAT_MODE_CURRENT && contains_east_asian(&doc.body);
++        // WPS uses the effective 1.5-line pitch for this family of Chinese files even though
++        // their imported OOXML records a smaller document-grid pitch.
 +        let line = if legacy_wps { 17.7 } else { line };
 +        Grid { line: Some(line), chars, font_size, snap_all, legacy_wps }
      }
@@ -2697,7 +2860,7 @@ index 41f9fad..1805a0a 100644
      }
      /// `h` rounded up to whole line pitches (unchanged without a line grid).
      pub fn snap_height(&self, h: f32) -> f32 {
-@@ -433,6 +442,13 @@ impl Grid {
+@@ -433,6 +444,13 @@ impl Grid {
      }
  }
  
@@ -2711,7 +2874,7 @@ index 41f9fad..1805a0a 100644
  /// East Asian characters the character grid places on its pitch: CJK ideographs, kana, Hangul,
  /// CJK punctuation and full-width forms.
  pub fn is_east_asian(c: char) -> bool {
-@@ -711,14 +727,11 @@ impl<'a> Builder<'a> {
+@@ -711,14 +729,11 @@ impl<'a> Builder<'a> {
          let show = |c: char| sym.map_or(c, |m| m.show(c));
          let primary_cs = rc_cs.as_ref().map(|r| wordcraft_fonts::word::resolve(&r.font, r.bold, r.italic).face);
          // Chinese, Japanese and Korean characters use the run's East Asian font (`w:eastAsia`) when
@@ -2731,7 +2894,7 @@ index 41f9fad..1805a0a 100644
          let use_levels = para_text && !self.levels.is_empty();
          let context = if self.env.numeral == NumeralMode::Context && use_levels { context_digit_dirs(text, &self.levels, base) } else { Vec::new() };
          // One fallback face for the run's East Asian characters: the first face in fallback order
-@@ -1135,6 +1148,12 @@ pub(crate) fn left_out(rc: &ResolvedChar, show_hidden: bool, hide_deleted: bool)
+@@ -1135,6 +1150,17 @@ pub(crate) fn left_out(rc: &ResolvedChar, show_hidden: bool, hide_deleted: bool)
  pub fn layout_para(p: &Paragraph, env: &ParaEnv) -> ParaLayout {
      let doc = env.doc;
      let mut rp = doc.styles.resolve_para_in(&p.props, env.table.map(|t| &t.para));
@@ -2741,6 +2904,11 @@ index 41f9fad..1805a0a 100644
 +    if env.grid.legacy_wps && !rp.snap_to_grid && p.text.chars().any(is_east_asian) {
 +        rp.snap_to_grid = true;
 +    }
++    // `beforeLines`/`afterLines` are authoritative when present. WPS-authored Chinese templates
++    // commonly pair them with a document grid and a point fallback; use the grid pitch so the
++    // paragraph spacing survives the same way as in Word/WPS instead of silently using the stale
++    // point value.
++    rp.apply_line_relative_spacing(env.grid.line);
      if let Some(spacing) = env.read_line_spacing.filter(|s| s.is_finite() && (1.0..=2.0).contains(s)) {
          rp.line_spacing = wordcraft_doc::props::LineSpacing::Multiple(spacing);
      }
@@ -2833,13 +3001,34 @@ index afdf9d0..5a8fe4d 100644
  /// room, measured in Word for Windows (`plan/word` R21, 10 cases): the text after it follows right
  /// on, and columns balanced above it don't count it (two one-line paragraphs in two columns sit
 diff --git a/crates/layout/src/tests_grid.rs b/crates/layout/src/tests_grid.rs
-index fc2c900..60d5881 100644
+index fc2c900..132512a 100644
 --- a/crates/layout/src/tests_grid.rs
 +++ b/crates/layout/src/tests_grid.rs
-@@ -91,3 +91,26 @@ fn character_grid_places_east_asian_text_on_the_pitch() {
+@@ -91,3 +91,47 @@ fn character_grid_places_east_asian_text_on_the_pitch() {
          }
      }
  }
++
++#[test]
++fn line_relative_spacing_uses_the_document_grid_pitch() {
++    let mut d = with_grid("中文\n中文", DocGridType::Lines, 0);
++    let first = match std::sync::Arc::make_mut(&mut d.body[0]) {
++        Block::Para(p) => p,
++        _ => panic!("expected a paragraph"),
++    };
++    first.props.space_before = Some(1.0);
++    first.props.space_before_lines = Some(50.0);
++    first.props.space_after = Some(2.0);
++    first.props.space_after_lines = Some(100.0);
++
++    let rp = d.styles.resolve_para(&first.props);
++    assert_eq!(rp.space_before, 1.0);
++    assert_eq!(rp.space_after, 2.0);
++    let mut rp = rp;
++    rp.apply_line_relative_spacing(Some(18.0));
++    assert_eq!(rp.space_before, 9.0);
++    assert_eq!(rp.space_after, 18.0);
++}
 +
 +#[test]
 +fn legacy_cjk_grid_uses_the_wps_effective_line_pitch() {
@@ -2968,10 +3157,42 @@ index 28dc72f..6f9e5f3 100644
                      resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(label)));
                      if resp.hovered() {
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
-index 49860fe..8c6fbcf 100644
+index 49860fe..a868bdc 100644
 --- a/crates/ui-egui/src/canvas.rs
 +++ b/crates/ui-egui/src/canvas.rs
-@@ -1362,6 +1362,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+@@ -726,7 +726,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+     // Keys first, so this frame lays out and paints what was typed (handled after painting, a
+     // keystroke showed one frame later). Focus is the canvas's from the last frame.
+     // While "Save changes?" is up, keys answer it rather than edit the document behind it.
+-    if app.canvas.focused && !matches!(app.dialog, Some(crate::dialogs::Dialog::SaveChanges { .. })) {
++    if (app.canvas.focused || app.canvas.want_focus) && !matches!(app.dialog, Some(crate::dialogs::Dialog::SaveChanges { .. })) {
+         crate::keys::canvas_events(app, ui.ctx());
+     }
+     crate::ink::replay_tick(app, ui.ctx());
+@@ -1232,16 +1232,19 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+         deselect_balloon(app, ui.ctx());
+     }
+     // Focus: the canvas takes keyboard focus on click and keeps Tab/arrows.
+-    if resp.clicked() || resp.drag_started() || app.canvas.want_focus {
++    let requested_focus = resp.clicked() || resp.drag_started() || app.canvas.want_focus;
++    if requested_focus {
+         resp.request_focus();
+-        app.canvas.want_focus = false;
+     }
+     if resp.has_focus() {
++        app.canvas.want_focus = false;
+         ui.memory_mut(|m| {
+             m.set_focus_lock_filter(resp.id, egui::EventFilter { tab: true, horizontal_arrows: true, vertical_arrows: true, escape: true })
+         });
+     }
+-    app.canvas.focused = resp.has_focus();
++    // egui applies request_focus at the end of the frame. Keep the app-level focus state in sync
++    // immediately so text delivered in the following frame is not dropped after a toolbar click.
++    app.canvas.focused = resp.has_focus() || requested_focus;
+     // Screen readers: the document under the canvas, with the caret (#488).
+     crate::a11y::expose(app, ui.ctx(), resp.id, &layout, &rects, area);
+     // The buttons that start or stop middle-click scrolling don't also click the page.
+@@ -1362,6 +1365,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
      {
          crate::mini_toolbar::show(app, ui.ctx(), sel, area);
      }
@@ -3516,7 +3737,7 @@ index aa1ba4d..d1c6021 100644
  	Clipboard	Буфер обміну
  	Clipboard Pane	Панель буфера обміну
 diff --git a/crates/ui-egui/src/i18n/zh-hans.tsv b/crates/ui-egui/src/i18n/zh-hans.tsv
-index 9eab713..8eb8b20 100644
+index 9eab713..0176c2f 100644
 --- a/crates/ui-egui/src/i18n/zh-hans.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hans.tsv
 @@ -197,6 +197,7 @@
@@ -3558,6 +3779,15 @@ index 9eab713..8eb8b20 100644
  	Justify	两端对齐
  	Keep Lines Together	段中不分页
  	Keep lines together	段中不分页
+@@ -812,7 +813,7 @@
+ 	Animation	动画
+ 	Animate the caret (it glides and fades)	为光标添加动画（平滑移动并淡入淡出）
+ 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	开启：输入或使用方向键时，光标平滑移动到新位置，闪烁时淡入淡出。关闭：光标直接跳转，闪烁时直接显示和隐藏。
+-	Show the community button in the title bar	在标题栏中显示社区按钮
++	Show the community button in the title bar	在标题栏显示技术支持按钮
+ 	Show/Hide ¶	显示/隐藏 ¶
+ 	Show\nComments	显示批注
+ 	Shrink Font 1 Point	字号减小 1 磅
 @@ -1081,6 +1082,8 @@
  	Direct formatting	直接格式
  	Reset to Normal	重置为正文
@@ -3568,7 +3798,7 @@ index 9eab713..8eb8b20 100644
  	Clear Character Formatting	清除字符格式
  	Paste Special	选择性粘贴
 diff --git a/crates/ui-egui/src/i18n/zh-hant.tsv b/crates/ui-egui/src/i18n/zh-hant.tsv
-index 0b968cc..c4d9c03 100644
+index 0b968cc..b9e93b9 100644
 --- a/crates/ui-egui/src/i18n/zh-hant.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hant.tsv
 @@ -186,6 +186,7 @@
@@ -3610,6 +3840,15 @@ index 0b968cc..c4d9c03 100644
  	Justify	左右對齊
  	Keep Lines Together	段落中不分頁
  	Keep lines together	段落中不分頁
+@@ -801,7 +802,7 @@
+ 	Animation	動畫
+ 	Animate the caret (it glides and fades)	為游標加上動畫（平滑移動並淡入淡出）
+ 	On: the caret glides to its new place when you type or use the arrow keys, and its blink fades. Off: it jumps and blinks on and off.	開啟：輸入或使用方向鍵時，游標會平滑移動到新位置，閃爍時淡入淡出。關閉：游標直接跳到新位置，閃爍時直接顯示和隱藏。
+-	Show the community button in the title bar	在標題列中顯示社群按鈕
++	Show the community button in the title bar	在標題列顯示技術支援按鈕
+ 	Show/Hide ¶	顯示/隱藏 ¶
+ 	Show\nComments	顯示註解
+ 	Shrink Font 1 Point	字型縮小 1 點
 @@ -1070,6 +1071,8 @@
  	Direct formatting	直接格式設定
  	Reset to Normal	重設為內文
@@ -5434,7 +5673,7 @@ index c50ebd4..d6f95c2 100644
              vec![m("Shading", "table.shading"), m("Borders", "table.borders"), c("Border Painter", "table.borderPainter")]
          }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index af0385e..1924adc 100644
+index af0385e..235cff0 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -61,6 +61,7 @@ pub mod mini_toolbar;
@@ -5480,7 +5719,19 @@ index af0385e..1924adc 100644
                  json!({})
              }
              "ui.caretAnimation" => {
-@@ -3104,15 +3108,15 @@ mod tests {
+@@ -1644,7 +1648,10 @@ impl WordApp {
+             return;
+         }
+         let on_chrome = ctx.layer_id_at(pos).is_none_or(|l| l.order == egui::Order::Background);
+-        if on_chrome && ctx.memory(|m| m.focused().is_none()) && !egui::Popup::is_any_open(ctx) {
++        // Toolbar buttons may keep an egui focus id after they run their command, but they are
++        // not text-entry controls. Treat that focus like Word/WPS chrome focus and return the
++        // caret to the document; preserve focus for a real text field such as font size/search.
++        if on_chrome && !ctx.egui_wants_keyboard_input() && !egui::Popup::is_any_open(ctx) {
+             self.canvas.want_focus = true;
+             ctx.request_repaint();
+         }
+@@ -3104,15 +3111,15 @@ mod tests {
      }
  
      /// #861: the save prompt answers from the keyboard alone. Save has focus when it opens, and
@@ -5502,7 +5753,7 @@ index af0385e..1924adc 100644
              let dir = scratch(&format!("arrows-{}-{}", arrows.len(), focused.len()));
              let path = docx_on_disk(&dir, "Draft");
 diff --git a/crates/ui-egui/src/options.rs b/crates/ui-egui/src/options.rs
-index da75c87..eeddcea 100644
+index da75c87..eaa8c6b 100644
 --- a/crates/ui-egui/src/options.rs
 +++ b/crates/ui-egui/src/options.rs
 @@ -172,6 +172,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
@@ -5626,6 +5877,119 @@ index b52d210..c6c46df 100644
      });
      group(ui, "Agents", None, app, |ui, app| {
          big(ui, app, "macros", "Commands", "ui.dialog", json!({"name": "commands"}), false);
+diff --git a/crates/ui-egui/src/table_mouse.rs b/crates/ui-egui/src/table_mouse.rs
+index f98c08f..bde9247 100644
+--- a/crates/ui-egui/src/table_mouse.rs
++++ b/crates/ui-egui/src/table_mouse.rs
+@@ -9,6 +9,7 @@
+ use egui::{Color32, Pos2, Rect, Shape, Stroke, Ui, vec2};
+ use serde_json::json;
+ use wordcraft_engine::cmd::table_mouse::{self, Spot, Target};
++use wordcraft_engine::cmd::table_resize::REACH;
+ use wordcraft_layout::DocLayout;
+ 
+ use crate::WordApp;
+@@ -37,7 +38,12 @@ fn available(app: &WordApp) -> bool {
+ fn target_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: Pos2) -> Option<(usize, f32, f32, f32, Target)> {
+     let (page, x, y) = crate::canvas::page_at(rects, layout, scale, p)?;
+     let reach = REACH_PX / page_scale(rects, layout, scale, page)?;
+-    let t = table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, reach)?;
++    // At low zoom, the screen-pixel resize reach can extend over the row selection bar. If the
++    // normal hit-test is blocked by that reach, retry with Word's actual border reach so the
++    // selection area remains usable while the border itself still belongs to resizing.
++    let t = table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, reach).or_else(|| {
++        (reach > REACH).then(|| table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, REACH)).flatten()
++    })?;
+     Some((page, x, y, reach, t))
+ }
+ 
+@@ -87,7 +93,8 @@ pub fn pointer(app: &mut WordApp, ui: &Ui, resp: &egui::Response, rects: &[Rect]
+         }
+         return true;
+     }
+-    if !available(app) || !(ui.input(|i| i.pointer.primary_pressed()) && resp.contains_pointer()) {
++    let pointer_on_page = latest.is_some_and(|p| rects.iter().any(|r| r.contains(p)));
++    if !available(app) || !(ui.input(|i| i.pointer.primary_pressed()) && pointer_on_page) {
+         return false;
+     }
+     let Some(p) = latest else { return false };
+@@ -171,7 +178,11 @@ pub fn paint(app: &WordApp, painter: &egui::Painter, t: &Tokens, layout: &DocLay
+             move_handle(painter, Rect::from_two_pos(a, b), t);
+         }
+     }
+-    let Some(target) = table_mouse::target_at(layout, doc, story, page, x, y, reach) else { return };
++    let Some(target) = table_mouse::target_at(layout, doc, story, page, x, y, reach).or_else(|| {
++        (reach > wordcraft_engine::cmd::table_resize::REACH)
++            .then(|| table_mouse::target_at(layout, doc, story, page, x, y, wordcraft_engine::cmd::table_resize::REACH))
++            .flatten()
++    }) else { return };
+     match table_mouse::insert_mark(&target) {
+         Some(m) => {
+             if let (Some(c), Some(a), Some(b)) = (s(m.center.0, m.center.1), s(m.from.0, m.from.1), s(m.to.0, m.to.1)) {
+diff --git a/crates/ui-egui/src/table_resize.rs b/crates/ui-egui/src/table_resize.rs
+index 33cfd26..fb36035 100644
+--- a/crates/ui-egui/src/table_resize.rs
++++ b/crates/ui-egui/src/table_resize.rs
+@@ -8,6 +8,7 @@
+ 
+ use egui::{Pos2, Rect, Stroke, Ui, pos2};
+ use serde_json::json;
++use wordcraft_engine::cmd::table_mouse::{self, Spot};
+ use wordcraft_engine::cmd::table_resize::{self, Edge, Plan, ResizeTarget, Share};
+ use wordcraft_layout::DocLayout;
+ 
+@@ -107,6 +108,26 @@ fn target_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: P
+     Some((page, x, y, t))
+ }
+ 
++/// At a zoomed-out view, the four screen-pixel resize reach can cover much of the row
++/// selection bar in page points. Keep the row-selection area ahead of resize hit-testing,
++/// while leaving the actual border (the engine's normal three-point reach) to resizing.
++fn row_selection_area_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: Pos2) -> bool {
++    let Some((page, x, y)) = crate::canvas::page_at(rects, layout, scale, p) else { return false };
++    matches!(
++        table_mouse::target_at(
++            layout,
++            &app.session.doc,
++            app.session.sel.focus.story,
++            page,
++            x,
++            y,
++            3.0,
++        )
++        .map(|target| target.spot),
++        Some(Spot::Row(_))
++    )
++}
++
+ /// Mouse input: a press on a border starts a drag (in the selected cells' rows only, when it's a
+ /// border of theirs), moving updates it, releasing applies it with the keys held then (Ctrl: the
+ /// columns right of the border share the change). `false` (nothing done) when the pointer isn't
+@@ -154,6 +175,9 @@ pub fn pointer(app: &mut WordApp, ui: &Ui, resp: &egui::Response, rects: &[Rect]
+         return false;
+     }
+     let Some(p) = latest else { return false };
++    if row_selection_area_at(app, layout, rects, scale, p) {
++        return false;
++    }
+     let Some((page, x, y, mut target)) = target_at(app, layout, rects, scale, p) else { return false };
+     target.limit_to_selection(&app.session, y);
+     app.canvas.table_resize = Some(ResizeDrag { page, from: (x, y), to: (x, y), target, ruler: false });
+@@ -208,7 +232,13 @@ pub fn cursor(app: &WordApp, ui: &Ui, resp: &egui::Response, layout: &DocLayout,
+     let edge = match &app.canvas.table_resize {
+         Some(d) => Some(d.target.edge),
+         None if resp.hovered() && available(app) => {
+-            ui.input(|i| i.pointer.latest_pos()).and_then(|p| target_at(app, layout, rects, scale, p)).map(|(_, _, _, t)| t.edge)
++            ui.input(|i| i.pointer.latest_pos()).and_then(|p| {
++                if row_selection_area_at(app, layout, rects, scale, p) {
++                    None
++                } else {
++                    target_at(app, layout, rects, scale, p).map(|(_, _, _, t)| t.edge)
++                }
++            })
+         }
+         None => None,
+     };
 diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
 index 441ff2a..48596b8 100644
 --- a/crates/ui-egui/src/theme.rs
@@ -5726,7 +6090,7 @@ index ad4adcd..3ea779a 100644
  /// A combo's scrolling list. Only the rows in view are built: the font menu lists every installed
  /// family and each preview loads that font, so building all rows loaded every font on the system
 diff --git a/docs/file-format-parity.md b/docs/file-format-parity.md
-index 641da4f..b49387a 100644
+index 641da4f..0c368c0 100644
 --- a/docs/file-format-parity.md
 +++ b/docs/file-format-parity.md
 @@ -1,6 +1,6 @@
@@ -5751,7 +6115,7 @@ index 641da4f..b49387a 100644
  Weights are the share of a Word user's file traffic (estimate). Read/write: ✅ yes, 🟡 partial,
  ❌ no, — Word doesn't either.
  
-@@ -43,6 +50,15 @@ Weights are the share of a Word user's file traffic (estimate). Read/write: ✅
+@@ -43,11 +50,20 @@ Weights are the share of a Word user's file traffic (estimate). Read/write: ✅
  
  ## DOCX in depth
  
@@ -5767,6 +6131,12 @@ index 641da4f..b49387a 100644
  Measured by grepping `crates/docx/src/read` and `src/write` for the OOXML elements (2026-10-10).
  
  | Feature | Read | Write | Notes |
+ |---|---|---|---|
+-| Text, runs, paragraph and character properties, styles, numbering, sections | ✅ | ✅ | Including complex-script props (`w:rtl`, `w:cs`, `w:szCs`, `w:bCs`…), East Asian fonts kept apart from Latin (#111); independent complex-script formatting inherited through defaults/styles and preserved over repeated saves (`complex_script_inheritance.rs`), indents in characters (`w:firstLineChars`, `w:hangingChars`, `w:leftChars`, `w:rightChars`, #534); every ST_NumberFormat value of `w:numFmt` is kept on save, Chinese/Japanese/Korean, enclosed and full-width formats are drawn, the rest (Hebrew, Arabic, Hindi, Thai…) show decimal (#534). `w:beforeLines`/`w:afterLines` not kept (the points are) |
++| Text, runs, paragraph and character properties, styles, numbering, sections | ✅ | ✅ | Including complex-script props (`w:rtl`, `w:cs`, `w:szCs`, `w:bCs`…), East Asian fonts kept apart from Latin (#111); independent complex-script formatting inherited through defaults/styles and preserved over repeated saves (`complex_script_inheritance.rs`), indents in characters (`w:firstLineChars`, `w:hangingChars`, `w:leftChars`, `w:rightChars`, #534); line-relative paragraph spacing (`w:beforeLines`/`w:afterLines`) is preserved and resolved against the document grid; every ST_NumberFormat value of `w:numFmt` is kept on save, Chinese/Japanese/Korean, enclosed and full-width formats are drawn, the rest (Hebrew, Arabic, Hindi, Thai…) show decimal (#534) |
+ | Tables incl. floating (`w:tblpPr`), table styles and conditional formatting | ✅ | ✅ | Custom table styles round-trip (#256); right-to-left tables (`w:bidiVisual`) and sections (`w:bidi`) round-trip (#362) |
+ | Headers/footers (first, even/odd), page borders, line numbers, gutter, mirror margins | ✅ | ✅ | |
+ | Hyphenation settings (`w:autoHyphenation`, `w:hyphenationZone`, `w:doNotHyphenateCaps`, `w:consecutiveHyphenLimit`) | ✅ | ✅ | Zone, capitals and limit kept and honoured by layout (#407) |
 @@ -163,6 +179,9 @@ raise readiness estimates. No Word-derived files are fixtures.
  
  | Date | Change | Summary |
@@ -5824,6 +6194,28 @@ index a85a8f0..4a982dd 100644
  | 2026-10-12 | trivial | Sample-text formulas on Enter (#1067) implemented; numerical limits not compared in Word |
  | 2026-10-12 | minor | Italian proofing landed (it-IT spelling from the installed Hunspell dictionary, accent-first suggestions, conservative grammar); gap #8 narrowed to the remaining languages |
  | 2026-10-12 | trivial | #2 narrowed: direct run-level `w:contentPart` InkML survives DOCX edits and repeated saves; nested group/canvas ink and native rendering remain |
+diff --git a/docs/layout-parity.md b/docs/layout-parity.md
+index 2a8bc2b..9b4a24d 100644
+--- a/docs/layout-parity.md
++++ b/docs/layout-parity.md
+@@ -25,7 +25,7 @@ font can't match Word's metrics.
+ | Distributed / Thai distributed alignment | 🟡 | read; layout untested | 1–2 |
+ | Default font metrics (Aptos, Calibri, Cambria…) | 🟡 | Carlito/Caladea/Liberation are metric-compatible for Calibri/Cambria/Arial/Times/Courier; **Aptos (Word's default since 2024) has no metric-compatible open substitute**, so new Word documents wrap differently ([typing-parity.md](typing-parity.md) Known gaps). Needs an owner decision (commission or license a metric-matched font) | 6–10 + owner |
+ | Symbol fonts (Symbol, Wingdings, Wingdings 2/3, Webdings) without the proprietary font: each character, stored as U+F020–U+F0FF or a plain 8-bit code, is drawn as its Unicode equivalent from a face that has it; PDF text and copies read as those symbols | ✅ | `doc::symbol_fonts` tables (Adobe Symbol table and Unicode L2/12-368), `layout::tests::wingdings_text_draws_and_reads_as_its_unicode_symbols` (#776). Shapes come from Noto Sans Symbols / Symbols 2, DejaVu Sans or Segoe UI Symbol, so they differ from Word's; Wingdings 0xFF (not in Unicode) still has no symbol | — |
+-| Indents in characters (`w:firstLineChars`, `w:leftChars`…), measured in the paragraph mark's font size | ✅ | #534, `layout::tests::character_indents_use_the_paragraph_mark_size`; spacing in lines (`w:beforeLines`/`w:afterLines`) uses the stored points (needs the document grid) | — |
++| Indents in characters (`w:firstLineChars`, `w:leftChars`…), measured in the paragraph mark's font size | ✅ | #534, `layout::tests::character_indents_use_the_paragraph_mark_size`; spacing in lines (`w:beforeLines`/`w:afterLines`) resolves against the section's document-grid pitch when present | — |
+ | Line spacing (single, 1.5, double, at least, exactly, multiple), spacing before/after, contextual spacing | 🟡 | Word puts multiple-spacing extra below the text and collapses spacing differently (#135, #108 open) | 3–5 |
+ | Kerning only where Kerning for fonts asks for it (`w:kern`, at or above its size) | ✅ | Measured in Word for Windows: no `w:kern` or `w:kern="0"` is unkerned; WordCraft kerned every run, so its lines held more text than Word's. `layout::tests::kerning_follows_kerning_for_fonts_like_word` | — |
+ | Automatic (HTML-style) paragraph spacing (`w:beforeAutospacing`, `w:afterAutospacing`) | ✅ | Measured in Word for Windows: 14 pt at any size, none at the top of the document or a cell or after a cell's last paragraph, the larger of two neighbouring spaces. `layout::tests::automatic_paragraph_spacing_like_word`, `…_drops_at_cell_edges` | — |
+@@ -56,7 +56,7 @@ font can't match Word's metrics.
+ | Document grid (`w:docGrid`, lines per page, characters per line) | ❌ | East Asian documents paginate differently without it | 4–6 |
+ | Vertical text (`tbRl`) in sections and text boxes; cell text direction | ✅ | cell text direction (#245); text-box text direction (#369); vertical sections (`tbRl`/`btLr`, #491): the page's text area turned, lines top to bottom stacking right to left, ideographs, kana and Hangul upright, Latin on its side, caret and clicks through the turn. Missing: OpenType `vert` alternates (punctuation is moved, not substituted), arrow keys along vertical lines, upright pictures take turned room | 2–4 |
+ | Gutter, mirror margins, book fold, 2 pages per sheet | 🟡 | gutter and mirror margins; book fold missing | 2–3 |
+-| Document grid (`w:docGrid`, lines per page, characters per line) | 🟡 | #391: line grid snaps line heights to whole pitches (text centred in them; `w:snapToGrid` off opts a paragraph out); character grid puts East Asian characters on the character pitch (`linesAndChars`) or all text (`snapToChars`), Latin text proportional; View › Gridlines draws it. Not yet: run-level `w:snapToGrid`, grid in headers/footers, paragraph spacing in grid lines, Word's exact glyph placement in a cell | 1–2 |
++| Document grid (`w:docGrid`, lines per page, characters per line) | 🟡 | #391: line grid snaps line heights to whole pitches (text centred in them; `w:snapToGrid` off opts a paragraph out); character grid puts East Asian characters on the character pitch (`linesAndChars`) or all text (`snapToChars`), Latin text proportional; line-relative paragraph spacing is resolved against the grid; View › Gridlines draws it. Not yet: run-level `w:snapToGrid`, grid in headers/footers, Word's exact glyph placement in a cell | 1–2 |
+ | Ruby / phonetic guide, enclose characters, combined characters | 🟡 | ruby (Phonetic Guide) landed (#288): ruby text over its base by alignment, line grows to fit, in PDF; enclose and combined characters missing; ruby not yet compared with Word page by page | 2–4 |
+ | Bidirectional paragraphs, mixed-direction lines; RTL tables and sections | 🟡 | #207; RTL tables (#362): grid columns from the right edge, start alignment and indent from the right margin, cell margins and left/right borders mirrored, merged and turned cells and nested tables included; RTL sections (#362): newspaper columns right to left with the line between mirrored. Right-hand page gutter (`w:rtlGutter`) missing | 1 |
+ | Equations: display layout, numbering, wrapping long display equations | ✅ | #191; long display equations break at top-level operators (`m:brkBin`, `m:brkBinSub`), manual breaks and `m:alnAt`, continuation lines indented by `m:wrapIndent` or set right (`m:wrapRight`) (#326) | — |
 diff --git a/docs/ui-parity.md b/docs/ui-parity.md
 index 843b087..43bbe51 100644
 --- a/docs/ui-parity.md
@@ -11716,116 +12108,3 @@ index 0000000..7066ea4
 +        assert!(anchor_rect(100.0, 250.0, viewport).is_none());
 +    }
 +}
-diff --git a/crates/ui-egui/src/table_mouse.rs b/crates/ui-egui/src/table_mouse.rs
-index f98c08f..bde9247 100644
---- a/crates/ui-egui/src/table_mouse.rs
-+++ b/crates/ui-egui/src/table_mouse.rs
-@@ -9,6 +9,7 @@
- use egui::{Color32, Pos2, Rect, Shape, Stroke, Ui, vec2};
- use serde_json::json;
- use wordcraft_engine::cmd::table_mouse::{self, Spot, Target};
-+use wordcraft_engine::cmd::table_resize::REACH;
- use wordcraft_layout::DocLayout;
- 
- use crate::WordApp;
-@@ -37,7 +38,12 @@ fn available(app: &WordApp) -> bool {
- fn target_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: Pos2) -> Option<(usize, f32, f32, f32, Target)> {
-     let (page, x, y) = crate::canvas::page_at(rects, layout, scale, p)?;
-     let reach = REACH_PX / page_scale(rects, layout, scale, page)?;
--    let t = table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, reach)?;
-+    // At low zoom, the screen-pixel resize reach can extend over the row selection bar. If the
-+    // normal hit-test is blocked by that reach, retry with Word's actual border reach so the
-+    // selection area remains usable while the border itself still belongs to resizing.
-+    let t = table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, reach).or_else(|| {
-+        (reach > REACH).then(|| table_mouse::target_at(layout, &app.session.doc, app.session.sel.focus.story, page, x, y, REACH)).flatten()
-+    })?;
-     Some((page, x, y, reach, t))
- }
- 
-@@ -87,7 +93,8 @@ pub fn pointer(app: &mut WordApp, ui: &Ui, resp: &egui::Response, rects: &[Rect]
-         }
-         return true;
-     }
--    if !available(app) || !(ui.input(|i| i.pointer.primary_pressed()) && resp.contains_pointer()) {
-+    let pointer_on_page = latest.is_some_and(|p| rects.iter().any(|r| r.contains(p)));
-+    if !available(app) || !(ui.input(|i| i.pointer.primary_pressed()) && pointer_on_page) {
-         return false;
-     }
-     let Some(p) = latest else { return false };
-@@ -171,7 +178,11 @@ pub fn paint(app: &WordApp, painter: &egui::Painter, t: &Tokens, layout: &DocLay
-             move_handle(painter, Rect::from_two_pos(a, b), t);
-         }
-     }
--    let Some(target) = table_mouse::target_at(layout, doc, story, page, x, y, reach) else { return };
-+    let Some(target) = table_mouse::target_at(layout, doc, story, page, x, y, reach).or_else(|| {
-+        (reach > wordcraft_engine::cmd::table_resize::REACH)
-+            .then(|| table_mouse::target_at(layout, doc, story, page, x, y, wordcraft_engine::cmd::table_resize::REACH))
-+            .flatten()
-+    }) else { return };
-     match table_mouse::insert_mark(&target) {
-         Some(m) => {
-             if let (Some(c), Some(a), Some(b)) = (s(m.center.0, m.center.1), s(m.from.0, m.from.1), s(m.to.0, m.to.1)) {
-diff --git a/crates/ui-egui/src/table_resize.rs b/crates/ui-egui/src/table_resize.rs
-index 33cfd26..fb36035 100644
---- a/crates/ui-egui/src/table_resize.rs
-+++ b/crates/ui-egui/src/table_resize.rs
-@@ -8,6 +8,7 @@
- 
- use egui::{Pos2, Rect, Stroke, Ui, pos2};
- use serde_json::json;
-+use wordcraft_engine::cmd::table_mouse::{self, Spot};
- use wordcraft_engine::cmd::table_resize::{self, Edge, Plan, ResizeTarget, Share};
- use wordcraft_layout::DocLayout;
- 
-@@ -107,6 +108,26 @@ fn target_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: P
-     Some((page, x, y, t))
- }
- 
-+/// At a zoomed-out view, the four screen-pixel resize reach can cover much of the row
-+/// selection bar in page points. Keep the row-selection area ahead of resize hit-testing,
-+/// while leaving the actual border (the engine's normal three-point reach) to resizing.
-+fn row_selection_area_at(app: &WordApp, layout: &DocLayout, rects: &[Rect], scale: f32, p: Pos2) -> bool {
-+    let Some((page, x, y)) = crate::canvas::page_at(rects, layout, scale, p) else { return false };
-+    matches!(
-+        table_mouse::target_at(
-+            layout,
-+            &app.session.doc,
-+            app.session.sel.focus.story,
-+            page,
-+            x,
-+            y,
-+            3.0,
-+        )
-+        .map(|target| target.spot),
-+        Some(Spot::Row(_))
-+    )
-+}
-+
- /// Mouse input: a press on a border starts a drag (in the selected cells' rows only, when it's a
- /// border of theirs), moving updates it, releasing applies it with the keys held then (Ctrl: the
- /// columns right of the border share the change). `false` (nothing done) when the pointer isn't
-@@ -154,6 +175,9 @@ pub fn pointer(app: &mut WordApp, ui: &Ui, resp: &egui::Response, rects: &[Rect]
-         return false;
-     }
-     let Some(p) = latest else { return false };
-+    if row_selection_area_at(app, layout, rects, scale, p) {
-+        return false;
-+    }
-     let Some((page, x, y, mut target)) = target_at(app, layout, rects, scale, p) else { return false };
-     target.limit_to_selection(&app.session, y);
-     app.canvas.table_resize = Some(ResizeDrag { page, from: (x, y), to: (x, y), target, ruler: false });
-@@ -208,7 +232,13 @@ pub fn cursor(app: &WordApp, ui: &Ui, resp: &egui::Response, layout: &DocLayout,
-     let edge = match &app.canvas.table_resize {
-         Some(d) => Some(d.target.edge),
-         None if resp.hovered() && available(app) => {
--            ui.input(|i| i.pointer.latest_pos()).and_then(|p| target_at(app, layout, rects, scale, p)).map(|(_, _, _, t)| t.edge)
-+            ui.input(|i| i.pointer.latest_pos()).and_then(|p| {
-+                if row_selection_area_at(app, layout, rects, scale, p) {
-+                    None
-+                } else {
-+                    target_at(app, layout, rects, scale, p).map(|(_, _, _, t)| t.edge)
-+                }
-+            })
-         }
-         None => None,
-     };

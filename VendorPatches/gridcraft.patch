@@ -1149,6 +1149,52 @@ index 922baab..b1f7643 100644
              let after = app.session.active().map(|d| (d.path.clone(), d.is_dirty()));
              if after != before || app.services.pick_save.is_none() {
                  out.close = true;
+diff --git a/crates/ui-egui/src/border_preview.rs b/crates/ui-egui/src/border_preview.rs
+index 11ff351..4dc70ef 100644
+--- a/crates/ui-egui/src/border_preview.rs
++++ b/crates/ui-egui/src/border_preview.rs
+@@ -9,17 +9,21 @@ use crate::theme::{self, Tokens};
+ /// A labelled menu button with a two-by-two diagram to distinguish inside edges
+ /// from the selection outline. Labels stay available to accessibility tools.
+ pub(crate) fn preset_button(ui: &mut Ui, label: &str, preset: &str) -> Response {
+-    let response = ui.add(egui::Button::new("").frame(false).min_size(vec2(254.0, 26.0)));
+-    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), label));
++    let display_label = crate::i18n::current(ui.ctx()).tr(label);
++    let response = ui.add(egui::Button::new("").frame(false).min_size(vec2(300.0, 30.0)));
++    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), display_label));
+     let t = Tokens::get(ui.ctx());
+-    let rect = Rect::from_center_size(pos2(response.rect.left() + 16.0, response.rect.center().y), vec2(20.0, 16.0));
++    // WPS keeps a light dotted selection grid visible in every preview and draws the chosen
++    // border in a darker stroke.  The larger 24×22 cell gives Chinese labels the same visual
++    // weight as the reference menu at both 100% and Retina scale.
++    let rect = Rect::from_center_size(pos2(response.rect.left() + 22.0, response.rect.center().y), vec2(24.0, 22.0));
+     let edges = [
+         [rect.left_top(), rect.right_top()],
+         [rect.left_bottom(), rect.right_bottom()],
+         [rect.left_top(), rect.left_bottom()],
+         [rect.right_top(), rect.right_bottom()],
+-        [rect.left_center(), rect.right_center()],
+-        [rect.center_top(), rect.center_bottom()],
++        [pos2(rect.left(), rect.center().y), pos2(rect.right(), rect.center().y)],
++        [pos2(rect.center().x, rect.top()), pos2(rect.center().x, rect.bottom())],
+     ];
+     use BorderStyle::{Double, None, Thick, Thin};
+     let styles = match preset {
+@@ -40,12 +44,12 @@ pub(crate) fn preset_button(ui: &mut Ui, label: &str, preset: &str) -> Response
+     };
+     for (points, style) in edges.into_iter().zip(styles) {
+         if style == None {
+-            ui.painter().extend(egui::Shape::dotted_line(&points, t.text_disabled, 3.0, 0.45));
++            ui.painter().extend(egui::Shape::dotted_line(&points, t.text_disabled, 3.5, 0.55));
+         } else {
+             paint_border(ui.painter(), points, style, t.text);
+         }
+     }
+-    ui.painter().text(pos2(response.rect.left() + 36.0, response.rect.center().y), Align2::LEFT_CENTER, label, theme::ui_font(12.5), t.text);
++    ui.painter().text(pos2(response.rect.left() + 48.0, response.rect.center().y), Align2::LEFT_CENTER, display_label, theme::ui_font(13.0), t.text);
+     response
+ }
+ 
 diff --git a/crates/ui-egui/src/chartview.rs b/crates/ui-egui/src/chartview.rs
 index 180f15c..cb6939a 100644
 --- a/crates/ui-egui/src/chartview.rs
@@ -1465,7 +1511,7 @@ index 97b787e..a723e62 100644
      fn wrapped_cell_text_y_positions_correctly_and_safeguards_overflow() {
          let rect = Rect::from_min_max(pos2(0.0, 0.0), pos2(100.0, 40.0));
 diff --git a/crates/ui-egui/src/i18n.rs b/crates/ui-egui/src/i18n.rs
-index 061698d..93d79bd 100644
+index 061698d..553ee27 100644
 --- a/crates/ui-egui/src/i18n.rs
 +++ b/crates/ui-egui/src/i18n.rs
 @@ -18,6 +18,7 @@ mod pt;
@@ -1621,15 +1667,17 @@ index 061698d..93d79bd 100644
  #[cfg(test)]
  mod tests {
      use super::*;
-@@ -614,6 +695,7 @@ mod tests {
+@@ -614,6 +695,9 @@ mod tests {
          }
          assert_eq!(Language::Ja.tr("Data"), "データ");
          assert_eq!(Language::Zh.tr("Data"), "数据");
++        assert_eq!(Language::Zh.tr("Bottom Border"), "下框线(O)");
++        assert_eq!(Language::Zh.tr("Inside Vertical Borders"), "内部竖框线(V)");
 +        assert_eq!(Language::ZhHant.tr("Data"), "資料");
          assert_eq!(Language::Ko.tr("Data"), "데이터");
          assert_eq!(Language::Ru.tr("Data"), "Данные");
          assert_eq!(Language::PtBr.tr("Data"), "Dados");
-@@ -637,6 +719,7 @@ mod tests {
+@@ -637,6 +721,7 @@ mod tests {
          // A `context|label` key shows only its label in English and splits the translation.
          assert_eq!(Language::En.tr("Page Layout|Orientation"), "Orientation");
          assert_eq!(Language::Ja.tr("Page Layout|Orientation"), "印刷の向き");
@@ -1637,7 +1685,7 @@ index 061698d..93d79bd 100644
          assert_eq!(Language::Ja.tr("Orientation"), "方向");
          assert_eq!(Language::Cs.tr("Page Layout|Orientation"), "Orientace");
          assert_eq!(Language::Cs.tr("Orientation"), "Orientace textu");
-@@ -668,6 +751,8 @@ mod tests {
+@@ -668,6 +753,8 @@ mod tests {
          assert_eq!(Language::from_tag("en_US"), Some(Language::En));
          assert_eq!(Language::from_tag("es_MX"), Some(Language::Es));
          assert_eq!(Language::from_tag("zh-Hans-CN"), Some(Language::Zh));
@@ -1646,7 +1694,7 @@ index 061698d..93d79bd 100644
          assert_eq!(Language::from_tag("ko-KR"), Some(Language::Ko));
          assert_eq!(Language::from_tag("RU_ru"), Some(Language::Ru));
          assert_eq!(Language::from_tag("de-DE"), Some(Language::De));
-@@ -694,6 +779,7 @@ mod tests {
+@@ -694,6 +781,7 @@ mod tests {
          let restored: crate::UiState = serde_json::from_str("{}").unwrap();
          assert_eq!(restored.language, Language::En);
          assert_eq!(saved_language(&serde_json::json!({"language": "zh"})), Some(Language::Zh));
@@ -1667,7 +1715,7 @@ index fb9236c..ee707bf 100644
          "(unnamed)" => "(sem nome)",
          "— VBA project (preserved, not run)" => "— Projeto VBA (preservado, não executado)",
 diff --git a/crates/ui-egui/src/i18n/zh.rs b/crates/ui-egui/src/i18n/zh.rs
-index 0017592..e238867 100644
+index 0017592..dc7b18c 100644
 --- a/crates/ui-egui/src/i18n/zh.rs
 +++ b/crates/ui-egui/src/i18n/zh.rs
 @@ -2,6 +2,9 @@
@@ -1680,7 +1728,7 @@ index 0017592..e238867 100644
          "Paste" => "粘贴",
          "Paste Values" => "粘贴值",
          "Paste Formulas" => "粘贴公式",
-@@ -27,7 +30,10 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+@@ -27,11 +30,31 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "Wrap Text" => "自动换行",
          "Merge & Center" => "合并后居中",
          "Merge Cells" => "合并单元格",
@@ -1692,7 +1740,28 @@ index 0017592..e238867 100644
          "Unmerge Cells" => "取消合并单元格",
          "Fill Color" => "填充颜色",
          "Font Color" => "字体颜色",
-@@ -230,6 +236,60 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+         "Borders" => "边框",
++        "Bottom Border" => "下框线(O)",
++        "Top Border" => "上框线(P)",
++        "Left Border" => "左框线(L)",
++        "Right Border" => "右框线(R)",
++        "No Border" => "无框线(N)",
++        "All Borders" => "所有框线(A)",
++        "Outside Borders" => "外侧框线(S)",
++        "Thick Outside Borders" => "粗匣框线(T)",
++        "Bottom Double Border" => "下双框线",
++        "Thick Bottom Border" => "粗下框线",
++        "Top and Bottom Border" => "上下框线",
++        "Top and Thick Bottom Border" => "上框线和粗下框线",
++        "Top and Double Bottom Border" => "上框线和下双框线",
++        "Inside Borders" => "内部框线(I)",
++        "Inside Horizontal Borders" => "内部横框线(H)",
++        "Inside Vertical Borders" => "内部竖框线(V)",
++        "More Borders…" => "其他边框(M)…",
+         "Top\nAlign" => "顶端对齐",
+         "Middle\nAlign" => "垂直居中",
+         "Bottom\nAlign" => "底端对齐",
+@@ -230,6 +253,60 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "About\nGridCraft" => "关于\nGridCraft",
          "Share" => "分享",
          "Add Chart\nElement" => "添加图表\n元素",
@@ -1753,7 +1822,7 @@ index 0017592..e238867 100644
          "Change\nChart Type" => "更改\n图表类型",
          "Switch\nRow/Column" => "切换\n行/列",
          "Select\nData" => "选择\n数据",
-@@ -339,6 +399,10 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+@@ -339,6 +416,10 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "Info" => "信息",
          "Save" => "保存",
          "Save As" => "另存为",
@@ -1764,7 +1833,7 @@ index 0017592..e238867 100644
          "Export" => "导出",
          "Close" => "关闭",
          "Options" => "选项",
-@@ -373,6 +437,8 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+@@ -373,6 +454,8 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "No workbook is open." => "没有打开的工作簿。",
          "Save as type" => "保存类型",
          "Excel Workbook (*.xlsx)" => "Excel 工作簿 (*.xlsx)",
@@ -1773,7 +1842,7 @@ index 0017592..e238867 100644
          "CSV UTF-8 (Comma delimited) (*.csv)" => "CSV UTF-8(逗号分隔) (*.csv)",
          "Web Page (*.html)" => "网页 (*.html)",
          "PDF (*.pdf)" => "PDF 文件 (*.pdf)",
-@@ -402,6 +468,66 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
+@@ -402,6 +485,66 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
          "Workbook calculation" => "工作簿计算",
          "Enable iterative calculation" => "启用迭代计算",
          "Calculation settings are saved with the workbook." => "计算设置随工作簿一起保存。",
@@ -2413,10 +2482,62 @@ index aaa9bec..367061a 100644
          let draft = egui::Id::new(("gridcraft.chart_size_draft", id));
          let (mut w, mut h) = ui.data_mut(|d| d.get_temp::<(f32, f32)>(draft)).unwrap_or((chart.anchor.width, chart.anchor.height));
 diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
-index 9c6d89e..9578d5a 100644
+index 9c6d89e..d0e9b61 100644
 --- a/crates/ui-egui/src/ribbon.rs
 +++ b/crates/ui-egui/src/ribbon.rs
-@@ -774,8 +774,12 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
+@@ -635,21 +635,34 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
+             }
+             ba.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), "Border presets"));
+             egui::Popup::menu(&ba).show(|ui| {
++                let lang = app.ui.language;
++                ui.label(egui::RichText::new(lang.tr("Borders")).font(theme::ui_bold(13.0)).color(Tokens::get(ui.ctx()).text_dim));
++                ui.add_space(2.0);
++                for (label, preset) in
++                    [("No Border", "none"), ("All Borders", "all"), ("Outside Borders", "outside"), ("Thick Outside Borders", "thickOutside")]
++                {
++                    if crate::border_preview::preset_button(ui, label, preset).clicked() {
++                        app.grid.last_border = preset.to_string();
++                        act(app, "home.borders", json!({"preset": preset}));
++                    }
++                }
++                ui.separator();
++                for (label, preset) in [("Bottom Border", "bottom"), ("Top Border", "top"), ("Left Border", "left"), ("Right Border", "right")] {
++                    if crate::border_preview::preset_button(ui, label, preset).clicked() {
++                        app.grid.last_border = preset.to_string();
++                        act(app, "home.borders", json!({"preset": preset}));
++                    }
++                }
++                ui.separator();
+                 for (label, preset) in [
+-                    ("Bottom Border", "bottom"),
+-                    ("Top Border", "top"),
+-                    ("Left Border", "left"),
+-                    ("Right Border", "right"),
+-                    ("No Border", "none"),
+-                    ("All Borders", "all"),
+-                    ("Outside Borders", "outside"),
+-                    ("Thick Outside Borders", "thickOutside"),
+                     ("Bottom Double Border", "doubleBottom"),
+                     ("Thick Bottom Border", "thickBottom"),
+                     ("Top and Bottom Border", "topBottom"),
+                     ("Top and Thick Bottom Border", "topThickBottom"),
+                     ("Top and Double Bottom Border", "topDoubleBottom"),
+                     ("Inside Borders", "inside"),
++                    ("Inside Horizontal Borders", "insideHorizontal"),
++                    ("Inside Vertical Borders", "insideVertical"),
+                 ] {
+                     if crate::border_preview::preset_button(ui, label, preset).clicked() {
+                         app.grid.last_border = preset.to_string();
+@@ -657,7 +670,7 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
+                     }
+                 }
+                 ui.separator();
+-                if ui.button("More Borders…").clicked() {
++                if ui.add(egui::Button::new(lang.tr("More Borders…")).frame(false).min_size(vec2(300.0, 30.0))).clicked() {
+                     app.open_dialog("formatCells", json!({"tab": "Border"}));
+                 }
+             });
+@@ -774,8 +787,12 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
                      ui,
                      &[
                          ("Merge & Center", "home.mergeCenter", json!({})),
@@ -2430,7 +2551,7 @@ index 9c6d89e..9578d5a 100644
                          ("Unmerge Cells", "home.unmergeCells", json!({})),
                      ],
                  );
-@@ -1063,12 +1067,16 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
+@@ -1063,12 +1080,16 @@ fn home(app: &mut SheetApp, ui: &mut Ui) {
  
  fn font_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
      let name = st.font.name.clone();
@@ -2451,7 +2572,7 @@ index 9c6d89e..9578d5a 100644
      }
  }
  
-@@ -1090,12 +1098,17 @@ pub const FONTS: &[&str] = &[
+@@ -1090,12 +1111,17 @@ pub const FONTS: &[&str] = &[
      "Times New Roman",
      "Trebuchet MS",
      "Verdana",
@@ -2470,7 +2591,7 @@ index 9c6d89e..9578d5a 100644
      control_keytip(app, ui, &resp, "home.fontSize");
      let forced = invoke(app, "home.fontSize");
      let sizes = [8.0, 9.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 36.0, 48.0, 72.0];
-@@ -1114,6 +1127,20 @@ fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+@@ -1114,6 +1140,20 @@ fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
      }
  }
  
@@ -2491,7 +2612,7 @@ index 9c6d89e..9578d5a 100644
  fn number_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
      let code = st.num_fmt.as_str().to_string();
      let kind = gridcraft_engine::display::number_format(&code).kind();
-@@ -1419,7 +1446,7 @@ fn insert(app: &mut SheetApp, ui: &mut Ui) {
+@@ -1419,7 +1459,7 @@ fn insert(app: &mut SheetApp, ui: &mut Ui) {
                  if resp.hovered() {
                      ui.painter().rect_filled(r, 4.0, Tokens::get(ui.ctx()).hover);
                  }
@@ -2500,7 +2621,7 @@ index 9c6d89e..9578d5a 100644
                  if resp.on_hover_text(*name).clicked() {
                      act(app, "insert.icons", json!({"name": name}));
                      ui.close();
-@@ -1590,6 +1617,11 @@ fn draw(app: &mut SheetApp, ui: &mut Ui) {
+@@ -1590,6 +1630,11 @@ fn draw(app: &mut SheetApp, ui: &mut Ui) {
      for (label, color) in [("Pen\nBlue", "#1F5FC9"), ("Pen\nBlack", "#000000"), ("Pen\nRed", "#D13B2F"), ("Highlighter", "#F2E33A")] {
          let on = tool == "pen" && app.session.draw_color.eq_ignore_ascii_case(color);
          let r = big_button(ui, Icon::Pen, label, "Draw with ink", false);
@@ -2513,20 +2634,22 @@ index 9c6d89e..9578d5a 100644
              ui.painter().rect_stroke(r.rect, 5.0, Stroke::new(2.0, Tokens::get(ui.ctx()).accent), StrokeKind::Inside);
          }
 diff --git a/crates/ui-egui/src/tabs.rs b/crates/ui-egui/src/tabs.rs
-index b77524b..42f8f19 100644
+index b77524b..610f3bd 100644
 --- a/crates/ui-egui/src/tabs.rs
 +++ b/crates/ui-egui/src/tabs.rs
-@@ -10,6 +10,9 @@ use crate::SheetApp;
+@@ -10,6 +10,11 @@ use crate::SheetApp;
  use crate::icons::{self, Icon};
  use crate::theme::{self, Tokens};
  
 +const SHEET_TABS_MIN_WIDTH: f32 = 100.0;
-+const SHEET_BAR_END_WIDTH: f32 = 190.0;
++// Reserve room for the add-sheet control and a WPS-like worksheet scrollbar that stays usable
++// even when the tab strip contains many sheets.
++const SHEET_BAR_END_WIDTH: f32 = 256.0;
 +
  /// The rename field asks for focus only while it has not got it yet. Asking again on the frame it lost focus (Enter or a click elsewhere)
  /// would keep the field focused after it is closed, so the keyboard stayed stuck in the sheet name.
  fn rename_needs_focus(has_focus: bool, lost_focus: bool) -> bool {
-@@ -68,9 +71,12 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
+@@ -68,9 +73,12 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
                      .filter(|(_, s)| s.visibility == Visibility::Visible)
                      .map(|(i, s)| (i, s.name.clone(), s.tab_color.and_then(|c| c.resolve(&d.wb.theme)), i == d.wb.active_sheet))
                      .collect();
@@ -2542,7 +2665,7 @@ index b77524b..42f8f19 100644
              // Reveal the selected sheet after navigation or layout changes, but
              // allow browsing other tabs without snapping back on every frame.
              let reveal_key = egui::Id::new((d.uid, d.wb.active_sheet, &sheets, tabs_width.to_bits()));
-@@ -212,7 +218,9 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
+@@ -212,7 +220,9 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
                      });
              });
              ui.add_space(6.0);
@@ -2648,6 +2771,23 @@ index e24105b..c98d420 100644
      }
      icons::paint(ui.painter(), Rect::from_center_size(arrow.center(), vec2(10.0, 10.0)), Icon::Chevron, t.text_dim);
      (m.on_hover_text(tr(ui, tip)).clicked(), a)
+diff --git a/crates/ui-egui/tests/cell_pictures.rs b/crates/ui-egui/tests/cell_pictures.rs
+index c35bdf0..a8080d8 100644
+--- a/crates/ui-egui/tests/cell_pictures.rs
++++ b/crates/ui-egui/tests/cell_pictures.rs
+@@ -54,7 +54,11 @@ fn image_meshes(h: &egui_kittest::Harness<'static, SheetApp>) -> Vec<(Rect, Rect
+                 for vertex in &mesh.vertices {
+                     bounds.extend_with(vertex.pos);
+                 }
+-                Some((bounds, shape.clip_rect))
++                // egui emits managed texture meshes for toolbar glyphs and icons as well. The
++                // synthetic picture in this test is a visible 2:1 raster, so exclude those
++                // small chrome quads instead of counting every texture-backed shape as a cell
++                // picture.
++                (bounds.width() > 50.0 && bounds.height() > 30.0).then_some((bounds, shape.clip_rect))
+             }
+             _ => None,
+         })
 diff --git a/crates/ui-egui/tests/file_menu.rs b/crates/ui-egui/tests/file_menu.rs
 index 691eef3..3af0cdb 100644
 --- a/crates/ui-egui/tests/file_menu.rs
@@ -6147,10 +6287,10 @@ index 0000000..b82a983
 \ No newline at end of file
 diff --git a/crates/ui-egui/src/i18n/zh_hant.rs b/crates/ui-egui/src/i18n/zh_hant.rs
 new file mode 100644
-index 0000000..ea31153
+index 0000000..1d12a68
 --- /dev/null
 +++ b/crates/ui-egui/src/i18n/zh_hant.rs
-@@ -0,0 +1,110 @@
+@@ -0,0 +1,113 @@
 +//! Traditional Chinese uses the complete Simplified Chinese catalog as its source and applies
 +//! the corresponding script and common UI vocabulary at the display boundary. Keeping one source
 +//! catalog prevents the four Excel surfaces from drifting apart while still honoring zh-Hant,
@@ -6195,6 +6335,7 @@ index 0000000..ea31153
 +        ("颜色", "顏色"),
 +        ("标题", "標題"),
 +        ("标签", "標籤"),
++        ("边", "邊"),
 +        ("内容", "內容"),
 +        ("设置", "設定"),
 +        ("字体", "字體"),
@@ -6210,6 +6351,8 @@ index 0000000..ea31153
 +        ("播放", "播放"),
 +        ("隐藏", "隱藏"),
 +        ("自动", "自動"),
++        ("内", "內"),
++        ("双", "雙"),
 +        ("完成", "完成"),
 +        ("逗号", "逗號"),
 +        ("网页", "網頁"),
@@ -7364,35 +7507,3 @@ index 0000000..29c8528
 +        assert!(sheet.rows.contains_key(&0));
 +    }
 +}
-diff --git a/crates/ui-egui/src/tabs.rs b/crates/ui-egui/src/tabs.rs
-index 42f8f19..610f3bd 100644
---- a/crates/ui-egui/src/tabs.rs
-+++ b/crates/ui-egui/src/tabs.rs
-@@ -11,7 +11,9 @@ use crate::icons::{self, Icon};
- use crate::theme::{self, Tokens};
- 
- const SHEET_TABS_MIN_WIDTH: f32 = 100.0;
--const SHEET_BAR_END_WIDTH: f32 = 190.0;
-+// Reserve room for the add-sheet control and a WPS-like worksheet scrollbar that stays usable
-+// even when the tab strip contains many sheets.
-+const SHEET_BAR_END_WIDTH: f32 = 256.0;
- 
- /// The rename field asks for focus only while it has not got it yet. Asking again on the frame it lost focus (Enter or a click elsewhere)
- /// would keep the field focused after it is closed, so the keyboard stayed stuck in the sheet name.
-diff --git a/crates/ui-egui/tests/cell_pictures.rs b/crates/ui-egui/tests/cell_pictures.rs
-index c35bdf0..a8080d8 100644
---- a/crates/ui-egui/tests/cell_pictures.rs
-+++ b/crates/ui-egui/tests/cell_pictures.rs
-@@ -54,7 +54,11 @@ fn image_meshes(h: &egui_kittest::Harness<'static, SheetApp>) -> Vec<(Rect, Rect
-                 for vertex in &mesh.vertices {
-                     bounds.extend_with(vertex.pos);
-                 }
--                Some((bounds, shape.clip_rect))
-+                // egui emits managed texture meshes for toolbar glyphs and icons as well. The
-+                // synthetic picture in this test is a visible 2:1 raster, so exclude those
-+                // small chrome quads instead of counting every texture-backed shape as a cell
-+                // picture.
-+                (bounds.width() > 50.0 && bounds.height() > 30.0).then_some((bounds, shape.clip_rect))
-             }
-             _ => None,
-         })
