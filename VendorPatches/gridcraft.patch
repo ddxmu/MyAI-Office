@@ -45,7 +45,7 @@ index 678495f..fff8dbb 100644
    <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
    <a href="https://getartcraft.com/apps/gridcraft">GridCraft</a>
 diff --git a/ROADMAP.md b/ROADMAP.md
-index 070552d..8a2f430 100644
+index 070552d..5a9abb7 100644
 --- a/ROADMAP.md
 +++ b/ROADMAP.md
 @@ -2,7 +2,7 @@
@@ -57,18 +57,20 @@ index 070552d..8a2f430 100644
  
  GridCraft aims at full Microsoft Excel parity, and at being better in places: faster, open (XLSX
  is the native format), fully scriptable by agents (MCP, control channel, CLI), and on the web.
-@@ -132,6 +132,7 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
+@@ -132,6 +132,8 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
  
  | Date | What landed |
  |---|---|
++| 2026-10-16 | MyAI Office 0.7.1: persisted-language startup starts font discovery, including large macOS CJK collections and private suite fonts; Chinese aliases and typed picker choices bind actual workbook faces. |
 +| 2026-10-16 | MyAI Office 0.6.1: legacy XLS formatting import and XLSX round-trip regressions; private workbook remains outside source/release. |
  | 2026-10-12 | Rows auto-fit oversized fonts: opening a file and whole-row/column formatting grow non-custom rows to their tallest font (#833) |
  | 2026-10-12 | Number formats: parsing a format code is linear in its length (long runs of `[`, `,` or `/` no longer take quadratic time), and an unclosed `[` is a literal when splitting sections as well as when tokenizing (#810) |
  | 2026-10-12 | Number formats: a fraction denominator with 65,536 zeros no longer crashes; format codes are capped at 255 characters like Excel (longer codes display as General, `TEXT` gives `#VALUE!`) (#807) |
-@@ -193,6 +194,7 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
+@@ -193,6 +195,8 @@ Ranked; estimates in Opus 5.5 agent-hours. Detail and the full beta-gate list in
  
  | Date | Change | Summary |
  |---|---|---|
++| 2026-10-16 | patch | MyAI Office 0.7.1: selected Chinese fonts render through installed/private faces after language-specific startup; picker, catalog and XLSX reopen regressions. |
 +| 2026-10-16 | patch | MyAI Office 0.6.1: legacy XLS formatting import and XLSX round-trip regressions; private workbook remains outside source/release. |
  | 2026-10-12 | minor | Rows auto-fit oversized fonts on open and whole-row/column formatting (#833); progress log row |
  | 2026-10-12 | minor | Progress log: multi-area row/column delete (#758) |
@@ -276,6 +278,160 @@ index fb899c7..418763b 100644
          }
      }
  }
+diff --git a/crates/ui-egui/src/fonts.rs b/crates/ui-egui/src/fonts.rs
+index d5a8ea1..c99e608 100644
+--- a/crates/ui-egui/src/fonts.rs
++++ b/crates/ui-egui/src/fonts.rs
+@@ -15,9 +15,10 @@ use std::path::PathBuf;
+ use std::sync::OnceLock;
+ 
+ /// A font file is skipped by the scan past this size: a catalog only needs each face's name, and a
+-/// damaged or enormous file must not turn startup into a long read.
++/// damaged or enormous file must not turn startup into a long read. Apple's Kaiti collection
++/// exceeds 100 MiB, so the bound must allow legitimate large CJK collections.
+ #[cfg(not(target_arch = "wasm32"))]
+-const MAX_FONT_FILE: u64 = 64 << 20;
++const MAX_FONT_FILE: u64 = 128 << 20;
+ 
+ /// One face of one installed font file.
+ #[derive(Clone, Debug)]
+@@ -43,9 +44,24 @@ pub fn system_font_dirs() -> Vec<PathBuf> {
+     #[cfg(not(target_arch = "wasm32"))]
+     {
+         let mut dirs: Vec<PathBuf> = Vec::new();
++        if let Ok(executable) = std::env::current_exe() {
++            for directory in executable.ancestors().filter(|p| p.file_name().is_some_and(|n| n == "Contents")) {
++                let fonts = directory.join("Resources/Fonts");
++                if fonts.is_dir() {
++                    dirs.push(fonts);
++                }
++            }
++        }
+         let home = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE")).map(PathBuf::from);
+         if cfg!(target_os = "macos") {
+             dirs.extend(["/System/Library/Fonts", "/System/Library/Fonts/Supplemental", "/Library/Fonts"].map(Into::into));
++            // Modern macOS keeps optional fonts such as PingFang and Kaiti in font assets.
++            for parent in ["/System/Library/AssetsV2", "/System/Library/AssetsV2/PreinstalledAssetsV2/InstallWithOs", "/System/Library/Assets"] {
++                let Ok(entries) = std::fs::read_dir(parent) else { continue };
++                dirs.extend(
++                    entries.flatten().filter(|e| e.file_name().to_string_lossy().starts_with("com_apple_MobileAsset_Font")).map(|e| e.path()),
++                );
++            }
+             if let Some(h) = &home {
+                 dirs.push(h.join("Library/Fonts"));
+             }
+@@ -191,11 +207,37 @@ pub fn scan_done() -> bool {
+ /// The faces of one installed family, regular-weight first (the order roles pick from).
+ pub fn faces_of(family: &str) -> Vec<Face> {
+     let Some(cat) = catalog_now() else { return Vec::new() };
+-    let mut v: Vec<Face> = cat.iter().filter(|f| f.family.eq_ignore_ascii_case(family)).cloned().collect();
++    faces_from(family, cat)
++}
++
++fn faces_from(family: &str, cat: &[Face]) -> Vec<Face> {
++    let direct = cat.iter().find(|f| f.family.eq_ignore_ascii_case(family));
++    let selected = direct.or_else(|| chinese_substitutes(family).iter().find_map(|name| cat.iter().find(|f| f.family.eq_ignore_ascii_case(name))));
++    let Some(selected) = selected else { return Vec::new() };
++    let mut v: Vec<Face> = cat.iter().filter(|f| f.family.eq_ignore_ascii_case(&selected.family)).cloned().collect();
+     v.sort_by(|a, b| a.weight.total_cmp(&b.weight).then(a.italic.cmp(&b.italic)).then(a.index.cmp(&b.index)));
+     v
+ }
+ 
++fn chinese_substitutes(family: &str) -> &'static [&'static str] {
++    match family.trim().to_ascii_lowercase().as_str() {
++        "宋体" | "新宋体" | "simsun" | "nsimsun" | "songti sc" | "stsong" => &["SimSun", "Songti SC", "STSong", "Noto Serif CJK SC"],
++        "仿宋" | "仿宋_gb2312" | "fangsong" | "fangsong_gb2312" | "stfangsong" | "华文仿宋" => {
++            &["FangSong", "STFangsong", "Zhuque Fangsong (technical preview)", "Zhuque Fangsong", "Songti SC", "Noto Serif CJK SC"]
++        }
++        "黑体" | "simhei" | "heiti sc" | "stheiti" | "华文黑体" => {
++            &["SimHei", "Heiti SC", "STHeiti", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC"]
++        }
++        "微软雅黑" | "microsoft yahei" | "microsoft yahei ui" | "yahei" => {
++            &["Microsoft YaHei", "Microsoft YaHei UI", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC"]
++        }
++        "楷体" | "楷体_gb2312" | "kaiti" | "kaiti_gb2312" | "kaiti sc" | "stkaiti" | "华文楷体" => {
++            &["KaiTi", "Kaiti SC", "STKaiti", "Songti SC", "Noto Serif CJK SC"]
++        }
++        _ => &[],
++    }
++}
++
+ /// The subset of `names` that is installed, sorted and deduped. These are the families whose files
+ /// get bound for a workbook.
+ pub fn installed_among(names: &[String]) -> Vec<String> {
+@@ -206,8 +248,9 @@ pub fn installed_among(names: &[String]) -> Vec<String> {
+         if !seen.insert(wanted.to_lowercase()) {
+             continue;
+         }
+-        if let Some(f) = cat.iter().find(|f| f.family.eq_ignore_ascii_case(wanted)) {
+-            out.push(f.family.clone());
++        if !faces_from(wanted, cat).is_empty() {
++            // Bind under the name stored in the workbook, not the substitute's family name.
++            out.push(wanted.clone());
+         }
+     }
+     out.sort_by_key(|a| a.to_lowercase());
+@@ -255,9 +298,8 @@ fn pick_face(faces: &[Face], bold: bool, italic: bool) -> Option<&Face> {
+ }
+ 
+ /// A stable key for a face's font data, unique per file/index within the process.
+-fn face_key(family: &str, face: &Face) -> String {
+-    let file = face.path.file_name().and_then(|s| s.to_str()).unwrap_or("font");
+-    format!("fnt-src:{family}:{file}:{}", face.index)
++fn face_key(face: &Face) -> String {
++    format!("fnt-src:{}:{}", face.path.display(), face.index)
+ }
+ 
+ /// Bind one installed family's faces into `fonts`, one egui family per cell role, and return the
+@@ -278,14 +320,16 @@ pub fn bind_faces(fonts: &mut egui::FontDefinitions, family: &str, faces: &[Face
+         let mut chain: Vec<String> = Vec::new();
+         for face in [Some(primary), pick_face(faces, false, false)] {
+             let Some(face) = face else { continue };
+-            let key = face_key(family, face);
++            let key = face_key(face);
+             if chain.contains(&key) {
+                 continue;
+             }
+-            let Ok(bytes) = std::fs::read(&face.path) else { continue };
+-            let mut fd = egui::FontData::from_owned(bytes);
+-            fd.index = face.index;
+-            fonts.font_data.entry(key.clone()).or_insert_with(|| std::sync::Arc::new(fd));
++            if !fonts.font_data.contains_key(&key) {
++                let Ok(bytes) = std::fs::read(&face.path) else { continue };
++                let mut fd = egui::FontData::from_owned(bytes);
++                fd.index = face.index;
++                fonts.font_data.insert(key.clone(), std::sync::Arc::new(fd));
++            }
+             chain.push(key);
+         }
+         if chain.is_empty() {
+@@ -330,6 +374,26 @@ pub(crate) static TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+ mod tests {
+     use super::*;
+ 
++    #[test]
++    fn chinese_family_aliases_resolve_to_distinct_installed_faces() {
++        let cat: Vec<Face> = ["Songti SC", "STFangsong", "Heiti SC", "PingFang SC", "Kaiti SC"]
++            .iter()
++            .map(|name| Face { family: (*name).into(), path: PathBuf::new(), index: 0, weight: 400.0, italic: false })
++            .collect();
++        for (requested, expected) in [
++            ("宋体", "Songti SC"),
++            ("仿宋", "STFangsong"),
++            ("黑体", "Heiti SC"),
++            ("微软雅黑", "PingFang SC"),
++            ("楷体", "Kaiti SC"),
++            ("FangSong_GB2312", "STFangsong"),
++        ] {
++            let faces = faces_from(requested, &cat);
++            assert_eq!(faces.first().map(|f| f.family.as_str()), Some(expected), "resolve {requested} instead of the generic cell font");
++        }
++        assert!(faces_from("Definitely Not Installed", &cat).is_empty());
++    }
++
+     #[test]
+     fn style_names_map_to_weight_and_slant() {
+         assert_eq!(style_weight("Bold"), 700.0);
 diff --git a/crates/ui-egui/src/i18n/pt.rs b/crates/ui-egui/src/i18n/pt.rs
 index fb9236c..ee707bf 100644
 --- a/crates/ui-egui/src/i18n/pt.rs
@@ -367,9 +523,23 @@ index 0017592..e466918 100644
      })
  }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index f96cdac..95a7e56 100644
+index f96cdac..f4930e0 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
+@@ -314,12 +314,12 @@ impl SheetApp {
+     ///
+     /// [`logic`]: SheetApp::logic
+     pub fn setup_context(ctx: &egui::Context, dark: bool) {
+-        fonts::start_scan();
+         Self::setup_context_for_language(ctx, dark, i18n::Language::En);
+     }
+ 
+     /// Sets up fonts and visuals for a specific persisted interface language.
+     pub fn setup_context_for_language(ctx: &egui::Context, dark: bool, language: i18n::Language) {
++        fonts::start_scan();
+         ctx.set_fonts(theme::font_definitions_for_language(language));
+         theme::apply(ctx, dark);
+     }
 @@ -798,6 +798,14 @@ impl SheetApp {
              self.notice = None;
              return;
@@ -385,11 +555,39 @@ index f96cdac..95a7e56 100644
          let vba: Vec<&str> = msgs.iter().copied().filter(|m| m.to_lowercase().contains("macro") || m.contains("VBA")).collect();
          if !vba.is_empty() {
              self.notice = Some(Notice {
+@@ -990,6 +998,10 @@ impl SheetApp {
+ 
+     /// Per-frame logic (control channel, screenshots). Call before `ui`.
+     pub fn logic(&mut self, ctx: &egui::Context) {
++        #[cfg(not(target_arch = "wasm32"))]
++        if !fonts::scan_done() {
++            ctx.request_repaint_after(std::time::Duration::from_millis(100));
++        }
+         // A keytip control request lives one frame: the ribbon consumes it during `ui`, and
+         // anything that never reached a control (collapsed ribbon, tab switch) is dropped.
+         self.ui.keytip_invoke = None;
 diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
-index 9c6d89e..0f6d426 100644
+index 9c6d89e..6bac796 100644
 --- a/crates/ui-egui/src/ribbon.rs
 +++ b/crates/ui-egui/src/ribbon.rs
-@@ -1090,6 +1090,11 @@ pub const FONTS: &[&str] = &[
+@@ -1066,9 +1066,13 @@ fn font_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+     let resp = ui.add_sized([150.0, 24.0], egui::Button::new(egui::RichText::new(&name).font(theme::ui_font(12.5))));
+     control_keytip(app, ui, &resp, "home.fontName");
+     let forced = invoke(app, "home.fontName");
+-    let items: Vec<(&str, String)> = FONTS.iter().map(|f| (*f, f.to_string())).collect();
+-    if let ComboResult::Picked(value) = editable_combo(ui, &resp, "font", &name, &items, forced) {
+-        act(app, "home.fontName", json!({"name": value}));
++    let families = crate::fonts::families();
++    let items: Vec<(&str, String)> = families.iter().map(|f| (f.as_str(), f.clone())).collect();
++    match editable_combo(ui, &resp, "font", &name, &items, forced) {
++        ComboResult::Picked(value) | ComboResult::Entered(value) if !value.trim().is_empty() => {
++            act(app, "home.fontName", json!({"name": value.trim()}));
++        }
++        _ => {}
+     }
+ }
+ 
+@@ -1090,6 +1094,11 @@ pub const FONTS: &[&str] = &[
      "Times New Roman",
      "Trebuchet MS",
      "Verdana",
@@ -401,6 +599,32 @@ index 9c6d89e..0f6d426 100644
  ];
  
  fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
+diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
+index 485b9a2..19684db 100644
+--- a/crates/ui-egui/src/theme.rs
++++ b/crates/ui-egui/src/theme.rs
+@@ -412,10 +412,6 @@ pub fn font_definitions_with(language: crate::i18n::Language, used: &[String]) -
+         fonts.families.insert(FontFamily::Name(role.into()), chain);
+         bound.push(role.to_string());
+     }
+-    // Installed workbook fonts, so a cell's chosen font actually renders in it.
+-    for family in crate::fonts::installed_among(used) {
+-        bound.extend(crate::fonts::bind_family(&mut fonts, &family));
+-    }
+     // Interface text (formula bar, name box, dialogs) falls back to the cell font before the
+     // script faces: whatever a cell can draw, the formula bar can draw too, even where no script
+     // fallback face was found (#349: macOS UI font without Hebrew, cells in Arial with it).
+@@ -434,6 +430,10 @@ pub fn font_definitions_with(language: crate::i18n::Language, used: &[String]) -
+     if let Some(ui) = fonts.families.get(&FontFamily::Name(UI.into())).cloned() {
+         fonts.families.insert(FontFamily::Proportional, ui);
+     }
++    // Bind after the proportional fallback is complete so installed faces also retain CJK glyphs.
++    for family in crate::fonts::installed_among(used) {
++        bound.extend(crate::fonts::bind_family(&mut fonts, &family));
++    }
+     drop_unparseable_fonts(&mut fonts);
+     // Only families egui still has data for count as bound (a dropped face can empty a chain).
+     bound.retain(|f| fonts.families.get(&FontFamily::Name(f.as_str().into())).is_some_and(|c| !c.is_empty()));
 diff --git a/crates/xlsx/src/tests/xls_tests.rs b/crates/xlsx/src/tests/xls_tests.rs
 index 91e63c1..cc845e0 100644
 --- a/crates/xlsx/src/tests/xls_tests.rs
@@ -1111,4 +1335,28 @@ index 0000000..ff85978
 +        18 => Gray0625,
 +        _ => None,
 +    }
++}
+diff --git a/crates/ui-egui/tests/font_setup.rs b/crates/ui-egui/tests/font_setup.rs
+new file mode 100644
+index 0000000..6f9fab4
+--- /dev/null
++++ b/crates/ui-egui/tests/font_setup.rs
+@@ -0,0 +1,18 @@
++//! Persisted-language startup must discover workbook fonts, just like default startup.
++#![cfg(not(target_arch = "wasm32"))]
++
++use gridcraft_ui_egui::{SheetApp, fonts, i18n::Language};
++use std::time::Duration;
++
++#[test]
++fn chinese_context_setup_starts_the_font_catalog() {
++    let context = egui::Context::default();
++    SheetApp::setup_context_for_language(&context, false, Language::Zh);
++    for _ in 0..1500 {
++        if fonts::scan_done() {
++            return;
++        }
++        std::thread::sleep(Duration::from_millis(10));
++    }
++    assert!(fonts::scan_done(), "language-specific startup never completed the font scan");
 +}

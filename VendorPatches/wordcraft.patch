@@ -45,7 +45,7 @@ index 2929018..1f8b556 100644
    <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
    <a href="https://getartcraft.com/apps/wordcraft">WordCraft</a>
 diff --git a/ROADMAP.md b/ROADMAP.md
-index a5b5cbb..441edc7 100644
+index a5b5cbb..11b4668 100644
 --- a/ROADMAP.md
 +++ b/ROADMAP.md
 @@ -2,7 +2,7 @@
@@ -57,18 +57,20 @@ index a5b5cbb..441edc7 100644
  
  > **Printing update:** 2026-10-12 · direct desktop printing through craft-print; details below.
  
-@@ -135,6 +135,7 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
+@@ -135,6 +135,8 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
  
  | Date | What landed |
  |---|---|
++| 2026-10-16 | MyAI Office 0.7.1: Chinese font aliases replace the imported East Asian typeface on selection; private suite fonts are discovered without system installation. |
 +| 2026-10-16 | MyAI Office 0.6.1: legacy DOC tables and header rules repaired from public specs; private originals are not committed. |
  | 2026-10-12 | Text boxes from older Word files (VML) keep their internal margins, Resize shape to fit text and vertical alignment, so letterhead address blocks and form headers sit where Word puts them instead of 7 pt in and 4 pt down. Hidden drawings stay hidden (they were drawn as empty boxes) and are kept on save |
  | 2026-10-13 | Word's privacy options are kept and honoured when saving .docx (#1062): with Remove personal information, comments and tracked changes are saved by "Author" and the file has no creator or last-modified-by; with Remove date and time, they are saved without dates. The open document keeps the real names and dates; `file.privacyOptions` sets both |
  | 2026-10-13 | A selected comment balloon's Delete, Reply and Resolve buttons work again (#1085): pressing them no longer counts as a click on the page that closes the balloon first, so a new empty comment, or any other, can be deleted from its balloon |
-@@ -287,6 +288,7 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
+@@ -287,6 +289,8 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
  
  | Date | Change | Summary |
  |---|---|---|
++| 2026-10-16 | patch | MyAI Office 0.7.1: imported Chinese text follows the chosen font alias; local/private compatible faces, selection regression and DOCX reopen checks. |
 +| 2026-10-16 | patch | MyAI Office 0.6.1: legacy DOC tables and header rules repaired from public specs; private originals are not committed. |
  | 2026-10-12 | trivial | Progress log: VML text box margins, fit and alignment; hidden drawings |
  | 2026-10-13 | trivial | Progress log: comment balloon buttons work, empty comments can be deleted (#1085) |
@@ -760,45 +762,130 @@ index acad986..e0555fe 100644
  #[test]
  fn bookmarks_become_objects() {
      let text = "Hello world\r";
+diff --git a/crates/engine/src/cmd/format.rs b/crates/engine/src/cmd/format.rs
+index dc5503d..9c3ba0f 100644
+--- a/crates/engine/src/cmd/format.rs
++++ b/crates/engine/src/cmd/format.rs
+@@ -305,7 +305,7 @@ fn font(s: &mut Session, v: &Value) -> CmdResult {
+     let ea = east_asia.or_else(|| {
+         name.clone().filter(|n| {
+             let r = wordcraft_fonts::word::resolve(n, false, false);
+-            !r.substituted && r.face.is_east_asian()
++            wordcraft_fonts::word::is_east_asian_alias(n) || !r.substituted && r.face.is_east_asian()
+         })
+     });
+     apply(s, &|c| {
+diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
+index 143cc47..881fa6f 100644
+--- a/crates/engine/src/tests.rs
++++ b/crates/engine/src/tests.rs
+@@ -4921,6 +4921,21 @@ fn format_font_sets_the_asian_and_latin_fonts_separately() {
+     assert!(s.run("format.font", &json!({})).is_err() && s.run("format.font", &json!({"eastAsia": " "})).is_err());
+ }
+ 
++#[test]
++fn choosing_a_chinese_font_alias_replaces_an_imported_asian_font() {
++    let mut s = s();
++    run(&mut s, "document.setText", json!({"text": "运维服务管理制度 Hello"}));
++    run(&mut s, "select.all", json!({}));
++    run(&mut s, "format.font", json!({"name": "Georgia", "eastAsia": "SimSun"}));
++    for name in ["黑体", "仿宋", "宋体", "微软雅黑", "楷体", "FangSong_GB2312"] {
++        run(&mut s, "format.font", json!({"name": name}));
++        let state = run(&mut s, "format.state", json!({}));
++        assert_eq!(state["fontEastAsia"], name, "the Chinese selection must not keep its imported font when choosing {name}");
++    }
++    run(&mut s, "format.font", json!({"name": "Georgia"}));
++    assert_eq!(run(&mut s, "format.state", json!({}))["fontEastAsia"], "FangSong_GB2312", "a Latin-only font leaves Chinese text unchanged");
++}
++
+ /// A one-column table (no header row) holding `cells`, in a document whose default language
+ /// is `lang`; the caret ends in the last cell.
+ fn column_table(lang: &str, cells: &[&str]) -> Session {
+diff --git a/crates/fonts/src/fontdb.rs b/crates/fonts/src/fontdb.rs
+index 816ac27..0fd7cc4 100644
+--- a/crates/fonts/src/fontdb.rs
++++ b/crates/fonts/src/fontdb.rs
+@@ -685,6 +685,15 @@ pub fn system_font_dirs() -> Vec<std::path::PathBuf> {
+     if cfg!(target_arch = "wasm32") {
+         return dirs;
+     }
++    // Private, licensed fonts distributed with an application or its enclosing suite.
++    if let Ok(executable) = std::env::current_exe() {
++        for directory in executable.ancestors().filter(|p| p.file_name().is_some_and(|n| n == "Contents")) {
++            let fonts = directory.join("Resources/Fonts");
++            if fonts.is_dir() {
++                dirs.push(fonts);
++            }
++        }
++    }
+     let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
+     if cfg!(target_os = "macos") {
+         dirs.extend(["/System/Library/Fonts", "/Library/Fonts"].map(Into::into));
 diff --git a/crates/fonts/src/word.rs b/crates/fonts/src/word.rs
-index b3c5965..e100abd 100644
+index b3c5965..69655d3 100644
 --- a/crates/fonts/src/word.rs
 +++ b/crates/fonts/src/word.rs
-@@ -27,6 +27,11 @@ pub struct Resolved {
+@@ -21,10 +21,46 @@ pub struct Resolved {
+     pub substituted: bool,
+ }
+ 
++/// Chinese aliases and compatible local faces, preferring the original family when installed.
++fn east_asian_substitutes(family: &str) -> Option<&'static [&'static str]> {
++    match family.trim().to_ascii_lowercase().as_str() {
++        "宋体" | "新宋体" | "simsun" | "nsimsun" | "songti sc" | "stsong" => {
++            Some(&["SimSun", "Songti SC", "STSong", "Noto Serif CJK SC", "Source Serif 4"])
++        }
++        "仿宋" | "仿宋_gb2312" | "fangsong" | "fangsong_gb2312" | "stfangsong" | "华文仿宋" => Some(&[
++            "FangSong",
++            "STFangsong",
++            "Zhuque Fangsong (technical preview)",
++            "Zhuque Fangsong",
++            "Songti SC",
++            "Noto Serif CJK SC",
++            "Source Serif 4",
++        ]),
++        "黑体" | "simhei" | "heiti sc" | "stheiti" | "华文黑体" => {
++            Some(&["SimHei", "Heiti SC", "STHeiti", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Inter"])
++        }
++        "微软雅黑" | "microsoft yahei" | "microsoft yahei ui" | "yahei" => {
++            Some(&["Microsoft YaHei", "Microsoft YaHei UI", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Inter"])
++        }
++        "楷体" | "楷体_gb2312" | "kaiti" | "kaiti_gb2312" | "kaiti sc" | "stkaiti" | "华文楷体" => {
++            Some(&["KaiTi", "Kaiti SC", "STKaiti", "Songti SC", "Noto Serif CJK SC", "Source Serif 4"])
++        }
++        _ => None,
++    }
++}
++
++/// A Chinese family alias still targets East Asian text when its exact face is not installed.
++pub fn is_east_asian_alias(family: &str) -> bool {
++    east_asian_substitutes(family).is_some()
++}
++
+ /// Substitutes to try, in order, for a family that isn't installed. Open fonts that are
+ /// metric-compatible come first (Carlito ↔ Calibri, Caladea ↔ Cambria, Liberation ↔ Arial /
+ /// Times New Roman / Courier New), then common system fonts, then our bundled families.
  fn substitutes(family: &str) -> &'static [&'static str] {
++    if let Some(substitutes) = east_asian_substitutes(family) {
++        return substitutes;
++    }
      const SANS: &[&str] = &["Carlito", "Helvetica Neue", "Arial", "Liberation Sans", "Noto Sans", "DejaVu Sans", "Source Sans 3"];
      const SERIF: &[&str] = &["Caladea", "Times New Roman", "Liberation Serif", "Georgia", "Noto Serif", "DejaVu Serif", "Source Serif 4"];
-+    const SONGTI: &[&str] = &["Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"];
-+    const FANGSONG: &[&str] = &["STFangsong", "FangSong", "Songti SC", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"];
-+    const HEITI: &[&str] = &["PingFang SC", "Hiragino Sans GB", "STHeiti", "SimHei", "Noto Sans CJK SC", "Noto Sans", "Inter"];
-+    const YAHEI: &[&str] = &["Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans", "Inter"];
-+    const KAITI: &[&str] = &["STKaiti", "Kaiti SC", "Songti SC", "Noto Serif CJK SC", "Noto Serif", "Source Serif 4"];
      const MONO: &[&str] = &["Courier New", "Liberation Mono", "Menlo", "Consolas", "DejaVu Sans Mono", "JetBrains Mono"];
-     const ARIAL: &[&str] = &["Liberation Sans", "Helvetica", "Helvetica Neue", "Arimo", "Source Sans 3"];
-     const TIMES: &[&str] = &["Liberation Serif", "Times", "Tinos", "Source Serif 4"];
-@@ -64,6 +69,11 @@ fn substitutes(family: &str) -> &'static [&'static str] {
-         return ARABIC_SANS;
-     }
-     match f.as_str() {
-+        "宋体" | "simsun" | "songti sc" | "stsong" => SONGTI,
-+        "仿宋" | "fangsong" | "stfangsong" => FANGSONG,
-+        "黑体" | "simhei" | "heiti sc" | "stheiti" => HEITI,
-+        "微软雅黑" | "microsoft yahei" | "yahei" => YAHEI,
-+        "楷体" | "kaiti" | "stkaiti" => KAITI,
-         "palatino linotype" | "book antiqua" | "palatino" => PALATINO,
-         "arial" | "helvetica" | "arial nova" => ARIAL,
-         "times new roman" | "times" => TIMES,
-@@ -313,6 +323,15 @@ mod tests {
+@@ -313,6 +349,18 @@ mod tests {
          }
      }
  
 +    #[test]
 +    fn chinese_font_aliases_prefer_installed_cjk_faces() {
-+        assert_eq!(substitutes("宋体").first(), Some(&"Songti SC"));
-+        assert_eq!(substitutes("仿宋").first(), Some(&"STFangsong"));
-+        assert_eq!(substitutes("黑体").first(), Some(&"PingFang SC"));
++        assert_eq!(substitutes("宋体").first(), Some(&"SimSun"));
++        assert_eq!(substitutes("仿宋").first(), Some(&"FangSong"));
++        assert!(substitutes("仿宋").contains(&"Zhuque Fangsong"));
++        assert_eq!(substitutes("黑体").first(), Some(&"SimHei"));
 +        assert_eq!(substitutes("微软雅黑").first(), Some(&"Microsoft YaHei"));
-+        assert_eq!(substitutes("楷体").first(), Some(&"STKaiti"));
++        assert_eq!(substitutes("楷体").first(), Some(&"KaiTi"));
++        assert_eq!(substitutes("FangSong_GB2312"), substitutes("仿宋"));
++        assert!(is_east_asian_alias("仿宋") && !is_east_asian_alias("Georgia"));
 +    }
 +
      #[test]

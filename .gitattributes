@@ -1,0 +1,2 @@
+# Unified patches use a literal space for empty context lines.
+VendorPatches/*.patch whitespace=-blank-at-eol

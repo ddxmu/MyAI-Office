@@ -94,6 +94,11 @@ swiftc -O -target arm64-apple-macos13.0 \
 
 cp "$ROOT/Info.plist" "$APP/Contents/Info.plist"
 
+(cd "$ROOT/Assets/Fonts" && shasum -a 256 -c SHA256SUMS)
+mkdir -p "$RESOURCES/Fonts"
+cp "$ROOT/Assets/Fonts/ZhuqueFangsong-Regular.ttf" "$RESOURCES/Fonts/"
+cp "$ROOT/Assets/Fonts/OFL.txt" "$RESOURCES/THIRD-PARTY/ZhuqueFangsong-OFL.txt"
+
 if [ ! -f "$ICON_SOURCE" ]; then
     echo "缺少 MyAI Office 图标资源: $ICON_SOURCE" >&2
     exit 1

@@ -8,7 +8,7 @@ configuration.createsNewApplicationInstance = true
 configuration.arguments = Array(CommandLine.arguments.dropFirst(2))
 var environment = ProcessInfo.processInfo.environment
 environment["MYAI_OFFICE_LANGUAGE"] = "zh-hans"
-for name in ["DECKCRAFT_NO_PREFS", "DECKCRAFT_NO_RECOVERY", "WORDCRAFT_NO_PREFS", "WORDCRAFT_NO_RECOVERY", "MYAI_OFFICE_QA"] {
+for name in ["DECKCRAFT_NO_PREFS", "DECKCRAFT_NO_RECOVERY", "WORDCRAFT_NO_PREFS", "WORDCRAFT_NO_RECOVERY", "GRIDCRAFT_NO_PREFS", "MYAI_OFFICE_QA"] {
     environment[name] = "1"
 }
 configuration.environment = environment
