@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.10.0",
-  "releaseNotes": "修复 Word 表格批量复制粘贴：保留单元格行列结构，按目标表格逐格粘贴；改进旧版 Office 文件兼容检测。",
+  "latestVersion": "0.10.1",
+  "releaseNotes": "Word、Excel 功能栏升级为圆润简约的轮廓图标，改进浅深色及高分屏显示；绘图工具和高亮按钮显示实际颜色。内置图标资源，无需联网；保留现有命令、快捷键及文档内图标。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.10.0-arm64.zip",
-    "sha256": "d43116af4d977b4bac8edc61a7d7de73592531ccb14d7563a3f60663b4a80a7d",
-    "size": 164144060,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.1/MyAI-Office-0.10.1-arm64.zip",
+    "sha256": "d8d646cecc479cf3a996d5429e2fda75d64646a3303fc7abd1a145fe10a8d8d1",
+    "size": 165137896,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.10.0-arm64.dmg",
-    "sha256": "d4d2a40d890e3b87912d4a761bb4b4b1d50bad1551696c8a219d12d73daf579d",
-    "size": 163929769
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.1/MyAI-Office-0.10.1-arm64.dmg",
+    "sha256": "e338631a669ec1110f84d2adcddaeecf69b9602dd579dc6d7707da95154f2212",
+    "size": 164933179
   },
   "deltas": [
     {
-      "baseVersion": "0.9.0",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.0/MyAI-Office-0.9.0-to-0.10.0-arm64.bsdiff.zip",
-      "sha256": "a5b3a7b0f53ed47ca9988b3634e806d73a96e4625d2f5074cccf34f481a590a6",
-      "size": 1814851,
+      "baseVersion": "0.10.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.1/MyAI-Office-0.10.0-to-0.10.1-arm64.bsdiff.zip",
+      "sha256": "0b8f8461b36e3a10ca6c24e0f06505dc35886494a4845fd573978d10e7f186b8",
+      "size": 8173365,
       "format": "bsdiff-v2"
     }
   ]

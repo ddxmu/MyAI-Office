@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "0.10.1",
+  "releaseNotes": "Word、Excel 功能栏升级为圆润简约的轮廓图标，改进浅深色及高分屏显示；绘图工具和高亮按钮显示实际颜色。内置图标资源，无需联网；保留现有命令、快捷键及文档内图标。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.1/MyAI-Office-0.10.1-arm64.zip",
+    "sha256": "d8d646cecc479cf3a996d5429e2fda75d64646a3303fc7abd1a145fe10a8d8d1",
+    "size": 165137896,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.1/MyAI-Office-0.10.1-arm64.dmg",
+    "sha256": "e338631a669ec1110f84d2adcddaeecf69b9602dd579dc6d7707da95154f2212",
+    "size": 164933179
+  },
+  "deltas": [
+    {
+      "baseVersion": "0.10.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.10.1/MyAI-Office-0.10.0-to-0.10.1-arm64.bsdiff.zip",
+      "sha256": "0b8f8461b36e3a10ca6c24e0f06505dc35886494a4845fd573978d10e7f186b8",
+      "size": 8173365,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
