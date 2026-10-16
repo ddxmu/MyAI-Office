@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "0.7.1",
-  "releaseNotes": "修复 Word、Excel 打开文档后中文字体只改名称不改字形；同步东亚字体、恢复中文界面字体加载，支持中文别名与大字库，新增 OFL 朱雀仿宋兼容字库。建议保存文档并退出办公模块后再更新。",
+  "latestVersion": "0.7.2",
+  "releaseNotes": "修复旧 DOC 目录域代码泄漏、整行合并与空白单元格格式，补读段落网格开关和文本框内边距。本版不启用尚未验收的文档网格排版；复杂分页仍有差异。不使用 LibreOffice。更新前请保存文件并退出编辑模块。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.1/MyAI-Office-0.7.1-arm64.zip",
-    "sha256": "6940d30bc3c6bdf9126e5bb6de5bc52af9233be569817a28fb6a9abc4d64afee",
-    "size": 221693203,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.2/MyAI-Office-0.7.2-arm64.zip",
+    "sha256": "19f5f0fc77522923f61c9f72a389bae23441c36906191a4d7221b2ae1ec5b0e0",
+    "size": 221698983,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.1/MyAI-Office-0.7.1-arm64.dmg",
-    "sha256": "e63da916e515702544c4dfcc0966800297b51c661d925dd4ea6c4f8b0d0823ad",
-    "size": 221447507
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.2/MyAI-Office-0.7.2-arm64.dmg",
+    "sha256": "3dc978c3f495538746d8afcf0f999d0210443bf82f87a498f0f8c33d4d55f46d",
+    "size": 221449552
   },
   "deltas": [
     {
-      "baseVersion": "0.7.0",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.1/MyAI-Office-0.7.0-to-0.7.1-arm64.bsdiff.zip",
-      "sha256": "22ddb0994b76a4d1d560c8ea8e3fee68c84662a2c5a9d74ae4d09137cd82f37a",
-      "size": 9050118,
+      "baseVersion": "0.7.1",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v0.7.2/MyAI-Office-0.7.1-to-0.7.2-arm64.bsdiff.zip",
+      "sha256": "f7e4809cbb7c99a7a2a2544826287a8bd6ab6adc8d85a28078ed825b013d9c18",
+      "size": 1924218,
       "format": "bsdiff-v2"
     }
   ]
