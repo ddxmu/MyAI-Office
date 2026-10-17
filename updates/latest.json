@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "1.0.5",
-  "releaseNotes": "Word 和 Excel 字号下拉对齐 WPS 中文字号选项，保留数字字号并映射到实际磅值。",
+  "latestVersion": "1.0.6",
+  "releaseNotes": "修复旧版中文 Word 文档的 WPS 兼容分页：明确段落/样式行距优先于文档网格，改善封面、修订记录、目录与正文分页。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.5/MyAI-Office-1.0.5-arm64.zip",
-    "sha256": "6c5c213c7bfec449464cc2efabdabcfb7f96425b74a0ff32a280b2b59a264f86",
-    "size": 165155140,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.6/MyAI-Office-1.0.6-arm64.zip",
+    "sha256": "72f122e8089ab4af2955e6c29afba65169c2aa99e785e407a31b463585c0616b",
+    "size": 165155876,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.5/MyAI-Office-1.0.5-arm64.dmg",
-    "sha256": "6d8234af2dd1e9adb7f9444da551d46d098dd6abd0684348bf752000c0353361",
-    "size": 164954465
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.6/MyAI-Office-1.0.6-arm64.dmg",
+    "sha256": "f6c5037c0cc608f9770060d5a6526567fe8df0ad7d7e402aa87d311c9b25be77",
+    "size": 164959329
   },
   "deltas": [
     {
-      "baseVersion": "1.0.4",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.5/MyAI-Office-1.0.4-to-1.0.5-arm64.bsdiff.zip",
-      "sha256": "dae683a4c5bb4773512be216e5b2bf63988a4fbcc48a3d510e3d7174662507cd",
-      "size": 2091655,
+      "baseVersion": "1.0.5",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.6/MyAI-Office-1.0.5-to-1.0.6-arm64.bsdiff.zip",
+      "sha256": "41bd6c35ff20a62a687c434371f86bf2daf3279094b0989cdbf8783685d47ade",
+      "size": 537279,
       "format": "bsdiff-v2"
     }
   ]

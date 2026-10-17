@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "1.0.6",
+  "releaseNotes": "修复旧版中文 Word 文档的 WPS 兼容分页：明确段落/样式行距优先于文档网格，改善封面、修订记录、目录与正文分页。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.6/MyAI-Office-1.0.6-arm64.zip",
+    "sha256": "72f122e8089ab4af2955e6c29afba65169c2aa99e785e407a31b463585c0616b",
+    "size": 165155876,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.6/MyAI-Office-1.0.6-arm64.dmg",
+    "sha256": "f6c5037c0cc608f9770060d5a6526567fe8df0ad7d7e402aa87d311c9b25be77",
+    "size": 164959329
+  },
+  "deltas": [
+    {
+      "baseVersion": "1.0.5",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.6/MyAI-Office-1.0.5-to-1.0.6-arm64.bsdiff.zip",
+      "sha256": "41bd6c35ff20a62a687c434371f86bf2daf3279094b0989cdbf8783685d47ade",
+      "size": 537279,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
