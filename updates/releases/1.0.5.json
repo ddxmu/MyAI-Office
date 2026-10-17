@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "1.0.5",
+  "releaseNotes": "Word 和 Excel 字号下拉对齐 WPS 中文字号选项，保留数字字号并映射到实际磅值。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.5/MyAI-Office-1.0.5-arm64.zip",
+    "sha256": "6c5c213c7bfec449464cc2efabdabcfb7f96425b74a0ff32a280b2b59a264f86",
+    "size": 165155140,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.5/MyAI-Office-1.0.5-arm64.dmg",
+    "sha256": "6d8234af2dd1e9adb7f9444da551d46d098dd6abd0684348bf752000c0353361",
+    "size": 164954465
+  },
+  "deltas": [
+    {
+      "baseVersion": "1.0.4",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.5/MyAI-Office-1.0.4-to-1.0.5-arm64.bsdiff.zip",
+      "sha256": "dae683a4c5bb4773512be216e5b2bf63988a4fbcc48a3d510e3d7174662507cd",
+      "size": 2091655,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
