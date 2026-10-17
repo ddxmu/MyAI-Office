@@ -2645,38 +2645,71 @@ index 9c6d89e..d0e9b61 100644
              ui.painter().rect_stroke(r.rect, 5.0, Stroke::new(2.0, Tokens::get(ui.ctx()).accent), StrokeKind::Inside);
          }
 diff --git a/crates/ui-egui/src/tabs.rs b/crates/ui-egui/src/tabs.rs
-index b77524b..610f3bd 100644
+index b77524b..fe900fd 100644
 --- a/crates/ui-egui/src/tabs.rs
 +++ b/crates/ui-egui/src/tabs.rs
-@@ -10,6 +10,11 @@ use crate::SheetApp;
+@@ -3,6 +3,7 @@
+ use std::sync::Arc;
+ 
+ use egui::{Align2, Rect, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
++use gridcraft_engine::core::CellRef;
+ use gridcraft_engine::model::{Sheet, Visibility};
+ use serde_json::json;
+ 
+@@ -10,6 +11,26 @@ use crate::SheetApp;
  use crate::icons::{self, Icon};
  use crate::theme::{self, Tokens};
  
 +const SHEET_TABS_MIN_WIDTH: f32 = 100.0;
-+// Reserve room for the add-sheet control and a WPS-like worksheet scrollbar that stays usable
-+// even when the tab strip contains many sheets.
++// Reserve room for the add-sheet control and a WPS-like worksheet scrollbar. The group is
++// anchored to the used worksheet edge below, not blindly to the window's right edge.
++const SHEET_BAR_MIN_END_WIDTH: f32 = 150.0;
 +const SHEET_BAR_END_WIDTH: f32 = 256.0;
++
++fn used_sheet_edge(app: &SheetApp) -> Option<f32> {
++    let geo = app.grid.geo.as_ref()?;
++    let sheet = app.session.active()?.wb.active()?;
++    let used = sheet.used_range()?;
++    let used_width = (sheet.col_left(used.end.col.saturating_add(1)) - sheet.col_left(used.start.col)) as f32 * geo.z;
++    // Once a sheet is wider than the visible grid, or the user has started scrolling it, keep
++    // the controls at the viewport edge. Otherwise the used edge would move under the controls
++    // and make the scrollbar itself jump while it is being dragged.
++    if geo.scroll.x > 0.5 || used_width > geo.cells.width() {
++        return None;
++    }
++    Some(geo.screen_cell_rect(sheet, CellRef::new(used.end.row, used.end.col)).right().clamp(geo.cells.left(), geo.cells.right()))
++}
 +
  /// The rename field asks for focus only while it has not got it yet. Asking again on the frame it lost focus (Enter or a click elsewhere)
  /// would keep the field focused after it is closed, so the keyboard stayed stuck in the sheet name.
  fn rename_needs_focus(has_focus: bool, lost_focus: bool) -> bool {
-@@ -68,9 +73,12 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
+@@ -68,9 +89,22 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
                      .filter(|(_, s)| s.visibility == Visibility::Visible)
                      .map(|(i, s)| (i, s.name.clone(), s.tab_color.and_then(|c| c.resolve(&d.wb.theme)), i == d.wb.active_sheet))
                      .collect();
 -            // Keep worksheet tabs in their own horizontally scrollable viewport. As in Excel, the
 -            // tabs get 60% of the bar and the grid's horizontal scrollbar the rest.
 -            let tabs_width = (ui.available_width() * 0.6).max(100.0);
-+            // Keep worksheet tabs in their own horizontally scrollable viewport. WPS leaves the
-+            // add-sheet button at the far right, immediately before the grid's horizontal
-+            // scrollbar, instead of placing it after a fixed 60% tab viewport.
-+            let available = ui.available_width();
-+            let end_width = (available - SHEET_TABS_MIN_WIDTH).clamp(0.0, SHEET_BAR_END_WIDTH);
-+            let tabs_width = (available - end_width).max(SHEET_TABS_MIN_WIDTH);
++            // Keep worksheet tabs in their own horizontally scrollable viewport. Anchor the
++            // add-sheet button and worksheet scrollbar to the active sheet's used edge so a
++            // narrow table does not leave a large empty gap before the controls. If the used
++            // edge is outside the viewport, clamp it to the visible window instead.
++            let available_rect = ui.available_rect_before_wrap();
++            let grid_right = app.grid.rect.map_or(available_rect.right(), |r| r.right()).min(available_rect.right());
++            let target_right = used_sheet_edge(app).unwrap_or(grid_right);
++            let minimum_right = available_rect.left() + SHEET_TABS_MIN_WIDTH + SHEET_BAR_MIN_END_WIDTH;
++            let bar_right = target_right.max(minimum_right).min(grid_right);
++            let total_width = (bar_right - available_rect.left()).max(0.0);
++            // Keep enough room for the scrollbar on wide windows, but give long sheet names
++            // the space back on narrow windows. The 150 px floor leaves the add button plus a
++            // 100 px scrollbar track usable.
++            let end_width =
++                (total_width * 0.35).clamp(SHEET_BAR_MIN_END_WIDTH, SHEET_BAR_END_WIDTH).min((total_width - SHEET_TABS_MIN_WIDTH).max(0.0));
++            let tabs_width = (total_width - end_width).max(0.0);
              // Reveal the selected sheet after navigation or layout changes, but
              // allow browsing other tabs without snapping back on every frame.
              let reveal_key = egui::Id::new((d.uid, d.wb.active_sheet, &sheets, tabs_width.to_bits()));
-@@ -212,7 +220,9 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
+@@ -212,12 +246,14 @@ pub fn sheet_tabs(app: &mut SheetApp, ui: &mut Ui) {
                      });
              });
              ui.add_space(6.0);
@@ -2686,7 +2719,14 @@ index b77524b..610f3bd 100644
 +            if add_sheet.clicked() {
                  app.run_or_alert("home.insertSheet", json!({}));
              }
-             // The track ends where the grid does, so it stops under the vertical scrollbar.
+-            // The track ends where the grid does, so it stops under the vertical scrollbar.
++            // The track ends at the same adaptive worksheet edge as the add-sheet control.
+             let avail = ui.available_rect_before_wrap();
+-            let right = app.grid.rect.map_or(avail.right(), |r| r.right()).min(avail.right());
++            let right = bar_right.min(avail.right());
+             let track = Rect::from_min_max(pos2(avail.left() + 8.0, avail.center().y - 7.0), pos2(right, avail.center().y + 7.0));
+             crate::grid::horizontal_scrollbar(app, ui, track, &t);
+         });
 diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
 index 485b9a2..19684db 100644
 --- a/crates/ui-egui/src/theme.rs
@@ -2873,6 +2913,68 @@ index 6535548..8998356 100644
      assert_eq!(gridcraft_ui_egui::keytips::keytip_table::SEQUENCES.len(), EXPECTED);
  }
  
+diff --git a/crates/ui-egui/tests/sheet_tabs.rs b/crates/ui-egui/tests/sheet_tabs.rs
+index 7b43cd1..e7250a1 100644
+--- a/crates/ui-egui/tests/sheet_tabs.rs
++++ b/crates/ui-egui/tests/sheet_tabs.rs
+@@ -1,7 +1,9 @@
+ //! Overflowing worksheet tabs, exercised through their actual painted geometry and input.
+ use egui::{Event, Modifiers, PointerButton, Rect, Shape, pos2, vec2};
+ use gridcraft_engine::Session;
+-use gridcraft_ui_egui::SheetApp;
++use gridcraft_engine::core::{CellRef, Value};
++use gridcraft_engine::model::Workbook;
++use gridcraft_ui_egui::{SheetApp, grid::Geo};
+ use serde_json::json;
+ 
+ type Harness = egui_kittest::Harness<'static, SheetApp>;
+@@ -31,6 +33,30 @@ fn harness(width: f32, active: usize) -> Harness {
+     h
+ }
+ 
++fn used_width_harness() -> Harness {
++    let mut wb = Workbook::new();
++    wb.sheet_mut(0).unwrap().set_value(CellRef::new(0, 10), Value::text("data"));
++    let mut s = Session::new();
++    s.add_document(gridcraft_engine::DocState::new(wb, None, "Book1".into()));
++    let mut fonts_ready = false;
++    let mut h = Harness::builder().with_step_dt(1.0 / 60.0).with_size(vec2(1000.0, 120.0)).build_ui_state(
++        move |ui, app: &mut SheetApp| {
++            if !fonts_ready {
++                ui.ctx().set_fonts(gridcraft_ui_egui::theme::font_definitions());
++                fonts_ready = true;
++                return;
++            }
++            let rect = Rect::from_min_size(pos2(0.0, 0.0), vec2(ui.max_rect().width(), 80.0));
++            app.grid.cells_rect = Some(rect);
++            app.grid.geo = app.session.active().and_then(|d| d.wb.active()).map(|sh| Geo::new(sh, rect, egui::Vec2::ZERO));
++            gridcraft_ui_egui::tabs::sheet_tabs(app, ui);
++        },
++        SheetApp::new(s, Default::default()),
++    );
++    h.run_steps(20);
++    h
++}
++
+ fn tab(h: &Harness, name: &str) -> Option<(Rect, Rect)> {
+     h.output().shapes.iter().find_map(|s| match &s.shape {
+         Shape::Text(t) if t.galley.job.text == name => Some((t.visual_bounding_rect(), s.clip_rect)),
+@@ -162,3 +188,15 @@ fn overflow_leaves_the_worksheet_scrollbar_reachable() {
+         assert!(track.left() >= 0.0 && track.right() <= width + 0.5, "{width}: the scrollbar is offscreen: {track:?}");
+     }
+ }
++
++#[test]
++fn used_worksheet_width_anchors_the_scrollbar_to_the_data_edge() {
++    let h = used_width_harness();
++    let app = h.state();
++    let sheet = app.session.active().unwrap().wb.active().unwrap();
++    let geo = app.grid.geo.as_ref().unwrap();
++    let used = sheet.used_range().unwrap();
++    let expected = geo.screen_cell_rect(sheet, CellRef::new(used.end.row, used.end.col)).right();
++    let track = app.grid.hscroll.unwrap();
++    assert!((track.right() - expected).abs() < 0.5, "the scrollbar follows the used worksheet edge: track={track:?}, edge={expected}");
++}
 diff --git a/crates/xlsx/src/cfb.rs b/crates/xlsx/src/cfb.rs
 index 5f85e43..f3b541c 100644
 --- a/crates/xlsx/src/cfb.rs
