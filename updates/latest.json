@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "1.0.3",
-  "releaseNotes": "Word 移除无响应的 Zotero 功能区入口；保留旧文档引用字段兼容。同步中文文档版面、行距和多模块打开体验修复，并提供 1.0.2 到 1.0.3 增量更新。",
+  "latestVersion": "1.0.4",
+  "releaseNotes": "Excel 工作表标签区自适应已用区域：新建工作表按钮和水平滚动条贴近实际数据边缘，宽表保持在网格可视右缘；窄窗口自动为长工作表名称保留空间。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.3/MyAI-Office-1.0.3-arm64.zip",
-    "sha256": "c8481ee0e7e7418b4f88135da708e23a72c6f121c13c7490f78ff853df7e4e7e",
-    "size": 165153446,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.4/MyAI-Office-1.0.4-arm64.zip",
+    "sha256": "4780f858c90275aebd13dad723f6ef09ec926d580ee48701d1aff53a588929c4",
+    "size": 165141654,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.3/MyAI-Office-1.0.3-arm64.dmg",
-    "sha256": "bae57492dfd0730469524dc08f8e021079f50e825d3e587452b6029ff09a4ab6",
-    "size": 164949740
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.4/MyAI-Office-1.0.4-arm64.dmg",
+    "sha256": "94d772a2a75c7dfcc59d65feeb3539c1ff103c484545f89e8e71d465bf95b94d",
+    "size": 164959047
   },
   "deltas": [
     {
-      "baseVersion": "1.0.2",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.3/MyAI-Office-1.0.2-to-1.0.3-arm64.bsdiff.zip",
-      "sha256": "c973d3052f547659472ff308b4e4e7b99ab1f81ded60caf19ec524eecbe7b6a8",
-      "size": 2940072,
+      "baseVersion": "1.0.3",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.4/MyAI-Office-1.0.3-to-1.0.4-arm64.bsdiff.zip",
+      "sha256": "1dcdd9dfd017d199463a28d3858aaf47ffbb80e7a2b52ee338bb9fb19a144356",
+      "size": 946841,
       "format": "bsdiff-v2"
     }
   ]
