@@ -1069,10 +1069,22 @@ index f963c14..620770d 100644
              suppress_hyphens, suppress_line_numbers, bidi, drop_cap, frame, kinsoku, word_wrap, overflow_punct, top_line_punct, auto_space_de, auto_space_dn,
              snap_to_grid);
 diff --git a/crates/doc/src/resolve.rs b/crates/doc/src/resolve.rs
-index 4ef0137..48e94d7 100644
+index 4ef0137..59aebf6 100644
 --- a/crates/doc/src/resolve.rs
 +++ b/crates/doc/src/resolve.rs
-@@ -151,6 +151,12 @@ pub struct ResolvedPara {
+@@ -11,6 +11,11 @@ use crate::styles::{StyleKind, StyleSheet};
+ /// Automatic (HTML-style) paragraph spacing, points: what Word for Windows gives `w:beforeAutospacing`
+ /// and `w:afterAutospacing` at any font size (measured).
+ pub const AUTO_SPACING: f32 = 14.0;
++/// Word/WPS's ordinary paragraph fallback when a document leaves line spacing unset.
++///
++/// Explicit paragraph and style values still win; this only fills the missing value that is
++/// common in legacy Chinese documents (for example their empty cover paragraphs).
++pub const DEFAULT_LINE_SPACING_MULTIPLE: f32 = 1.5;
+ 
+ /// Concrete character formatting.
+ #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+@@ -151,6 +156,12 @@ pub struct ResolvedPara {
      pub indent_first: f32,
      pub space_before: f32,
      pub space_after: f32,
@@ -1085,7 +1097,7 @@ index 4ef0137..48e94d7 100644
      /// The space before or after is automatic (HTML-style, [`AUTO_SPACING`]): see
      /// `ParaProps::space_before_auto`.
      #[serde(default)]
-@@ -196,6 +202,22 @@ pub struct ResolvedPara {
+@@ -196,6 +207,22 @@ pub struct ResolvedPara {
  const MAX_INDENT: f32 = 1584.0; // 22"
  
  impl ResolvedPara {
@@ -1108,7 +1120,7 @@ index 4ef0137..48e94d7 100644
      /// Visual (left, right) indents. Indents, like alignment, are logical: `indent_left` is the
      /// start (leading) edge, which is the right edge of a right-to-left paragraph (ISO 29500
      /// `w:ind/@w:start`, read from `w:left` too).
-@@ -230,6 +252,8 @@ impl ResolvedPara {
+@@ -230,9 +257,11 @@ impl ResolvedPara {
              indent_first: clampi(p.indent_first),
              space_before: if p.space_before_auto == Some(true) { AUTO_SPACING } else { p.space_before.unwrap_or(0.0).clamp(0.0, 1584.0) },
              space_after: if p.space_after_auto == Some(true) { AUTO_SPACING } else { p.space_after.unwrap_or(0.0).clamp(0.0, 1584.0) },
@@ -1116,7 +1128,55 @@ index 4ef0137..48e94d7 100644
 +            space_after_lines: p.space_after_lines.filter(|v| v.is_finite()).map(|v| v.clamp(0.0, 158_400.0)),
              before_auto: p.space_before_auto == Some(true),
              after_auto: p.space_after_auto == Some(true),
-             line_spacing: match p.line_spacing.unwrap_or_default() {
+-            line_spacing: match p.line_spacing.unwrap_or_default() {
++            line_spacing: match p.line_spacing.unwrap_or(LineSpacing::Multiple(DEFAULT_LINE_SPACING_MULTIPLE)) {
+                 LineSpacing::Multiple(m) => LineSpacing::Multiple(if m.is_finite() { m.clamp(0.06, 132.0) } else { 1.0 }),
+                 LineSpacing::AtLeast(v) => LineSpacing::AtLeast(if v.is_finite() { v.clamp(0.0, 1584.0) } else { 0.0 }),
+                 LineSpacing::Exactly(v) => LineSpacing::Exactly(if v.is_finite() { v.clamp(0.7, 1584.0) } else { 12.0 }),
+@@ -318,6 +347,12 @@ impl StyleSheet {
+             direct.tabs = Some(merged);
+         }
+         base.overlay(&direct);
++        // Legacy Chinese cover tables usually inherit an unset paragraph spacing from their
++        // table style. Keep those cells single-spaced while ordinary document paragraphs use
++        // the 1.5-line fallback above; explicit cell or paragraph spacing still wins.
++        if table.is_some() && base.line_spacing.is_none() {
++            base.line_spacing = Some(LineSpacing::Multiple(1.0));
++        }
+         let mut rp = ResolvedPara::from(&base, &style);
+         // Indents in characters: measured in the style's font size here; layout measures them in
+         // the paragraph mark's (`set_char_unit`), which direct formatting may change.
+@@ -394,6 +429,8 @@ mod tests {
+         });
+         assert_eq!(p.indent_left, MAX_INDENT);
+         assert_eq!(p.line_spacing, LineSpacing::Multiple(1.0));
++        let empty = StyleSheet::empty().resolve_para(&ParaProps::default());
++        assert_eq!(empty.line_spacing, LineSpacing::Multiple(DEFAULT_LINE_SPACING_MULTIPLE));
+         let c = s.resolve_char(None, &CharProps { size: Some(-4.0), ..Default::default() });
+         assert_eq!(c.size, 1.0);
+     }
+@@ -415,7 +452,7 @@ mod tests {
+         let table_c = CharProps { bold: Some(true), color: Some(red), size: Some(9.0), ..Default::default() };
+         // Document defaults alone (outside a table).
+         let out = s.resolve_para(&ParaProps::default());
+-        assert_eq!((out.space_after, out.line_spacing), (8.0, LineSpacing::Multiple(1.15)));
++        assert_eq!((out.space_after, out.line_spacing), (8.0, LineSpacing::Multiple(1.5)));
+         // The table style replaces the defaults.
+         let p = s.resolve_para_in(&ParaProps::default(), Some(&table_p));
+         assert_eq!((p.space_after, p.line_spacing), (0.0, LineSpacing::Multiple(1.0)));
+diff --git a/crates/doc/src/styles.rs b/crates/doc/src/styles.rs
+index 4c9a398..657a706 100644
+--- a/crates/doc/src/styles.rs
++++ b/crates/doc/src/styles.rs
+@@ -178,7 +178,7 @@ impl StyleSheet {
+             default_para: ParaProps {
+                 space_after: Some(8.0),
+                 space_before: Some(0.0),
+-                line_spacing: Some(LineSpacing::Multiple(1.15)),
++                line_spacing: Some(LineSpacing::Multiple(1.5)),
+                 widow_control: Some(true),
+                 ..para()
+             },
 diff --git a/crates/docbin/src/fkp.rs b/crates/docbin/src/fkp.rs
 index 8ed395a..b0dbe60 100644
 --- a/crates/docbin/src/fkp.rs
@@ -2470,6 +2530,21 @@ index 12eb6dc..62bf44b 100644
  /// Render page `page` as PNG at `scale` px/pt. With Print Markup's comments the page has its
  /// markup area with the comments in balloons (page images always show tracked changes).
  pub fn render_png(doc: &Document, page: usize, scale: f32, opts: &crate::io::ExportOptions) -> Result<Vec<u8>, String> {
+diff --git a/crates/engine/src/ribbon.rs b/crates/engine/src/ribbon.rs
+index 49cb879..554d63a 100644
+--- a/crates/engine/src/ribbon.rs
++++ b/crates/engine/src/ribbon.rs
+@@ -15,8 +15,8 @@ use crate::Registry;
+ 
+ /// The ribbon's tabs in their default order. `File` opens Backstage: it is always first and
+ /// isn't part of the customizable list.
+-pub const TABS: [&str; 13] =
+-    ["File", "Home", "Insert", "Draw", "Design", "Layout", "References", "Mailings", "Review", "View", "Developer", "Zotero", "Help"];
++pub const TABS: [&str; 12] =
++    ["File", "Home", "Insert", "Draw", "Design", "Layout", "References", "Mailings", "Review", "View", "Developer", "Help"];
+ /// Tabs that come up with the selection; custom tabs can't take their names.
+ pub const CONTEXTUAL_TABS: [&str; 7] =
+     ["Table Design", "Table Layout", "Picture Format", "Shape Format", "Equation", "Chart Design", "SmartArt Design"];
 diff --git a/crates/engine/src/session.rs b/crates/engine/src/session.rs
 index 722f9c6..ce0cef6 100644
 --- a/crates/engine/src/session.rs
@@ -2695,7 +2770,7 @@ index b3c5965..69655d3 100644
      fn resolves_weights_named_as_their_own_family() {
          // Word stores a Medium face as the family "Inter Medium" (#219).
 diff --git a/crates/layout/src/lib.rs b/crates/layout/src/lib.rs
-index 883011b..c02dd65 100644
+index 883011b..1054930 100644
 --- a/crates/layout/src/lib.rs
 +++ b/crates/layout/src/lib.rs
 @@ -452,7 +452,7 @@ struct Key {
@@ -2707,7 +2782,7 @@ index 883011b..c02dd65 100644
      fit: bool,
      hide_deleted: bool,
  }
-@@ -517,6 +517,33 @@ fn hyphenation_key(doc: &Document) -> (bool, u32, bool, u32) {
+@@ -517,6 +517,114 @@ fn hyphenation_key(doc: &Document) -> (bool, u32, bool, u32) {
      (s.auto_hyphenation, s.hyphenation_zone.to_bits(), s.hyphenate_caps, s.consecutive_hyphen_limit)
  }
  
@@ -2738,10 +2813,91 @@ index 883011b..c02dd65 100644
 +    blocks
 +}
 +
++/// Page breaks that Word/WPS add around a standalone table of contents in legacy Chinese files.
++///
++/// Older `.doc` files often store the cover, the TOC and the first heading as one continuous
++/// stream of paragraphs.  Their visible page separation is supplied by the application's
++/// pagination rules rather than a paragraph-level page-break flag.  Keep this conservative:
++/// only a recognised TOC heading gets a break, and only the first level-1 body heading after it
++/// gets the second break.  Documents without a TOC are unchanged.
++fn compatibility_page_breaks(doc: &Document) -> HashSet<usize> {
++    let mut breaks = HashSet::new();
++    if doc.settings.compat_mode < 15 {
++        return breaks;
++    }
++    let toc = doc.body.iter().enumerate().find_map(|(block, b)| {
++        let p = b.as_para()?;
++        let has_explicit_break = p.text.starts_with(wordcraft_doc::para::PAGE_BREAK);
++        let text = p.text.trim_start_matches(wordcraft_doc::para::PAGE_BREAK).trim();
++        let style = p.props.style.as_deref().unwrap_or_default();
++        (text == "目录" || text == "目 录" || style.eq_ignore_ascii_case("TOCHeading") || style.eq_ignore_ascii_case("目录"))
++            .then_some((block, has_explicit_break))
++    });
++    let Some((toc_heading, has_explicit_break)) = toc else { return breaks };
++    if !has_explicit_break {
++        breaks.insert(toc_heading);
++    }
++
++    let first_body_heading = doc.body.iter().enumerate().skip(toc_heading + 1).find_map(|(block, b)| {
++        let p = b.as_para()?;
++        let style = p.props.style.as_deref().unwrap_or_default();
++        let resolved = doc.styles.resolve_para(&p.props);
++        let is_heading_1 = resolved.outline_level == Some(0) || style.eq_ignore_ascii_case("Heading 1") || style.eq_ignore_ascii_case("标题 1");
++        is_heading_1.then_some(block)
++    });
++    if let Some(block) = first_body_heading {
++        breaks.insert(block);
++    }
++    breaks
++}
++
++/// Empty cover separators between the metadata table, revision table and their heading.
++///
++/// Legacy DOC files often carry a full blank paragraph with before/after spacing in this one
++/// location. WPS treats it as a visual separator but still keeps the short revision table on the
++/// cover; collapsing only this table-to-table spacer prevents its last blank row from spilling.
++fn compatibility_cover_spacers(doc: &Document) -> HashSet<usize> {
++    let mut spacers = HashSet::new();
++    for (block, current) in doc.body.iter().enumerate() {
++        let Some(p) = current.as_para() else { continue };
++        if !p.text.is_empty() || p.props.space_before.is_none() || p.props.space_after.is_none() {
++            continue;
++        }
++        let between_tables = block > 0
++            && doc.body.get(block - 1).and_then(|b| b.as_table()).is_some()
++            && doc.body.get(block + 1).and_then(|b| b.as_para()).is_some_and(|next| !next.text.is_empty())
++            && doc.body.get(block + 2).and_then(|b| b.as_table()).is_some();
++        if between_tables {
++            spacers.insert(block);
++        }
++    }
++    spacers
++}
++
++/// Empty table-tail paragraphs that only precede an explicit page-break paragraph.
++///
++/// A few legacy `.doc` covers contain this paragraph after the revision table. If the table
++/// reaches the bottom margin, laying out the empty paragraph first creates a blank page before
++/// the following page-break mark. WPS treats it as part of the break separator, so it takes no
++/// independent line of its own.
++fn compatibility_page_break_spacers(doc: &Document) -> HashSet<usize> {
++    let mut spacers = HashSet::new();
++    for (block, current) in doc.body.iter().enumerate() {
++        let Some(p) = current.as_para() else { continue };
++        let follows_table = block > 0 && doc.body.get(block - 1).and_then(|b| b.as_table()).is_some();
++        let precedes_page_break =
++            doc.body.get(block + 1).and_then(|b| b.as_para()).is_some_and(|next| next.text.starts_with(wordcraft_doc::para::PAGE_BREAK));
++        if p.text.is_empty() && follows_table && precedes_page_break {
++            spacers.insert(block);
++        }
++    }
++    spacers
++}
++
  fn has_page_fields(p: &Paragraph) -> bool {
      p.objects.iter().any(|o| match o {
          InlineObject::Field { instr, .. } => {
-@@ -603,6 +630,10 @@ struct Ctx<'a> {
+@@ -603,6 +711,17 @@ struct Ctx<'a> {
      /// Body blocks that are empty paragraphs carrying only a section break before a continuous
      /// section, in order: they take no room (see [`place_para`]).
      quiet_marks: Vec<usize>,
@@ -2749,10 +2905,17 @@ index 883011b..c02dd65 100644
 +    /// Word treats the field result as one keep-together chain, even when the imported DOCX
 +    /// stores the result as several TOC-styled paragraphs without explicit `keepNext` flags.
 +    toc_keep_next: HashSet<usize>,
++    /// Conservative cover/TOC/body breaks for legacy documents that omit the corresponding
++    /// paragraph flags but rely on Word/WPS's pagination heuristics.
++    compatibility_page_breaks: HashSet<usize>,
++    /// Cover-only empty separators whose explicit spacing would otherwise push a revision table.
++    compatibility_cover_spacers: HashSet<usize>,
++    /// Cover-tail empty paragraphs that should not occupy a page before an explicit break.
++    compatibility_page_break_spacers: HashSet<usize>,
  }
  
  impl Ctx<'_> {
-@@ -961,7 +992,28 @@ fn layout_box(
+@@ -961,7 +1080,28 @@ fn layout_box(
                      pl = ctx.para_labelled(p, width, table, &rel, label);
                  }
                  let lead = pl.lines.first().map_or(0.0, |l| l.top.max(0.0));
@@ -2782,26 +2945,55 @@ index 883011b..c02dd65 100644
                  // Pictures, shapes and text boxes: drawn, their areas and text boxes' text.
                  if !p.objects.is_empty() {
                      let at = ObjFrame { page: frame, col: (0.0, width), para_y: y, table_chr: table.map(|t| &t.chr) };
-@@ -1798,6 +1850,7 @@ fn layout_pass(
+@@ -1798,6 +1938,10 @@ fn layout_pass(
          uses_totals: false,
          track_totals: true,
          quiet_marks: Vec::new(),
 +        toc_keep_next: toc_keep_next_blocks(doc),
++        compatibility_page_breaks: compatibility_page_breaks(doc),
++        compatibility_cover_spacers: compatibility_cover_spacers(doc),
++        compatibility_page_break_spacers: compatibility_page_break_spacers(doc),
      };
      let sections = doc.sections();
      let web = matches!(opts.view, ViewMode::Web | ViewMode::Draft | ViewMode::Outline);
-@@ -2701,7 +2754,9 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
+@@ -2682,6 +2826,9 @@ fn para_notes(doc: &Document, p: &Paragraph, pl: &ParaLayout) -> Vec<(usize, u32
+ /// continuous section takes no room (Word for Windows: the text after it follows right on, and
+ /// columns balanced above it don't count it).
+ fn place_para(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block: usize, body_top: f32) {
++    if ctx.compatibility_page_break_spacers.contains(&block) {
++        return;
++    }
+     if !pb.web && ctx.quiet_marks.binary_search(&block).is_ok() {
+         // Its (empty) line stays where the text ended, even at the bottom of a full column.
+         let (y, prev, bottom, content_bottom, at) = (pb.y, pb.prev.clone(), pb.bottom, pb.content_bottom, (pb.pages.len(), pb.col));
+@@ -2701,7 +2848,10 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
      // Floating objects anchored here join the page's wrap areas before the text is laid out; if
      // the paragraph then starts somewhere else (another column or page, or contextual spacing
      // drops its space before), they are placed again there.
 -    let space_before = ctx.doc.styles.resolve_para(&p.props).space_before;
 +    let mut resolved = ctx.doc.styles.resolve_para(&p.props);
 +    resolved.apply_line_relative_spacing(ctx.grid.line);
-+    let space_before = resolved.space_before;
++    let compact_cover_spacer = ctx.compatibility_cover_spacers.contains(&block);
++    let space_before = if compact_cover_spacer { 0.0 } else { resolved.space_before };
      let excl_mark = pb.excl.len();
      let guess = pb.y + space_before;
      let label = ctx.next_label(p);
-@@ -2769,8 +2824,9 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
+@@ -2710,11 +2860,12 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
+     let mut anchor_y = pb.y;
+     let spot = |pb: &PageBuilder| (pb.pages.len(), pb.col);
+     let placed_at = spot(pb);
+-    let broke_before = pl.rp.page_break_before && !pb.at_top() && !pb.web;
++    let broke_before = (pl.rp.page_break_before || ctx.compatibility_page_breaks.contains(&block)) && !pb.at_top() && !pb.web;
++    let paragraph_was_at_top = pb.at_top();
+     if broke_before {
+         pb.new_page(block, body_top);
+     }
+-    let mut before = pl.rp.space_before;
++    let mut before = if compact_cover_spacer { 0.0 } else { pl.rp.space_before };
+     let prev_para = pb.prev.clone();
+     // At the top of a page, measured in Word for Windows: no space before after a paragraph that
+     // ended with a page break, nor (from Word 2013's layout, compatibility mode 15) for a page
+@@ -2769,8 +2920,9 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
      // Keep lines together: if it doesn't fit but would on an empty column, move it. Keep with
      // next alone moves a paragraph only when it would fit here by itself (Word for Windows): one
      // that doesn't breaks as usual, its last lines going over with the next paragraph.
@@ -2813,7 +3005,29 @@ index 883011b..c02dd65 100644
          // (Against the whole column: balanced columns grow to hold it.)
          if pb.y + need > pb.bottom && !pb.at_top() && need <= pb.uncapped_bottom() - pb.top {
              pb.advance(block, body_top);
-@@ -3134,7 +3190,8 @@ fn next_first_line(ctx: &mut Ctx, block: usize, width: f32, depth: usize) -> f32
+@@ -2987,7 +3139,8 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
+                 pb.new_page(block, body_top);
+                 pb.after_break_mark = true;
+             }
+-            Some(LineEnd::PageBreak) if starts_with_break && !pb.web => {
++            Some(LineEnd::PageBreak) if starts_with_break && !pb.web && (paragraph_was_at_top || broke_before) => {}
++            Some(LineEnd::PageBreak) if starts_with_break && !pb.web && !paragraph_was_at_top && !broke_before => {
+                 pb.new_page(block, body_top);
+                 pb.y += pl.rp.space_before.max(0.0);
+             }
+@@ -3014,8 +3167,9 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
+             _ => {}
+         }
+     }
+-    pb.y += pl.rp.space_after;
+-    pb.prev = Some((pl.rp.style.clone(), pl.rp.contextual_spacing, pl.rp.space_after, pl.rp.after_auto, label.is_some()));
++    let space_after = if compact_cover_spacer { 0.0 } else { pl.rp.space_after };
++    pb.y += space_after;
++    pb.prev = Some((pl.rp.style.clone(), pl.rp.contextual_spacing, space_after, pl.rp.after_auto, label.is_some()));
+ }
+ 
+ /// The outline of the body for an Outline view pass.
+@@ -3134,7 +3288,8 @@ fn next_first_line(ctx: &mut Ctx, block: usize, width: f32, depth: usize) -> f32
              };
              let _ = rp;
              let pl = para::layout_para(p, &env);
@@ -2912,11 +3126,201 @@ index 41f9fad..6b1769c 100644
      if let Some(spacing) = env.read_line_spacing.filter(|s| s.is_finite() && (1.0..=2.0).contains(s)) {
          rp.line_spacing = wordcraft_doc::props::LineSpacing::Multiple(spacing);
      }
+diff --git a/crates/layout/src/table.rs b/crates/layout/src/table.rs
+index 102aa17..ba8bebd 100644
+--- a/crates/layout/src/table.rs
++++ b/crates/layout/src/table.rs
+@@ -102,6 +102,22 @@ const MEASURE_WIDE: f32 = 15_840.0;
+ /// What an empty cell's text needs (about a paragraph mark), points.
+ const EMPTY_TEXT: f32 = 12.0;
+ 
++/// Formatting inherited by cells when a legacy table has no named table style.
++///
++/// Word/WPS keeps ordinary table cells single-spaced even when the document's ordinary
++/// paragraph fallback is wider. Keeping this context explicit also lets empty cover-table
++/// rows keep their compact height instead of inheriting the document's 1.5-line default.
++fn default_cell_text() -> CellText {
++    CellText {
++        para: wordcraft_doc::props::ParaProps {
++            space_after: Some(0.0),
++            line_spacing: Some(wordcraft_doc::props::LineSpacing::Multiple(1.0)),
++            ..Default::default()
++        },
++        chr: Default::default(),
++    }
++}
++
+ /// What one paragraph needs: the longest run of text without a break opportunity (`min`) and
+ /// its longest line when nothing wraps (`max`), indents included.
+ fn measure_para(p: &wordcraft_doc::Paragraph, env: &crate::para::ParaEnv) -> (f32, f32) {
+@@ -165,7 +181,9 @@ pub fn measure_table_columns(doc: &wordcraft_doc::Document, t: &Table) -> Vec<(f
+             let span = cell.span();
+             let margins = cell.props.margins.unwrap_or(margins_def);
+             let side = margins[1].max(0.0) + margins[3].max(0.0);
+-            let text = style.as_ref().map(|st| region_text(st, region_of(t, style.as_ref(), ri, g, span, ncols)));
++            let default_text = default_cell_text();
++            let text =
++                style.as_ref().map(|st| region_text(st, region_of(t, style.as_ref(), ri, g, span, ncols))).unwrap_or_else(|| default_text.clone());
+             let env = crate::para::ParaEnv {
+                 doc,
+                 width: MEASURE_WIDE,
+@@ -174,7 +192,7 @@ pub fn measure_table_columns(doc: &wordcraft_doc::Document, t: &Table) -> Vec<(f
+                 show_hidden: false,
+                 field_codes: false,
+                 hide_deleted: false,
+-                table: text.as_ref(),
++                table: Some(&text),
+                 proofing: None,
+                 // Measurement uses a fixed environment (like show_hidden/proofing above).
+                 numeral: crate::NumeralMode::default(),
+@@ -461,10 +479,9 @@ pub fn layout_table(ctx: &mut Ctx, story: StoryRef, t: &Table, path: &[u32], ava
+                     .or(if col_band { p.col_band_fill } else { None })
+                     .or(p.fill);
+             }
+-            if let Some(st) = &style
+-                && !cell_text.iter().any(|(r, _)| *r == region)
+-            {
+-                cell_text.push((region, region_text(st, region)));
++            if !cell_text.iter().any(|(r, _)| *r == region) {
++                let text = style.as_ref().map(|st| region_text(st, region)).unwrap_or_else(default_cell_text);
++                cell_text.push((region, text));
+             }
+             let text = cell_text.iter().find(|(r, _)| *r == region).map(|(_, c)| c);
+             let mut cpath = path.to_vec();
+@@ -889,6 +906,8 @@ fn banded(t: &Table, style: Option<&TableStyleProps>, ri: usize) -> bool {
+ /// row band's, the first/last column's and the header/total row's (later regions win,
+ /// ECMA-376 §17.7.6).
+ fn region_text(st: &TableStyleProps, (header, total, first_col, last_col, band, col_band): Region) -> CellText {
++    let mut para = default_cell_text().para;
++    para.overlay(&st.para);
+     let mut chr = st.chr.clone();
+     if col_band {
+         chr.overlay(&st.parts.col_band_chr);
+@@ -907,7 +926,7 @@ fn region_text(st: &TableStyleProps, (header, total, first_col, last_col, band,
+     } else if total {
+         chr.overlay(&st.parts.total_chr);
+     }
+-    CellText { para: st.para.clone(), chr }
++    CellText { para, chr }
+ }
+ 
+ /// Each column's narrowest and widest content, cell margins included: its longest word and its
+@@ -918,13 +937,15 @@ fn column_content(ctx: &mut Ctx, t: &Table, style: Option<&TableStyleProps>, dep
+     let mut cols = vec![(0.0f32, 0.0f32); t.cols().max(1)];
+     let mut spanning = Vec::new();
+     let mut any = false;
++    let default_text = default_cell_text();
+     for (ri, row) in t.rows.iter().enumerate() {
+         let mut g = 0usize;
+         for cell in &row.cells {
+             let span = cell.span();
+             if cell.props.vmerge != VMerge::Continue {
+-                let text = style.map(|st| region_text(st, region_of(t, style, ri, g, cell.span(), cols.len())));
+-                let (lo, hi) = blocks_content(ctx, &cell.blocks, text.as_ref(), depth);
++                let text =
++                    style.map(|st| region_text(st, region_of(t, style, ri, g, cell.span(), cols.len()))).unwrap_or_else(|| default_text.clone());
++                let (lo, hi) = blocks_content(ctx, &cell.blocks, Some(&text), depth);
+                 any |= hi > 0.0;
+                 let m = cell.props.margins.unwrap_or(margins_def);
+                 let need = (lo + m[1] + m[3], hi + m[1] + m[3]);
 diff --git a/crates/layout/src/tests.rs b/crates/layout/src/tests.rs
-index afdf9d0..5a8fe4d 100644
+index afdf9d0..8fcefc3 100644
 --- a/crates/layout/src/tests.rs
 +++ b/crates/layout/src/tests.rs
-@@ -4293,6 +4293,42 @@ fn table_cell_footnotes_are_placed() {
+@@ -1,6 +1,6 @@
+ use super::*;
+ use wordcraft_doc::para::InlineObject;
+-use wordcraft_doc::props::{Align, Border, BorderStyle, Borders, ParaProps, TextDirection};
++use wordcraft_doc::props::{Align, Border, BorderStyle, Borders, LineSpacing, ParaProps, TextDirection};
+ use wordcraft_doc::{Pos, Table};
+ 
+ fn lay(doc: &Document) -> DocLayout {
+@@ -24,6 +24,20 @@ fn empty_doc_has_one_page() {
+     assert!(c.top >= 72.0 && c.height > 8.0);
+ }
+ 
++#[test]
++fn legacy_toc_gets_cover_and_first_heading_page_breaks() {
++    let mut d = Document::new();
++    d.body.clear();
++    let para = |text: &str, style: Option<&str>| {
++        let mut p = Paragraph::with_text(text, Default::default());
++        p.props.style = style.map(str::to_owned);
++        wordcraft_doc::para_block(p)
++    };
++    d.body =
++        vec![para("封面", None), para("目 录", None), para("1 目的", Some("目录 1")), para("2 范围", Some("目录 1")), para("目的", Some("标题 1"))];
++    assert_eq!(compatibility_page_breaks(&d), HashSet::from([1, 4]));
++}
++
+ #[test]
+ fn long_paragraph_wraps_and_paginates() {
+     let text = "The quick brown fox jumps over the lazy dog. ".repeat(400);
+@@ -447,6 +461,12 @@ fn page_break_char_starts_new_page() {
+     assert_eq!(l.pages.len(), 2);
+ }
+ 
++#[test]
++fn page_break_at_page_start_does_not_add_a_blank_page() {
++    let d = Document::from_text("\u{000C}title");
++    assert_eq!(lay(&d).pages.len(), 1);
++}
++
+ #[test]
+ fn center_and_right_alignment() {
+     let mut d = Document::from_text("abc\nabc\nabc");
+@@ -1761,7 +1781,8 @@ fn cell_para(l: &DocLayout, row: u32, col: u32) -> Arc<ParaLayout> {
+ 
+ /// Text in a table cell takes its table style's paragraph and run formatting over the document
+ /// defaults (ECMA-376 §17.7.2): Table Grid's single spacing and no space after, not the defaults'
+-/// 8 pt after and 1.15 lines.
++/// 8 pt after. Legacy tables without a named style also use compact single spacing, as Word/WPS
++/// does for cover and revision tables.
+ #[test]
+ fn table_style_paragraph_props_beat_document_defaults() {
+     let d = styled_table_doc(Some("TableGrid"), 3);
+@@ -1770,10 +1791,9 @@ fn table_style_paragraph_props_beat_document_defaults() {
+     let p = cell_para(&lg, 1, 0);
+     assert_eq!((p.rp.space_after, p.rp.line_spacing), (0.0, wordcraft_doc::props::LineSpacing::Multiple(1.0)));
+     let q = cell_para(&lp, 1, 0);
+-    assert_eq!((q.rp.space_after, q.rp.line_spacing), (8.0, wordcraft_doc::props::LineSpacing::Multiple(1.15)));
++    assert_eq!((q.rp.space_after, q.rp.line_spacing), (0.0, wordcraft_doc::props::LineSpacing::Multiple(1.0)));
+     let (g, n) = (row_height(&lg, 1), row_height(&lp, 1));
+-    assert!(g + 8.0 < n, "Table Grid row {g}, unstyled row {n}");
+-    assert!(g < 18.0, "one 12 pt line, single spaced: {g}");
++    assert!(g < 18.0 && n < 18.0, "compact table rows: Table Grid {g}, unstyled {n}");
+ }
+ 
+ /// The paragraph's own style (Normal included) and direct formatting beat the table style; the
+@@ -2788,6 +2808,7 @@ fn a_page_anchored_floating_table_after_a_full_page_moves_to_the_next() {
+     use wordcraft_doc::props::TableFloat;
+     let text: Vec<String> = (0..24).map(|i| format!("Paragraph {i} before the table.")).collect();
+     let mut d = Document::from_text(&(text.join("\n") + "\nAfter the table."));
++    d.format_paragraphs(&Pos::body(0, 0), &Pos::body(24, 0), &|p| p.line_spacing = Some(LineSpacing::Multiple(1.15))).unwrap();
+     let mut t = Table::new(15, 1, 300.0);
+     for (i, r) in t.rows.iter_mut().enumerate() {
+         r.cells[0].blocks = vec![wordcraft_doc::para_block(wordcraft_doc::Paragraph::with_text(&format!("Row {i}"), Default::default()))];
+@@ -3494,8 +3515,11 @@ fn rules_below(l: &DocLayout, pi: usize, y: f32) -> Vec<f32> {
+ #[test]
+ fn long_footnotes_continue_on_the_next_page() {
+     let mut d = Document::from_text(&"Body text line.\n".repeat(16));
++    d.format_paragraphs(&Pos::body(0, 0), &Pos::body(16, 0), &|p| p.line_spacing = Some(LineSpacing::Multiple(1.15))).unwrap();
+     let long = footnote(&mut d, &Pos::body(4, 4), &"A long footnote that runs on and on. ".repeat(100));
+     let own = footnote(&mut d, &Pos::body(14, 4), "The second page's own note.");
++    d.para_mut(StoryRef::Part(long), &Path::top(0)).unwrap().props.line_spacing = Some(LineSpacing::Multiple(1.15));
++    d.para_mut(StoryRef::Part(own), &Path::top(0)).unwrap().props.line_spacing = Some(LineSpacing::Multiple(1.15));
+     let l = lay(&d);
+     let refs = l.caret(&Pos::body(4, 4)).unwrap();
+     assert_eq!(refs.page, 0, "the reference stays where it was");
+@@ -3663,6 +3687,7 @@ fn line_spans(l: &DocLayout) -> Vec<(f32, f32, f32, f32)> {
+ /// A shape floating at the column's top-left with `wrap`, beside a long paragraph.
+ fn wrapped_shape_doc(kind: wordcraft_doc::para::ShapeKind, w: f32, h: f32, float: wordcraft_doc::para::Float) -> Document {
+     let mut d = Document::from_text(&"Words flow around the shape here. ".repeat(40));
++    d.format_paragraphs(&Pos::body(0, 0), &Pos::body(0, 0), &|p| p.line_spacing = Some(LineSpacing::Multiple(1.15))).unwrap();
+     let float =
+         wordcraft_doc::para::Float { h_rel: wordcraft_doc::para::Anchor::Column, v_rel: wordcraft_doc::para::Anchor::Paragraph, dist: 9.0, ..float };
+     let shape = InlineObject::Shape {
+@@ -4293,6 +4318,42 @@ fn table_cell_footnotes_are_placed() {
      assert!(c.top > body.top + 100.0, "at the page bottom: {c:?} {body:?}");
  }
  
@@ -2959,7 +3363,7 @@ index afdf9d0..5a8fe4d 100644
  #[test]
  fn east_asian_text_takes_the_asian_font_and_latin_text_the_latin_font() {
      // #505: one run with a Latin font and an Asian font (w:eastAsia) of its own sets each script in
-@@ -4636,6 +4672,40 @@ fn keep_with_next_moves_a_paragraph_only_when_it_would_fit() {
+@@ -4636,6 +4697,40 @@ fn keep_with_next_moves_a_paragraph_only_when_it_would_fit() {
      assert_eq!(pages(fit - 1, kn.clone(), kn.clone()), [1, 1, 1, 1, 1, 1], "a kept chain moves together");
  }
  
@@ -3144,7 +3548,7 @@ index f4a0b66..713e9b5 100644
  serde_json = { workspace = true }
  log = { workspace = true }
 diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
-index 28dc72f..6f9e5f3 100644
+index 28dc72f..d2f1107 100644
 --- a/crates/ui-egui/src/backstage.rs
 +++ b/crates/ui-egui/src/backstage.rs
 @@ -111,7 +111,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
@@ -3152,10 +3556,23 @@ index 28dc72f..6f9e5f3 100644
              }
              ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
 -                for (label, id) in [("About", "about"), ("Discord community", "discord")] {
-+                for (label, id) in [("About", "about"), ("技术支持", "discord")] {
++                for label in ["技术支持"] {
                      let (r, resp) = ui.allocate_exact_size(vec2(200.0, 32.0), Sense::click());
                      resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(label)));
                      if resp.hovered() {
+@@ -119,11 +119,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+                     }
+                     ui.painter().text(pos2(r.min.x + 22.0, r.center().y), Align2::LEFT_CENTER, tl!(label), regular(13.0), egui::Color32::WHITE);
+                     if resp.clicked() {
+-                        if id == "discord" {
+-                            let _ = app.run("ui.discord", json!({}));
+-                        } else {
+-                            app.dialog = crate::dialogs::Dialog::open("about", app);
+-                        }
++                        let _ = app.run("ui.discord", json!({}));
+                     }
+                 }
+             });
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
 index 49860fe..a868bdc 100644
 --- a/crates/ui-egui/src/canvas.rs
@@ -3221,19 +3638,89 @@ index 7e7483a..dcb18a2 100644
                          }
                          ui.add_space(8.0);
 diff --git a/crates/ui-egui/src/dialogs.rs b/crates/ui-egui/src/dialogs.rs
-index 975ff90..a814805 100644
+index 975ff90..89bf4ed 100644
 --- a/crates/ui-egui/src/dialogs.rs
 +++ b/crates/ui-egui/src/dialogs.rs
-@@ -2332,7 +2332,7 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
-                     ));
-                     ui.add_space(6.0);
-                     ui.hyperlink_to(tl!("getartcraft.com/apps/wordcraft"), "https://getartcraft.com/apps/wordcraft");
+@@ -348,10 +348,6 @@ pub enum Dialog {
+         #[serde(skip)]
+         note: String,
+     },
+-    /// Tabs: 0 About, 1 Contributors, 2 Models.
+-    About {
+-        tab: u8,
+-    },
+     /// "Do you want to save changes?" before a user's New, Open, Close, Envelopes, Labels or
+     /// Finish & Merge replaces the document (see [`WordApp::run`]); `then` runs once it is
+     /// answered (`ui.saveChanges`), and only while the document it asked about
+@@ -893,7 +889,6 @@ impl Dialog {
+             Dialog::Refs(d) => d.name(),
+             Dialog::Icons { .. } => "icons",
+             Dialog::PasteSpecial { .. } => "pasteSpecial",
+-            Dialog::About { .. } => "about",
+             Dialog::SaveChanges { .. } => "saveChanges",
+             Dialog::RecipientList { .. } => "recipientList",
+             Dialog::SelectTable { .. } => "selectTable",
+@@ -1133,9 +1128,6 @@ impl Dialog {
+                 }
+             }
+             "pasteSpecial" => Dialog::paste_special(app, &json!({})),
+-            "about" => Dialog::About { tab: 0 },
+-            "contributors" => Dialog::About { tab: 1 },
+-            "models" => Dialog::About { tab: 2 },
+             // The current list to edit, or a new one to type.
+             "recipientList" | "newRecipientList" => {
+                 let m = &app.session.merge;
+@@ -1342,7 +1334,6 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
+         Dialog::Refs(d) => d.title(),
+         Dialog::Icons { .. } => "Icons",
+         Dialog::PasteSpecial { .. } => "Paste Special",
+-        Dialog::About { .. } => "About WordCraft",
+         Dialog::SaveChanges { .. } => "WordCraft",
+         Dialog::RecipientList { .. } => "Recipient List",
+         Dialog::SelectTable { .. } => "Select Table",
+@@ -2309,61 +2300,25 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+             }
+             ok || cancel
+         }
+-        Dialog::About { tab } => {
+-            ui.set_width(660.0);
+-            ui.horizontal(|ui| {
+-                for (i, l) in ["About", "Contributors", "Models"].into_iter().enumerate() {
+-                    let i = i as u8;
+-                    if ui.selectable_label(*tab == i, tl!(l)).clicked() {
+-                        *tab = i;
+-                    }
+-                }
+-            });
+-            ui.separator();
+-            match *tab {
+-                1 => crate::credits::contributors_ui(ui),
+-                2 => crate::credits::models_ui(ui),
+-                _ => {
+-                    ui.label(egui::RichText::new(tl!("WordCraft")).font(semibold(22.0)));
+-                    let build = option_env!("WORDCRAFT_BUILD_SHA").map(|s| s.get(..8).unwrap_or(s)).unwrap_or(tl!("development build"));
+-                    ui.label(crate::i18n::fmt(tl!("Version {version} ({build})"), &[("version", env!("CARGO_PKG_VERSION")), ("build", build)]));
+-                    ui.label(tl!(
+-                        "A free, open-source word processor written from scratch in Rust.\nPart of the Crafting Apps from the ArtCraft team."
+-                    ));
+-                    ui.add_space(6.0);
+-                    ui.hyperlink_to(tl!("getartcraft.com/apps/wordcraft"), "https://getartcraft.com/apps/wordcraft");
 -                    ui.hyperlink_to(tl!("Join us on Discord: discord.gg/artcraft"), "https://discord.gg/artcraft");
-+                    ui.hyperlink_to("技术支持", "https://t.me/+uEp8JOn7Oic0MDdl");
-                     ui.hyperlink_to(tl!("Source code: github.com/storytold/wordcraft"), "https://github.com/storytold/wordcraft");
-                     ui.add_space(6.0);
-                     ui.label(
-@@ -2351,19 +2351,19 @@ fn body(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+-                    ui.hyperlink_to(tl!("Source code: github.com/storytold/wordcraft"), "https://github.com/storytold/wordcraft");
+-                    ui.add_space(6.0);
+-                    ui.label(
+-                        egui::RichText::new(tl!("MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team and the WordCraft contributors."))
+-                            .small()
+-                            .weak(),
+-                    );
+-                }
+-            }
+-            let (ok, cancel) = buttons(ui, tl!("Close"));
+-            ok || cancel
+-        }
+         Dialog::SaveChanges { name, .. } => {
+             ui.label(egui::RichText::new(crate::i18n::fmt(tl!("Do you want to save changes to {name}?"), &[("name", name)])).font(semibold(15.0)));
+             ui.label(tl!("Your changes will be lost if you don't save them."));
              ui.add_space(8.0);
              let buttons = ui.horizontal(|ui| {
                  ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -3519,7 +4006,7 @@ index a8ff95e..6feb22d 100644
      }
  
 diff --git a/crates/ui-egui/src/i18n/audit.rs b/crates/ui-egui/src/i18n/audit.rs
-index de25080..ef5203f 100644
+index de25080..cea45fc 100644
 --- a/crates/ui-egui/src/i18n/audit.rs
 +++ b/crates/ui-egui/src/i18n/audit.rs
 @@ -154,7 +154,7 @@ impl Exempt {
@@ -3531,6 +4018,16 @@ index de25080..ef5203f 100644
              || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
              || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
      }
+@@ -210,9 +210,6 @@ fn untranslated_interface_text() {
+         "commands",
+         "tableProperties",
+         "pasteSpecial",
+-        "about",
+-        "contributors",
+-        "models",
+         "insertMergeField",
+         "findRecipient",
+         "caption",
 diff --git a/crates/ui-egui/src/i18n/bg.tsv b/crates/ui-egui/src/i18n/bg.tsv
 index 013fdc1..4d02c90 100644
 --- a/crates/ui-egui/src/i18n/bg.tsv
@@ -5660,7 +6157,7 @@ index 87ae0eb..84fb134 100644
  }
  
 diff --git a/crates/ui-egui/src/keytips.rs b/crates/ui-egui/src/keytips.rs
-index c50ebd4..d6f95c2 100644
+index c50ebd4..259c97e 100644
 --- a/crates/ui-egui/src/keytips.rs
 +++ b/crates/ui-egui/src/keytips.rs
 @@ -335,7 +335,7 @@ fn controls(tab: &str) -> Vec<Control> {
@@ -5668,7 +6165,7 @@ index c50ebd4..d6f95c2 100644
              c("Macros", "tools.macros"),
          ],
 -        "Help" => vec![d("Help", "about"), c("Community Discord", "ui.discord"), d("Commands", "commands")],
-+        "Help" => vec![d("Help", "about"), c("技术支持", "ui.discord"), d("Commands", "commands")],
++        "Help" => vec![c("技术支持", "ui.discord"), d("Commands", "commands")],
          "Table Design" => {
              vec![m("Shading", "table.shading"), m("Borders", "table.borders"), c("Border Painter", "table.borderPainter")]
          }
@@ -5839,10 +6336,119 @@ index 528e95f..cef69c1 100644
              resp
          })
 diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
-index b52d210..c6c46df 100644
+index b52d210..3b7496a 100644
 --- a/crates/ui-egui/src/ribbon.rs
 +++ b/crates/ui-egui/src/ribbon.rs
-@@ -546,6 +546,7 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+@@ -1,6 +1,6 @@
+ //! The ribbon: tab strip and every tab's groups. Each control runs a command by id.
+ 
+-use egui::{Align2, Rect, Sense, Stroke, Ui, pos2, vec2};
++use egui::{Align2, CornerRadius, Rect, Sense, Stroke, Ui, pos2, vec2};
+ use serde_json::{Value, json};
+ 
+ use crate::colors::{Remember, Target};
+@@ -9,7 +9,7 @@ use crate::theme::{Tokens, medium, regular, semibold};
+ use crate::widgets::{CONTENT_H, LABEL_H, big, big_toggle, combo, font_combo, group, menu_button, small, split};
+ use crate::{WordApp, icons};
+ 
+-pub const TABS: [&str; 13] = wordcraft_engine::ribbon::TABS;
++pub const TABS: [&str; 12] = wordcraft_engine::ribbon::TABS;
+ 
+ /// True when the caret/selection touches a picture (#147).
+ pub fn has_picture_selected(s: &wordcraft_engine::Session) -> bool {
+@@ -305,7 +305,6 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+                         "Review" => review(app, ui),
+                         "View" => view(app, ui),
+                         "Developer" => developer(app, ui),
+-                        "Zotero" => zotero(app, ui),
+                         "Help" => help(app, ui),
+                         "Table Design" => table_design(app, ui),
+                         "Table Layout" => table_layout(app, ui),
+@@ -418,6 +417,83 @@ fn mi_text(ui: &mut Ui, app: &mut WordApp, text: &str, id: &str, params: Value)
+     }
+ }
+ 
++/// Paint a WPS-like border preview in a menu item. The light dotted grid keeps the target
++/// recognizable when no border is active; the selected sides are then drawn over it in the
++/// same compact, high-contrast style as the reference menu.
++fn border_menu_item(ui: &mut Ui, app: &mut WordApp, label: &str, id: &str, params: Value, mask: u8) {
++    let text = tl!(label);
++    let enabled = crate::widgets::enabled(app, id);
++    let width = ui.available_width().clamp(260.0, 320.0);
++    let (rect, resp) = ui.allocate_exact_size(vec2(width, 30.0), Sense::click());
++    let t = Tokens::get(ui.ctx());
++    if resp.hovered() || resp.is_pointer_button_down_on() {
++        ui.painter().rect_filled(rect, CornerRadius::same(4), t.hover);
++    }
++
++    let preview = Rect::from_min_size(pos2(rect.min.x + 12.0, rect.center().y - 11.0), vec2(28.0, 22.0));
++    paint_border_preview(ui, preview, mask, enabled, &t);
++    let ink = if enabled { t.text } else { t.text_dim.gamma_multiply(0.55) };
++    ui.painter().text(pos2(preview.max.x + 12.0, rect.center().y), Align2::LEFT_CENTER, text, regular(12.5), ink);
++    let shortcut = crate::widgets::shortcut_text(app, id);
++    if !shortcut.is_empty() {
++        ui.painter().text(pos2(rect.max.x - 10.0, rect.center().y), Align2::RIGHT_CENTER, shortcut, regular(11.0), t.text_dim);
++    }
++    if enabled && resp.clicked() {
++        crate::widgets::run_from_ribbon(app, id, params);
++        ui.close();
++    }
++}
++
++fn paint_border_preview(ui: &Ui, rect: Rect, mask: u8, enabled: bool, t: &Tokens) {
++    let p = ui.painter();
++    let inner = rect.shrink(2.0);
++    let grid = if enabled { t.border.gamma_multiply(0.72) } else { t.border.gamma_multiply(0.45) };
++    let active = if enabled { t.text } else { t.text_dim };
++    let dotted = Stroke::new(0.8, grid);
++    dotted_h(p, inner.left(), inner.right(), inner.top(), dotted);
++    dotted_h(p, inner.left(), inner.right(), inner.center().y, dotted);
++    dotted_h(p, inner.left(), inner.right(), inner.bottom(), dotted);
++    dotted_v(p, inner.top(), inner.bottom(), inner.left(), dotted);
++    dotted_v(p, inner.top(), inner.bottom(), inner.center().x, dotted);
++    dotted_v(p, inner.top(), inner.bottom(), inner.right(), dotted);
++
++    let line = Stroke::new(1.6, active);
++    if mask & 0b000001 != 0 {
++        p.line_segment([pos2(inner.left(), inner.top()), pos2(inner.right(), inner.top())], line);
++    }
++    if mask & 0b000010 != 0 {
++        p.line_segment([pos2(inner.left(), inner.bottom()), pos2(inner.right(), inner.bottom())], line);
++    }
++    if mask & 0b000100 != 0 {
++        p.line_segment([pos2(inner.left(), inner.top()), pos2(inner.left(), inner.bottom())], line);
++    }
++    if mask & 0b001000 != 0 {
++        p.line_segment([pos2(inner.right(), inner.top()), pos2(inner.right(), inner.bottom())], line);
++    }
++    if mask & 0b010000 != 0 {
++        p.line_segment([pos2(inner.left(), inner.center().y), pos2(inner.right(), inner.center().y)], line);
++    }
++    if mask & 0b100000 != 0 {
++        p.line_segment([pos2(inner.center().x, inner.top()), pos2(inner.center().x, inner.bottom())], line);
++    }
++}
++
++fn dotted_h(p: &egui::Painter, x0: f32, x1: f32, y: f32, stroke: Stroke) {
++    let mut x = x0;
++    while x < x1 {
++        p.line_segment([pos2(x, y), pos2((x + 1.5).min(x1), y)], stroke);
++        x += 3.5;
++    }
++}
++
++fn dotted_v(p: &egui::Painter, y0: f32, y1: f32, x: f32, stroke: Stroke) {
++    let mut y = y0;
++    while y < y1 {
++        p.line_segment([pos2(x, y), pos2(x, (y + 1.5).min(y1))], stroke);
++        y += 3.5;
++    }
++}
++
+ /// The proofing languages the Language menu offers: tag and English name (translated when drawn).
+ pub(crate) const PROOFING_LANGUAGES: [(&str, &str); 6] = [
+     ("en-US", "English (United States)"),
+@@ -546,6 +622,7 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
                          app.run("font.add", json!({}))
                      } else {
                          let f = app.previews.font_stored(&f);
@@ -5850,7 +6456,7 @@ index b52d210..c6c46df 100644
                          app.run("format.font", json!({"name": f}))
                      };
                  }
-@@ -560,6 +561,7 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+@@ -560,6 +637,7 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
                      && let Ok(x) = v.trim().parse::<f64>()
                  {
                      let _ = app.run("format.size", json!({"size": x}));
@@ -5858,7 +6464,7 @@ index b52d210..c6c46df 100644
                  }
                  ui.add_space(3.0);
                  small(ui, app, "grow", None, "Increase Font Size", "format.growFont", json!({}), false);
-@@ -614,7 +616,8 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+@@ -614,7 +692,8 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
                      mi(ui, app, "Double Strikethrough", "format.doubleStrikethrough", json!({}));
                  });
                  let hl = app.canvas.last_highlight.clone();
@@ -5868,15 +6474,110 @@ index b52d210..c6c46df 100644
                      let grid = wordcraft_doc::props::Highlight::ALL;
                      egui::Grid::new("hl").spacing(vec2(3.0, 3.0)).show(ui, |ui| {
                          for (i, h) in grid.iter().enumerate().skip(1) {
-@@ -1760,7 +1763,7 @@ fn outlining(app: &mut WordApp, ui: &mut Ui) {
+@@ -731,21 +810,26 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+                     crate::colors::menu(ui, app, &theme, Target::cmd("para.shading").remember(Remember::Shading));
+                 });
+                 split(ui, app, "borders", "Borders", "para.borders", json!({"kind": "bottom"}), false, None, |ui, app| {
+-                    for (l, k) in [
+-                        ("Bottom Border", "bottom"),
+-                        ("Top Border", "top"),
+-                        ("Left Border", "left"),
+-                        ("Right Border", "right"),
+-                        ("No Border", "none"),
+-                        ("All Borders", "all"),
+-                        ("Outside Borders", "outside"),
+-                        ("Inside Borders", "inside"),
++                    for (l, k, mask) in [
++                        ("Bottom Border", "bottom", 0b000010),
++                        ("Top Border", "top", 0b000001),
++                        ("Left Border", "left", 0b000100),
++                        ("Right Border", "right", 0b001000),
++                    ] {
++                        border_menu_item(ui, app, l, "para.borders", json!({"kind": k}), mask);
++                    }
++                    ui.separator();
++                    for (l, k, mask) in [
++                        ("No Border", "none", 0),
++                        ("All Borders", "all", 0b111111),
++                        ("Outside Borders", "outside", 0b001111),
++                        ("Inside Borders", "inside", 0b110000),
+                     ] {
+-                        mi(ui, app, l, "para.borders", json!({"kind": k}));
++                        border_menu_item(ui, app, l, "para.borders", json!({"kind": k}), mask);
+                     }
+                     ui.separator();
+-                    mi(ui, app, "Horizontal Line", "insert.horizontalLine", json!({}));
+-                    mi(ui, app, "Borders and Shading…", "para.borders", json!({}));
++                    border_menu_item(ui, app, "Horizontal Line", "insert.horizontalLine", json!({}), 0b000010);
++                    border_menu_item(ui, app, "Borders and Shading…", "para.borders", json!({}), 0b001111);
+                 });
+             });
+         });
+@@ -1488,23 +1572,6 @@ fn mailings(app: &mut WordApp, ui: &mut Ui) {
+     });
+ }
+ 
+-/// Zotero (`docs/zotero.md`): the Zotero desktop app does the work in its own window.
+-fn zotero(app: &mut WordApp, ui: &mut Ui) {
+-    group(ui, "Citations", None, app, |ui, app| {
+-        big(ui, app, "citation", "Add/Edit\nCitation", "ui.zotero.addEditCitation", json!({}), false);
+-        big(ui, app, "addNote", "Add\nNote", "ui.zotero.addNote", json!({}), false);
+-        big(ui, app, "pastCitation", "Move Past\nCitation", "caret.pastCitation", json!({}), false);
+-    });
+-    group(ui, "Bibliography", None, app, |ui, app| {
+-        big(ui, app, "bibliography", "Add/Edit\nBibliography", "ui.zotero.addEditBibliography", json!({}), false);
+-    });
+-    group(ui, "Document", None, app, |ui, app| {
+-        big(ui, app, "update", "Refresh", "ui.zotero.refresh", json!({}), false);
+-        big(ui, app, "docPrefs", "Document\nPreferences", "ui.zotero.setDocPrefs", json!({}), false);
+-        big(ui, app, "unlinkCitations", "Unlink\nCitations", "ui.zotero.removeCodes", json!({}), false);
+-    });
+-}
+-
+ fn review(app: &mut WordApp, ui: &mut Ui) {
+     group(ui, "Proofing", None, app, |ui, app| {
+         big(ui, app, "spelling", "Spelling &\nGrammar", "review.spelling", json!({}), false);
+@@ -1759,8 +1826,7 @@ fn outlining(app: &mut WordApp, ui: &mut Ui) {
+ 
  fn help(app: &mut WordApp, ui: &mut Ui) {
      group(ui, "Help", None, app, |ui, app| {
-         big(ui, app, "help", "Help", "ui.dialog", json!({"name": "about"}), false);
+-        big(ui, app, "help", "Help", "ui.dialog", json!({"name": "about"}), false);
 -        big(ui, app, "discord", "Community\nDiscord", "ui.discord", json!({}), false);
 +        big(ui, app, "help", "技术支持", "ui.discord", json!({}), false);
      });
      group(ui, "Agents", None, app, |ui, app| {
          big(ui, app, "macros", "Commands", "ui.dialog", json!({"name": "commands"}), false);
+@@ -2255,15 +2321,22 @@ fn table_design(app: &mut WordApp, ui: &mut Ui) {
+     });
+     group(ui, "Borders", None, app, |ui, app| {
+         menu_button(ui, app, "borders", Some("Borders"), "Borders", true, "table.borders", |ui, app| {
+-            for (l, k) in [
+-                ("All Borders", "all"),
+-                ("Outside Borders", "outside"),
+-                ("Inside Borders", "inside"),
+-                ("No Border", "none"),
+-                ("Top Border", "top"),
+-                ("Bottom Border", "bottom"),
++            for (l, k, mask) in [
++                ("Bottom Border", "bottom", 0b000010),
++                ("Top Border", "top", 0b000001),
++                ("Left Border", "left", 0b000100),
++                ("Right Border", "right", 0b001000),
++            ] {
++                border_menu_item(ui, app, l, "table.borders", json!({"kind": k}), mask);
++            }
++            ui.separator();
++            for (l, k, mask) in [
++                ("No Border", "none", 0),
++                ("All Borders", "all", 0b111111),
++                ("Outside Borders", "outside", 0b001111),
++                ("Inside Borders", "inside", 0b110000),
+             ] {
+-                mi(ui, app, l, "table.borders", json!({"kind": k}));
++                border_menu_item(ui, app, l, "table.borders", json!({"kind": k}), mask);
+             }
+         });
+         big(ui, app, "borderPainter", "Border\nPainter", "table.borderPainter", json!({}), false);
 diff --git a/crates/ui-egui/src/table_mouse.rs b/crates/ui-egui/src/table_mouse.rs
 index f98c08f..bde9247 100644
 --- a/crates/ui-egui/src/table_mouse.rs
