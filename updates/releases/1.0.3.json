@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "1.0.3",
+  "releaseNotes": "Word 移除无响应的 Zotero 功能区入口；保留旧文档引用字段兼容。同步中文文档版面、行距和多模块打开体验修复，并提供 1.0.2 到 1.0.3 增量更新。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.3/MyAI-Office-1.0.3-arm64.zip",
+    "sha256": "c8481ee0e7e7418b4f88135da708e23a72c6f121c13c7490f78ff853df7e4e7e",
+    "size": 165153446,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.3/MyAI-Office-1.0.3-arm64.dmg",
+    "sha256": "bae57492dfd0730469524dc08f8e021079f50e825d3e587452b6029ff09a4ab6",
+    "size": 164949740
+  },
+  "deltas": [
+    {
+      "baseVersion": "1.0.2",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.3/MyAI-Office-1.0.2-to-1.0.3-arm64.bsdiff.zip",
+      "sha256": "c973d3052f547659472ff308b4e4e7b99ab1f81ded60caf19ec524eecbe7b6a8",
+      "size": 2940072,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
