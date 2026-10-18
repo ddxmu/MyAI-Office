@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "1.1.1",
+  "releaseNotes": "修复 ITSS 旧版 DOC 与 WPS 打开版面差异：中文字体映射、标题编号去重、封面标题布局、列表分页、表格内边距和兼容分页规则。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.1/MyAI-Office-1.1.1-arm64.zip",
+    "sha256": "ef896b572c508762df126e983bf5f41ec9ecb930d3e8cf8834737626d53d1ba7",
+    "size": 165185682,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.1/MyAI-Office-1.1.1-arm64.dmg",
+    "sha256": "eef68ba9881fff29a6ac72882fd1a2de794898ad1b3b295b7809f911ff0512f0",
+    "size": 164983820
+  },
+  "deltas": [
+    {
+      "baseVersion": "1.1.0",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.1/MyAI-Office-1.1.0-to-1.1.1-arm64.bsdiff.zip",
+      "sha256": "4bfc925c786dc0ba79cc2546df125b018d07a8373397cdc73c31c9d45a694af3",
+      "size": 6347,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
