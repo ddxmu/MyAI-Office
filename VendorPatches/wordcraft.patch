@@ -1,5 +1,5 @@
 diff --git a/ATTRIBUTION.md b/ATTRIBUTION.md
-index 7942228..09e8190 100644
+index 7942228d6c64dfc8c3eca515cf97485b21c5c49f..09e81902440fc69db9199231d8b0184643bb5016 100644
 --- a/ATTRIBUTION.md
 +++ b/ATTRIBUTION.md
 @@ -75,3 +75,240 @@ Generated-in-code art is original and has no file to list: the UI icon set (`cra
@@ -244,7 +244,7 @@ index 7942228..09e8190 100644
 +| `crates/ui-egui/assets/tabler/zoom-scan.svg` | Paweł Kuna / Tabler contributors | https://github.com/tabler/tabler-icons/tree/v3.49.0/icons/outline/zoom-scan.svg | MIT | Rounded toolbar icon; see bundled LICENSE |
 +| `crates/ui-egui/assets/tabler/LICENSE` | Paweł Kuna / Tabler contributors | https://github.com/tabler/tabler-icons/blob/v3.49.0/LICENSE | MIT | Upstream copyright and licence |
 diff --git a/Cargo.lock b/Cargo.lock
-index ae82a38..6c6a7b3 100644
+index ae82a38c9d4e50e8911edac6936f44a3d419f7ab..6c6a7b3b9ff8ffc3db84b6b0e9f0db2dc7b70ccd 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
 @@ -932,6 +932,12 @@ version = "1.2.0"
@@ -677,7 +677,7 @@ index ae82a38..6c6a7b3 100644
  name = "xmp-writer"
  version = "0.3.3"
 diff --git a/README.md b/README.md
-index 2929018..1f8b556 100644
+index 2929018bb3a944023d276647a4d28525c1b5036b..1f8b556d751279e2029632c28da088b4fc711d90 100644
 --- a/README.md
 +++ b/README.md
 @@ -28,7 +28,7 @@
@@ -723,7 +723,7 @@ index 2929018..1f8b556 100644
    <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
    <a href="https://getartcraft.com/apps/wordcraft">WordCraft</a>
 diff --git a/ROADMAP.md b/ROADMAP.md
-index a5b5cbb..8a19c71 100644
+index a5b5cbbfec86ab84a6c19a06886a4700dccc11c6..8a19c7125e56b338664f1cd71c3e2004effd2644 100644
 --- a/ROADMAP.md
 +++ b/ROADMAP.md
 @@ -2,7 +2,7 @@
@@ -758,7 +758,7 @@ index a5b5cbb..8a19c71 100644
  | 2026-10-13 | trivial | Progress log: comment balloon buttons work, empty comments can be deleted (#1085) |
  | 2026-10-12 | trivial | Progress log: sample-text formulas on Enter (#1067) |
 diff --git a/apps/wordcraft/src/file_dialogs.rs b/apps/wordcraft/src/file_dialogs.rs
-index 651cddf..56717ec 100644
+index 651cddf4e8053934b1925a06f5bb3da216a25c73..56717ec6328eb803ccc139589f1463ca1fbfb210 100644
 --- a/apps/wordcraft/src/file_dialogs.rs
 +++ b/apps/wordcraft/src/file_dialogs.rs
 @@ -53,13 +53,27 @@ impl Launcher {
@@ -859,7 +859,7 @@ index 651cddf..56717ec 100644
 +    }
  }
 diff --git a/apps/wordcraft/src/main.rs b/apps/wordcraft/src/main.rs
-index 62b51d4..f60b7b2 100644
+index 62b51d4a2cfb526d51bc5a5933d4897a54f65283..f60b7b225d9c7eeed3811bbc94fecc72077ea24b 100644
 --- a/apps/wordcraft/src/main.rs
 +++ b/apps/wordcraft/src/main.rs
 @@ -150,6 +150,16 @@ fn prefs_enabled() -> bool {
@@ -919,7 +919,7 @@ index 62b51d4..f60b7b2 100644
              // A region chosen in File › Options replaces the system's for the first blank
              // document too (#838).
 diff --git a/crates/doc/src/edit.rs b/crates/doc/src/edit.rs
-index 6c36f92..2a00ea2 100644
+index 6c36f929515ecc215d2f6f88f493d7adfe430049..2a00ea267f56f73314c10d1aaf6e83764ed1c1b3 100644
 --- a/crates/doc/src/edit.rs
 +++ b/crates/doc/src/edit.rs
 @@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
@@ -1042,7 +1042,7 @@ index 6c36f92..2a00ea2 100644
      pub fn insert_fragment(&mut self, pos: &Pos, frag: &Fragment) -> Result<Pos> {
          let mut blocks = frag.blocks.clone();
 diff --git a/crates/doc/src/props.rs b/crates/doc/src/props.rs
-index f963c14..620770d 100644
+index f963c1433d3c926e3b1dc0f77bd02f48758c7ef7..620770d6db7c9b731670b8146a0fa4ead6eb77fe 100644
 --- a/crates/doc/src/props.rs
 +++ b/crates/doc/src/props.rs
 @@ -744,6 +744,13 @@ pub struct ParaProps {
@@ -1069,7 +1069,7 @@ index f963c14..620770d 100644
              suppress_hyphens, suppress_line_numbers, bidi, drop_cap, frame, kinsoku, word_wrap, overflow_punct, top_line_punct, auto_space_de, auto_space_dn,
              snap_to_grid);
 diff --git a/crates/doc/src/resolve.rs b/crates/doc/src/resolve.rs
-index 4ef0137..59aebf6 100644
+index 4ef0137fd4a30d06fb26996c0f2f4ce171745da8..59aebf6ccd4c5e8ed75d8578564373ee2d239d49 100644
 --- a/crates/doc/src/resolve.rs
 +++ b/crates/doc/src/resolve.rs
 @@ -11,6 +11,11 @@ use crate::styles::{StyleKind, StyleSheet};
@@ -1165,7 +1165,7 @@ index 4ef0137..59aebf6 100644
          let p = s.resolve_para_in(&ParaProps::default(), Some(&table_p));
          assert_eq!((p.space_after, p.line_spacing), (0.0, LineSpacing::Multiple(1.0)));
 diff --git a/crates/doc/src/styles.rs b/crates/doc/src/styles.rs
-index 4c9a398..657a706 100644
+index 4c9a398c4d5b52569315a487c95ef820e7eccb85..657a706473fac29e27131aa34f105d7e3a0f3416 100644
 --- a/crates/doc/src/styles.rs
 +++ b/crates/doc/src/styles.rs
 @@ -178,7 +178,7 @@ impl StyleSheet {
@@ -1178,7 +1178,7 @@ index 4c9a398..657a706 100644
                  ..para()
              },
 diff --git a/crates/docbin/src/fkp.rs b/crates/docbin/src/fkp.rs
-index 8ed395a..b0dbe60 100644
+index 8ed395ac7c10fc00e7d575374dc42c431e2c4a36..b0dbe6061f0967122212fe4bfd1171d068fbda31 100644
 --- a/crates/docbin/src/fkp.rs
 +++ b/crates/docbin/src/fkp.rs
 @@ -70,10 +70,10 @@ impl Bins {
@@ -1196,7 +1196,7 @@ index 8ed395a..b0dbe60 100644
          let Some(page) = self.page(word, fc) else { return (0, &[]) };
          let Some(&crun) = page.get(511) else { return (0, &[]) };
 diff --git a/crates/docbin/src/fmt.rs b/crates/docbin/src/fmt.rs
-index 6c4232f..3ce4619 100644
+index 6c4232f2c142d458151b37c2e2a8fe564755c901..3ce46194ba3ccafff9d7cf1f6b6621e417fceb41 100644
 --- a/crates/docbin/src/fmt.rs
 +++ b/crates/docbin/src/fmt.rs
 @@ -19,6 +19,7 @@ const C_CR: u16 = 0x6870; // explicit COLORREF
@@ -1257,7 +1257,7 @@ index 6c4232f..3ce4619 100644
      }
  }
 diff --git a/crates/docbin/src/lib.rs b/crates/docbin/src/lib.rs
-index 9ff4386..95fbe28 100644
+index 9ff4386204eb11683556c95d0f3084bc6599c27f..95fbe28e029ff18627060493a9dcf6a5870c402a 100644
 --- a/crates/docbin/src/lib.rs
 +++ b/crates/docbin/src/lib.rs
 @@ -117,6 +117,9 @@ pub fn read(bytes: &[u8]) -> Result<Document, DocbinError> {
@@ -1431,7 +1431,7 @@ index 9ff4386..95fbe28 100644
              // Inside a field, characters are recorded for the field object instead of shown;
              // `finish_field` emits the visible text (hyperlink runs or one object anchor).
 diff --git a/crates/docbin/src/officeart.rs b/crates/docbin/src/officeart.rs
-index 188dbd1..bce755d 100644
+index 188dbd1b0e21c82d9f2df139b6dfbb3e7ed28812..bce755db7c6e5fb163ce03fd17a183e085e2b770 100644
 --- a/crates/docbin/src/officeart.rs
 +++ b/crates/docbin/src/officeart.rs
 @@ -244,6 +244,8 @@ pub(crate) struct Props {
@@ -1454,7 +1454,7 @@ index 188dbd1..bce755d 100644
                      // cropFromTop, cropFromBottom, cropFromLeft, cropFromRight.
                      let slot = [1, 3, 0, 2][(pid - 0x0100) as usize];
 diff --git a/crates/docbin/src/sprm.rs b/crates/docbin/src/sprm.rs
-index 7db632c..9d3cf21 100644
+index 7db632caffe9f14316137fcb872368eb21cf1221..9d3cf21e5935bce994010e03af15bb8b1df97d93 100644
 --- a/crates/docbin/src/sprm.rs
 +++ b/crates/docbin/src/sprm.rs
 @@ -60,6 +60,44 @@ pub(crate) fn iter(grpprl: &[u8]) -> impl Iterator<Item = Prl<'_>> {
@@ -1503,7 +1503,7 @@ index 7db632c..9d3cf21 100644
  pub(crate) enum Toggle {
      Off,
 diff --git a/crates/docbin/src/stsh.rs b/crates/docbin/src/stsh.rs
-index 5b3393c..23fc19a 100644
+index 5b3393c1f0508e1eb3f3e0aee09ea7b71cbb3368..23fc19a027deeffe0a4cdf0277f0ce283ab3a2f0 100644
 --- a/crates/docbin/src/stsh.rs
 +++ b/crates/docbin/src/stsh.rs
 @@ -157,3 +157,14 @@ pub(crate) fn fonts(table: &[u8], fc: u32, lcb: u32) -> Vec<String> {
@@ -1522,7 +1522,7 @@ index 5b3393c..23fc19a 100644
 +    fonts.get(usize::from(index)).cloned()
 +}
 diff --git a/crates/docbin/src/table.rs b/crates/docbin/src/table.rs
-index e341618..64abeb3 100644
+index e34161862675389d60ba8bbf1007df6ae2afdeaa..64abeb314fdb61281949274cf34a0ccf7bd5801a 100644
 --- a/crates/docbin/src/table.rs
 +++ b/crates/docbin/src/table.rs
 @@ -28,6 +28,11 @@ const T_TABLE_BORDERS_80: u16 = 0xD605;
@@ -1880,7 +1880,7 @@ index e341618..64abeb3 100644
      }
      fmt::ico(if ipat == 1 { fore as u8 } else { back as u8 })
 diff --git a/crates/docbin/src/tests.rs b/crates/docbin/src/tests.rs
-index acad986..7b722f4 100644
+index acad986056d3289582028c6c9838d477045ef87d..7b722f4dfdc8282a9ed8a3c7ed9709d290b04449 100644
 --- a/crates/docbin/src/tests.rs
 +++ b/crates/docbin/src/tests.rs
 @@ -983,6 +983,139 @@ fn t_def_table(edges: &[i16]) -> Vec<u8> {
@@ -2122,7 +2122,7 @@ index acad986..7b722f4 100644
  fn explicit_section_orientation_imported() {
      // #460. SBOrientationOperand ([MS-DOC] §2.9.236): 1 portrait, 2 landscape.
 diff --git a/crates/docbin/src/tests/drawing.rs b/crates/docbin/src/tests/drawing.rs
-index ef3f269..3129225 100644
+index ef3f269ac4b2de51c1cff04f0911f7c466677279..3129225a21114337ae13801ff5a0df5d8df3047d 100644
 --- a/crates/docbin/src/tests/drawing.rs
 +++ b/crates/docbin/src/tests/drawing.rs
 @@ -150,7 +150,11 @@ fn floating_picture_from_the_blip_store_keeps_position_and_wrap() {
@@ -2147,7 +2147,7 @@ index ef3f269..3129225 100644
  }
  
 diff --git a/crates/docx/src/read/props.rs b/crates/docx/src/read/props.rs
-index ce16683..dca482e 100644
+index ce1668351591606e73c243dd39fc4ea3c35afb53..dca482e433ecd1edad124410defdbe722ea23f85 100644
 --- a/crates/docx/src/read/props.rs
 +++ b/crates/docx/src/read/props.rs
 @@ -292,6 +292,16 @@ impl PropCtx {
@@ -2168,7 +2168,7 @@ index ce16683..dca482e 100644
                      let auto = |name| k.attr(name).map(|v| matches!(v.trim(), "1" | "true" | "on"));
                      if let Some(a) = auto("w:beforeAutospacing") {
 diff --git a/crates/docx/src/read/story.rs b/crates/docx/src/read/story.rs
-index 7c50ebb..43333d9 100644
+index 7c50ebb0720a77abe62e2e14a596ee65219433fd..43333d951574b6aa3181973b68ef1caba6efa6c6 100644
 --- a/crates/docx/src/read/story.rs
 +++ b/crates/docx/src/read/story.rs
 @@ -86,9 +86,12 @@ fn enclosure(f: &FieldState) -> Option<wordcraft_doc::eq::Enclosure> {
@@ -2187,7 +2187,7 @@ index 7c50ebb..43333d9 100644
  
  /// The last paragraph of a block list: its last block, or inside a final table the last
 diff --git a/crates/docx/src/write/props.rs b/crates/docx/src/write/props.rs
-index 16ed267..4cc0bf7 100644
+index 16ed267f6c793f0dae8d04c558aac81dba547e91..4cc0bf7d54b181988e1be5050befc9bb61dba448 100644
 --- a/crates/docx/src/write/props.rs
 +++ b/crates/docx/src/write/props.rs
 @@ -297,12 +297,16 @@ pub fn ppr_inner(w: &mut W, p: &ParaProps, framed: bool, num_change: Option<&Cha
@@ -2227,7 +2227,7 @@ index 16ed267..4cc0bf7 100644
              a.push(("w:afterAutospacing", if on { "1" } else { "0" }));
          }
 diff --git a/crates/docx/tests/roundtrip.rs b/crates/docx/tests/roundtrip.rs
-index 791cf20..c58c8f9 100644
+index 791cf203fa0629aae600c36b69d9d8ba8c6710ec..c58c8f947266b0350dd18fb4fc228418423c2a9d 100644
 --- a/crates/docx/tests/roundtrip.rs
 +++ b/crates/docx/tests/roundtrip.rs
 @@ -141,6 +141,8 @@ fn every_para_prop_round_trips() {
@@ -2240,7 +2240,7 @@ index 791cf20..c58c8f9 100644
          space_after_auto: Some(false),
          line_spacing: Some(LineSpacing::Multiple(1.5)),
 diff --git a/crates/docx/tests/toc_ranges.rs b/crates/docx/tests/toc_ranges.rs
-index d8010bd..ef01ffd 100644
+index d8010bd490bb6f5784744ddfab57cb03172dddac..ef01ffd5784e9bf3b8499eab9083c37bee7624bd 100644
 --- a/crates/docx/tests/toc_ranges.rs
 +++ b/crates/docx/tests/toc_ranges.rs
 @@ -29,6 +29,47 @@ const END: &str = r#"<w:r><w:fldChar w:fldCharType="end"/></w:r>"#;
@@ -2292,7 +2292,7 @@ index d8010bd..ef01ffd 100644
  fn unstyled_toc_keeps_range_nested_field_and_formatting_through_two_edited_saves() {
      for split in [false, true] {
 diff --git a/crates/engine/src/cmd/edit.rs b/crates/engine/src/cmd/edit.rs
-index a61b0a9..927c0df 100644
+index a61b0a9fec4d61131016166ab5713e82b87656cb..927c0df40588e81053f1acb5a002cd5c1b5c4008 100644
 --- a/crates/engine/src/cmd/edit.rs
 +++ b/crates/engine/src/cmd/edit.rs
 @@ -155,10 +155,14 @@ pub fn specs() -> Vec<CommandSpec> {
@@ -2322,7 +2322,7 @@ index a61b0a9..927c0df 100644
  }
  
 diff --git a/crates/engine/src/cmd/file.rs b/crates/engine/src/cmd/file.rs
-index 4ca72ab..ac22d4c 100644
+index 4ca72abe80deb8de1f5806148d6f08837951d59a..ac22d4c1c09cfa5fee1752b954cf4785594a1ca4 100644
 --- a/crates/engine/src/cmd/file.rs
 +++ b/crates/engine/src/cmd/file.rs
 @@ -257,17 +257,11 @@ fn save(s: &mut Session, v: &Value) -> CmdResult {
@@ -2349,7 +2349,7 @@ index 4ca72ab..ac22d4c 100644
  
  #[cfg(target_arch = "wasm32")]
 diff --git a/crates/engine/src/cmd/format.rs b/crates/engine/src/cmd/format.rs
-index dc5503d..9c3ba0f 100644
+index dc5503d2245731c3ea9f5aa6b6f4559019eb526d..9c3ba0f85ae0c40226b5050dfccc2044fbaf52f3 100644
 --- a/crates/engine/src/cmd/format.rs
 +++ b/crates/engine/src/cmd/format.rs
 @@ -305,7 +305,7 @@ fn font(s: &mut Session, v: &Value) -> CmdResult {
@@ -2362,7 +2362,7 @@ index dc5503d..9c3ba0f 100644
      });
      apply(s, &|c| {
 diff --git a/crates/engine/src/cmd/paste.rs b/crates/engine/src/cmd/paste.rs
-index 7b86234..4414e4b 100644
+index 7b86234abc8e79496a92245dd5dc0a3045880b08..4414e4b25f4ae24a64b363145aa2a01c3aa0e268 100644
 --- a/crates/engine/src/cmd/paste.rs
 +++ b/crates/engine/src/cmd/paste.rs
 @@ -12,7 +12,7 @@ use std::sync::Arc;
@@ -2467,7 +2467,7 @@ index 7b86234..4414e4b 100644
      let track = s.doc.settings.track_changes;
      let mut rid = None;
 diff --git a/crates/engine/src/io.rs b/crates/engine/src/io.rs
-index fe451ff..bbc60e0 100644
+index fe451ff963c41c8498cb19d01a8a6e039aa09021..bbc60e0649bdfaf8231af43841f6b3aa75064569 100644
 --- a/crates/engine/src/io.rs
 +++ b/crates/engine/src/io.rs
 @@ -28,7 +28,7 @@ pub const OPEN_EXTS: &[&str] = &[
@@ -2480,7 +2480,7 @@ index fe451ff..bbc60e0 100644
  /// The extension of a file name or path, lower-case; empty when the file name has none (a dot
  /// in a folder name doesn't count).
 diff --git a/crates/engine/src/io_ext.rs b/crates/engine/src/io_ext.rs
-index 12eb6dc..62bf44b 100644
+index 12eb6dccbaab2952a83c981ee64592b1be10ea4e..62bf44b4a2dbea57066feb7897fb9f520bd0a218 100644
 --- a/crates/engine/src/io_ext.rs
 +++ b/crates/engine/src/io_ext.rs
 @@ -26,6 +26,7 @@ pub fn save(ext: &str, doc: &Document, opts: &crate::io::ExportOptions) -> Optio
@@ -2531,7 +2531,7 @@ index 12eb6dc..62bf44b 100644
  /// markup area with the comments in balloons (page images always show tracked changes).
  pub fn render_png(doc: &Document, page: usize, scale: f32, opts: &crate::io::ExportOptions) -> Result<Vec<u8>, String> {
 diff --git a/crates/engine/src/ribbon.rs b/crates/engine/src/ribbon.rs
-index 49cb879..554d63a 100644
+index 49cb8793d973f9bc01407a9ccacf7d66b131d2a7..554d63acfb7574cab785b6137d19828077783576 100644
 --- a/crates/engine/src/ribbon.rs
 +++ b/crates/engine/src/ribbon.rs
 @@ -15,8 +15,8 @@ use crate::Registry;
@@ -2546,7 +2546,7 @@ index 49cb879..554d63a 100644
  pub const CONTEXTUAL_TABS: [&str; 7] =
      ["Table Design", "Table Layout", "Picture Format", "Shape Format", "Equation", "Chart Design", "SmartArt Design"];
 diff --git a/crates/engine/src/session.rs b/crates/engine/src/session.rs
-index 722f9c6..ce0cef6 100644
+index 722f9c6942442d24035bd4007522e51025569205..ce0cef694af064b37d953c081931a48024d65d9e 100644
 --- a/crates/engine/src/session.rs
 +++ b/crates/engine/src/session.rs
 @@ -111,8 +111,9 @@ pub struct ViewState {
@@ -2582,7 +2582,7 @@ index 722f9c6..ce0cef6 100644
              styles_pane: false,
              style_inspector: false,
 diff --git a/crates/engine/src/tests.rs b/crates/engine/src/tests.rs
-index 143cc47..f57a691 100644
+index 143cc472179f03258468e4b44bb70256e258c871..f57a6912e9d22e91ccebb98210cfdf58a29129b9 100644
 --- a/crates/engine/src/tests.rs
 +++ b/crates/engine/src/tests.rs
 @@ -25,6 +25,30 @@ fn doc_extension_dispatches_to_docbin() {
@@ -2680,7 +2680,7 @@ index 143cc47..f57a691 100644
  /// is `lang`; the caret ends in the last cell.
  fn column_table(lang: &str, cells: &[&str]) -> Session {
 diff --git a/crates/fonts/src/fontdb.rs b/crates/fonts/src/fontdb.rs
-index 816ac27..0fd7cc4 100644
+index 816ac2799e46b0bc177dd8b20ff46f1a7b747ff3..0fd7cc4e9c2ada4740dab8a56ff710ef85b6ea9b 100644
 --- a/crates/fonts/src/fontdb.rs
 +++ b/crates/fonts/src/fontdb.rs
 @@ -685,6 +685,15 @@ pub fn system_font_dirs() -> Vec<std::path::PathBuf> {
@@ -2700,7 +2700,7 @@ index 816ac27..0fd7cc4 100644
      if cfg!(target_os = "macos") {
          dirs.extend(["/System/Library/Fonts", "/Library/Fonts"].map(Into::into));
 diff --git a/crates/fonts/src/word.rs b/crates/fonts/src/word.rs
-index b3c5965..69655d3 100644
+index b3c5965508df6c075ce4462d96eafe8989209f21..69655d3df20db9887fafdf939bc2d5108a0f8463 100644
 --- a/crates/fonts/src/word.rs
 +++ b/crates/fonts/src/word.rs
 @@ -21,10 +21,46 @@ pub struct Resolved {
@@ -2770,7 +2770,7 @@ index b3c5965..69655d3 100644
      fn resolves_weights_named_as_their_own_family() {
          // Word stores a Medium face as the family "Inter Medium" (#219).
 diff --git a/crates/layout/src/lib.rs b/crates/layout/src/lib.rs
-index 883011b..c2f0171 100644
+index 883011b10bdb50b749befff43bd61f45c64b5609..c2f01716f15ed49008b3fdee497b85789b600923 100644
 --- a/crates/layout/src/lib.rs
 +++ b/crates/layout/src/lib.rs
 @@ -28,7 +28,7 @@ use std::sync::Arc;
@@ -3138,7 +3138,7 @@ index 883011b..c2f0171 100644
              } else {
                  pl.rp.space_before + pl.lines.first().map(|l| l.height).unwrap_or(0.0)
 diff --git a/crates/layout/src/para.rs b/crates/layout/src/para.rs
-index 41f9fad..34602be 100644
+index 41f9fadf06dac8c48231875b15eef7ae3f1a1464..34602bece4dd4673b11099a88802b2aee4fa88dd 100644
 --- a/crates/layout/src/para.rs
 +++ b/crates/layout/src/para.rs
 @@ -392,6 +392,9 @@ pub struct ParaEnv<'a> {
@@ -3252,7 +3252,7 @@ index 41f9fad..34602be 100644
          rp.line_spacing = wordcraft_doc::props::LineSpacing::Multiple(spacing);
      }
 diff --git a/crates/layout/src/table.rs b/crates/layout/src/table.rs
-index 102aa17..52e1e83 100644
+index 102aa174aa149d3ea5f318f4f08a402d46707d15..52e1e83ba88e52f6a89bce8d88c504291539edbe 100644
 --- a/crates/layout/src/table.rs
 +++ b/crates/layout/src/table.rs
 @@ -102,6 +102,22 @@ const MEASURE_WIDE: f32 = 15_840.0;
@@ -3357,7 +3357,7 @@ index 102aa17..52e1e83 100644
                  let m = cell.props.margins.unwrap_or(margins_def);
                  let need = (lo + m[1] + m[3], hi + m[1] + m[3]);
 diff --git a/crates/layout/src/tests.rs b/crates/layout/src/tests.rs
-index afdf9d0..8fcefc3 100644
+index afdf9d0e36be1981cfce855ae337125717c983d9..8fcefc336fdd14fab0e3c30e938355eaccea810a 100644
 --- a/crates/layout/src/tests.rs
 +++ b/crates/layout/src/tests.rs
 @@ -1,6 +1,6 @@
@@ -3538,7 +3538,7 @@ index afdf9d0..8fcefc3 100644
  /// room, measured in Word for Windows (`plan/word` R21, 10 cases): the text after it follows right
  /// on, and columns balanced above it don't count it (two one-line paragraphs in two columns sit
 diff --git a/crates/layout/src/tests_grid.rs b/crates/layout/src/tests_grid.rs
-index fc2c900..12430f8 100644
+index fc2c9005a79c0462d49a8f8049f5aeae608fd19d..12430f8c51a46a9e2c84d47dca07e99fa839800b 100644
 --- a/crates/layout/src/tests_grid.rs
 +++ b/crates/layout/src/tests_grid.rs
 @@ -91,3 +91,44 @@ fn character_grid_places_east_asian_text_on_the_pitch() {
@@ -3587,7 +3587,7 @@ index fc2c900..12430f8 100644
 +    // the effective WPS pitch is asserted above at the grid boundary.
 +}
 diff --git a/crates/mcp/src/server.rs b/crates/mcp/src/server.rs
-index 63f6764..f781411 100644
+index 63f6764c611dbeb3f26d70dde1f312653698eb68..f781411b741532aa5cfe747d328e119f0a052b36 100644
 --- a/crates/mcp/src/server.rs
 +++ b/crates/mcp/src/server.rs
 @@ -135,7 +135,7 @@ impl Server {
@@ -3600,7 +3600,7 @@ index 63f6764..f781411 100644
                      ),
                  }))
 diff --git a/crates/proof/src/lib.rs b/crates/proof/src/lib.rs
-index f9eead1..f942d9d 100644
+index f9eead19d325ad3536459d236dfc7c250583743a..f942d9d272c264f012f0aa22c09f67e6f4ef8e63 100644
 --- a/crates/proof/src/lib.rs
 +++ b/crates/proof/src/lib.rs
 @@ -672,6 +672,9 @@ pub fn check_grammar(text: &str) -> Vec<Issue> {
@@ -3666,7 +3666,7 @@ index f9eead1..f942d9d 100644
      fn ellipses_do_not_start_sentences() {
          for text in [
 diff --git a/crates/ui-egui/Cargo.toml b/crates/ui-egui/Cargo.toml
-index f4a0b66..713e9b5 100644
+index f4a0b66450eb31fd9d38c1c3721373de3c1bd5eb..713e9b50dd7f5878af128057c193870f15ccaa83 100644
 --- a/crates/ui-egui/Cargo.toml
 +++ b/crates/ui-egui/Cargo.toml
 @@ -18,6 +18,7 @@ wordcraft-render = { workspace = true }
@@ -3679,7 +3679,7 @@ index f4a0b66..713e9b5 100644
  log = { workspace = true }
 diff --git a/crates/ui-egui/assets/tabler/LICENSE b/crates/ui-egui/assets/tabler/LICENSE
 new file mode 100644
-index 0000000..3e82379
+index 0000000000000000000000000000000000000000..3e82379dab3fe93d9ee22251949604ed63ddea39
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/LICENSE
 @@ -0,0 +1,21 @@
@@ -3706,7 +3706,7 @@ index 0000000..3e82379
 +SOFTWARE.
 diff --git a/crates/ui-egui/assets/tabler/abc.svg b/crates/ui-egui/assets/tabler/abc.svg
 new file mode 100644
-index 0000000..3ba4844
+index 0000000000000000000000000000000000000000..3ba4844535a86ff1c244dda9079de99e6878caba
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/abc.svg
 @@ -0,0 +1,18 @@
@@ -3731,7 +3731,7 @@ index 0000000..3ba4844
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/accessible.svg b/crates/ui-egui/assets/tabler/accessible.svg
 new file mode 100644
-index 0000000..8b028a8
+index 0000000000000000000000000000000000000000..8b028a862540b47c025f861fb96bbb3cd979c398
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/accessible.svg
 @@ -0,0 +1,17 @@
@@ -3755,7 +3755,7 @@ index 0000000..8b028a8
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/address-book.svg b/crates/ui-egui/assets/tabler/address-book.svg
 new file mode 100644
-index 0000000..9b76161
+index 0000000000000000000000000000000000000000..9b76161e9841123a6071bd411de6b5f885414a40
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/address-book.svg
 @@ -0,0 +1,20 @@
@@ -3782,7 +3782,7 @@ index 0000000..9b76161
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/align-box-center-middle.svg b/crates/ui-egui/assets/tabler/align-box-center-middle.svg
 new file mode 100644
-index 0000000..869cdcf
+index 0000000000000000000000000000000000000000..869cdcf01fb02235fd9b4d2ca75e0ae6b954aa60
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/align-box-center-middle.svg
 @@ -0,0 +1,18 @@
@@ -3807,7 +3807,7 @@ index 0000000..869cdcf
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/align-center.svg b/crates/ui-egui/assets/tabler/align-center.svg
 new file mode 100644
-index 0000000..198469e
+index 0000000000000000000000000000000000000000..198469ea3b6c78aa646c31c5fa480cb2228c0d0f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/align-center.svg
 @@ -0,0 +1,17 @@
@@ -3831,7 +3831,7 @@ index 0000000..198469e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/align-justified.svg b/crates/ui-egui/assets/tabler/align-justified.svg
 new file mode 100644
-index 0000000..f5a9a33
+index 0000000000000000000000000000000000000000..f5a9a3359dd604d177a5feca9b2ecd1aa7a0f157
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/align-justified.svg
 @@ -0,0 +1,17 @@
@@ -3855,7 +3855,7 @@ index 0000000..f5a9a33
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/align-left.svg b/crates/ui-egui/assets/tabler/align-left.svg
 new file mode 100644
-index 0000000..544a723
+index 0000000000000000000000000000000000000000..544a723eb2352c7876ca4bd580b0405149ff0a6c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/align-left.svg
 @@ -0,0 +1,17 @@
@@ -3879,7 +3879,7 @@ index 0000000..544a723
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/align-right.svg b/crates/ui-egui/assets/tabler/align-right.svg
 new file mode 100644
-index 0000000..ac9ca1e
+index 0000000000000000000000000000000000000000..ac9ca1e08d7b1600cea03cb54708fb92668d442a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/align-right.svg
 @@ -0,0 +1,17 @@
@@ -3903,7 +3903,7 @@ index 0000000..ac9ca1e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/app-window.svg b/crates/ui-egui/assets/tabler/app-window.svg
 new file mode 100644
-index 0000000..1eb69e9
+index 0000000000000000000000000000000000000000..1eb69e9471592dc54052a1350cb092f98dff5191
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/app-window.svg
 @@ -0,0 +1,17 @@
@@ -3927,7 +3927,7 @@ index 0000000..1eb69e9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/apps.svg b/crates/ui-egui/assets/tabler/apps.svg
 new file mode 100644
-index 0000000..e76ec65
+index 0000000000000000000000000000000000000000..e76ec65407c77d34f295905ec50b9a7e02e055e2
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/apps.svg
 @@ -0,0 +1,19 @@
@@ -3953,7 +3953,7 @@ index 0000000..e76ec65
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrow-autofit-height.svg b/crates/ui-egui/assets/tabler/arrow-autofit-height.svg
 new file mode 100644
-index 0000000..3a24cf9
+index 0000000000000000000000000000000000000000..3a24cf9218e31954c7b409699d2cd3a9f1fb3607
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrow-autofit-height.svg
 @@ -0,0 +1,19 @@
@@ -3979,7 +3979,7 @@ index 0000000..3a24cf9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrow-autofit-width.svg b/crates/ui-egui/assets/tabler/arrow-autofit-width.svg
 new file mode 100644
-index 0000000..f05c10b
+index 0000000000000000000000000000000000000000..f05c10bdfba607b1990a693878a35375df876a30
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrow-autofit-width.svg
 @@ -0,0 +1,19 @@
@@ -4005,7 +4005,7 @@ index 0000000..f05c10b
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrow-back-up.svg b/crates/ui-egui/assets/tabler/arrow-back-up.svg
 new file mode 100644
-index 0000000..1da9bfa
+index 0000000000000000000000000000000000000000..1da9bfa44d15078cefc72255fb1a888ade8be763
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrow-back-up.svg
 @@ -0,0 +1,16 @@
@@ -4028,7 +4028,7 @@ index 0000000..1da9bfa
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrow-down-right.svg b/crates/ui-egui/assets/tabler/arrow-down-right.svg
 new file mode 100644
-index 0000000..f445832
+index 0000000000000000000000000000000000000000..f44583269bc36845e313ff574917ac9ae25de3eb
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrow-down-right.svg
 @@ -0,0 +1,16 @@
@@ -4051,7 +4051,7 @@ index 0000000..f445832
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrow-down.svg b/crates/ui-egui/assets/tabler/arrow-down.svg
 new file mode 100644
-index 0000000..062dba8
+index 0000000000000000000000000000000000000000..062dba8b477e34f9ad0e6823b5d2d916bc87a043
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrow-down.svg
 @@ -0,0 +1,17 @@
@@ -4075,7 +4075,7 @@ index 0000000..062dba8
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrow-forward-up.svg b/crates/ui-egui/assets/tabler/arrow-forward-up.svg
 new file mode 100644
-index 0000000..9d9bc0b
+index 0000000000000000000000000000000000000000..9d9bc0b80ee03fa40c9d82f125e8e9314755b50d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrow-forward-up.svg
 @@ -0,0 +1,16 @@
@@ -4098,7 +4098,7 @@ index 0000000..9d9bc0b
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrow-up.svg b/crates/ui-egui/assets/tabler/arrow-up.svg
 new file mode 100644
-index 0000000..f34d595
+index 0000000000000000000000000000000000000000..f34d5955b1680d825defc8876671244917a2a40f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrow-up.svg
 @@ -0,0 +1,17 @@
@@ -4122,7 +4122,7 @@ index 0000000..f34d595
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrows-down-up.svg b/crates/ui-egui/assets/tabler/arrows-down-up.svg
 new file mode 100644
-index 0000000..608eb39
+index 0000000000000000000000000000000000000000..608eb395fadc6e76874c3b7e0b32b28c294d69d8
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrows-down-up.svg
 @@ -0,0 +1,18 @@
@@ -4147,7 +4147,7 @@ index 0000000..608eb39
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrows-exchange.svg b/crates/ui-egui/assets/tabler/arrows-exchange.svg
 new file mode 100644
-index 0000000..7e3538d
+index 0000000000000000000000000000000000000000..7e3538d86d23875ed7274a3628451c490b4339ea
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrows-exchange.svg
 @@ -0,0 +1,16 @@
@@ -4170,7 +4170,7 @@ index 0000000..7e3538d
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrows-horizontal.svg b/crates/ui-egui/assets/tabler/arrows-horizontal.svg
 new file mode 100644
-index 0000000..47dae4e
+index 0000000000000000000000000000000000000000..47dae4e819a84edd51d0aac1d33b2a9664f6c56c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrows-horizontal.svg
 @@ -0,0 +1,17 @@
@@ -4194,7 +4194,7 @@ index 0000000..47dae4e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/arrows-minimize.svg b/crates/ui-egui/assets/tabler/arrows-minimize.svg
 new file mode 100644
-index 0000000..f89c811
+index 0000000000000000000000000000000000000000..f89c811e8fe34b37275d9996a22f2684a6548e4f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/arrows-minimize.svg
 @@ -0,0 +1,22 @@
@@ -4223,7 +4223,7 @@ index 0000000..f89c811
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/artboard.svg b/crates/ui-egui/assets/tabler/artboard.svg
 new file mode 100644
-index 0000000..021dd26
+index 0000000000000000000000000000000000000000..021dd261f9206e9c3be7e1266c50ee2b6b62f56e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/artboard.svg
 @@ -0,0 +1,23 @@
@@ -4253,7 +4253,7 @@ index 0000000..021dd26
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/ballpen.svg b/crates/ui-egui/assets/tabler/ballpen.svg
 new file mode 100644
-index 0000000..19ab8f0
+index 0000000000000000000000000000000000000000..19ab8f094d3c2365e3ae93dea5d0d8d81b6f2b46
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/ballpen.svg
 @@ -0,0 +1,17 @@
@@ -4277,7 +4277,7 @@ index 0000000..19ab8f0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/bold.svg b/crates/ui-egui/assets/tabler/bold.svg
 new file mode 100644
-index 0000000..c0c3aa1
+index 0000000000000000000000000000000000000000..c0c3aa14b2dedb0730c15ad442a824aba9f9f419
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/bold.svg
 @@ -0,0 +1,16 @@
@@ -4300,7 +4300,7 @@ index 0000000..c0c3aa1
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/book-2.svg b/crates/ui-egui/assets/tabler/book-2.svg
 new file mode 100644
-index 0000000..5ab97bd
+index 0000000000000000000000000000000000000000..5ab97bd691ec343c40aafe46b60b3610b6965c02
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/book-2.svg
 @@ -0,0 +1,17 @@
@@ -4324,7 +4324,7 @@ index 0000000..5ab97bd
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/book.svg b/crates/ui-egui/assets/tabler/book.svg
 new file mode 100644
-index 0000000..973deaa
+index 0000000000000000000000000000000000000000..973deaaac19599a9d6c5b3e6829acc9de031af5c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/book.svg
 @@ -0,0 +1,19 @@
@@ -4350,7 +4350,7 @@ index 0000000..973deaa
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/bookmark-plus.svg b/crates/ui-egui/assets/tabler/bookmark-plus.svg
 new file mode 100644
-index 0000000..934aea7
+index 0000000000000000000000000000000000000000..934aea7a7f0a7dbca10ab5ff9c5ae8cb87998d6b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/bookmark-plus.svg
 @@ -0,0 +1,17 @@
@@ -4374,7 +4374,7 @@ index 0000000..934aea7
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/bookmark.svg b/crates/ui-egui/assets/tabler/bookmark.svg
 new file mode 100644
-index 0000000..5cc8538
+index 0000000000000000000000000000000000000000..5cc85387fc09efc17a57aa4377f0391f9080a314
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/bookmark.svg
 @@ -0,0 +1,15 @@
@@ -4396,7 +4396,7 @@ index 0000000..5cc8538
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/books.svg b/crates/ui-egui/assets/tabler/books.svg
 new file mode 100644
-index 0000000..255c822
+index 0000000000000000000000000000000000000000..255c822c979aa5b90ab7372efeda514362f39015
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/books.svg
 @@ -0,0 +1,21 @@
@@ -4424,7 +4424,7 @@ index 0000000..255c822
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/border-bottom.svg b/crates/ui-egui/assets/tabler/border-bottom.svg
 new file mode 100644
-index 0000000..07cd28f
+index 0000000000000000000000000000000000000000..07cd28f44a23f32ee9c2501a3ff2b0092e81aab6
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/border-bottom.svg
 @@ -0,0 +1,31 @@
@@ -4462,7 +4462,7 @@ index 0000000..07cd28f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/border-outer.svg b/crates/ui-egui/assets/tabler/border-outer.svg
 new file mode 100644
-index 0000000..a071293
+index 0000000000000000000000000000000000000000..a0712938e6a58ff29bfe8d91b526706687064d6d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/border-outer.svg
 @@ -0,0 +1,20 @@
@@ -4489,7 +4489,7 @@ index 0000000..a071293
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/border-style.svg b/crates/ui-egui/assets/tabler/border-style.svg
 new file mode 100644
-index 0000000..306f5a5
+index 0000000000000000000000000000000000000000..306f5a5d0568ffb82b71db1056ab7888eaea74a7
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/border-style.svg
 @@ -0,0 +1,22 @@
@@ -4518,7 +4518,7 @@ index 0000000..306f5a5
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/box-margin.svg b/crates/ui-egui/assets/tabler/box-margin.svg
 new file mode 100644
-index 0000000..b2188fb
+index 0000000000000000000000000000000000000000..b2188fba16bf93ccbfdead06dd6855af7092b1b4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/box-margin.svg
 @@ -0,0 +1,31 @@
@@ -4556,7 +4556,7 @@ index 0000000..b2188fb
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/box-padding.svg b/crates/ui-egui/assets/tabler/box-padding.svg
 new file mode 100644
-index 0000000..a94e98d
+index 0000000000000000000000000000000000000000..a94e98d3b1c647ce294e5add9e26ddf6550b876d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/box-padding.svg
 @@ -0,0 +1,23 @@
@@ -4586,7 +4586,7 @@ index 0000000..a94e98d
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/box.svg b/crates/ui-egui/assets/tabler/box.svg
 new file mode 100644
-index 0000000..bdc2702
+index 0000000000000000000000000000000000000000..bdc27029e6f73759660f85fae44185e338e37880
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/box.svg
 @@ -0,0 +1,18 @@
@@ -4611,7 +4611,7 @@ index 0000000..bdc2702
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/brightness-half.svg b/crates/ui-egui/assets/tabler/brightness-half.svg
 new file mode 100644
-index 0000000..74a892a
+index 0000000000000000000000000000000000000000..74a892a422d0535b30c360a3110c5a9a988de7b6
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/brightness-half.svg
 @@ -0,0 +1,16 @@
@@ -4634,7 +4634,7 @@ index 0000000..74a892a
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/browser.svg b/crates/ui-egui/assets/tabler/browser.svg
 new file mode 100644
-index 0000000..5f34f93
+index 0000000000000000000000000000000000000000..5f34f93fcd1ccef1cc3ff2e10e869fb4c51466c4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/browser.svg
 @@ -0,0 +1,17 @@
@@ -4658,7 +4658,7 @@ index 0000000..5f34f93
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/bucket-droplet.svg b/crates/ui-egui/assets/tabler/bucket-droplet.svg
 new file mode 100644
-index 0000000..7c1cde4
+index 0000000000000000000000000000000000000000..7c1cde4954a54e0255773b6b970cc30d2c249059
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/bucket-droplet.svg
 @@ -0,0 +1,17 @@
@@ -4682,7 +4682,7 @@ index 0000000..7c1cde4
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/calendar-time.svg b/crates/ui-egui/assets/tabler/calendar-time.svg
 new file mode 100644
-index 0000000..7e57c73
+index 0000000000000000000000000000000000000000..7e57c73e54fb4a63190094f61045223795e554d7
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/calendar-time.svg
 @@ -0,0 +1,20 @@
@@ -4709,7 +4709,7 @@ index 0000000..7e57c73
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/calendar.svg b/crates/ui-egui/assets/tabler/calendar.svg
 new file mode 100644
-index 0000000..307e7b6
+index 0000000000000000000000000000000000000000..307e7b672c018571f9caf82ac62a2cb22743bb2d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/calendar.svg
 @@ -0,0 +1,20 @@
@@ -4736,7 +4736,7 @@ index 0000000..307e7b6
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/category.svg b/crates/ui-egui/assets/tabler/category.svg
 new file mode 100644
-index 0000000..20f93e4
+index 0000000000000000000000000000000000000000..20f93e46ba699453ae8bbd798690731d51a0cfec
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/category.svg
 @@ -0,0 +1,18 @@
@@ -4761,7 +4761,7 @@ index 0000000..20f93e4
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chart-bar.svg b/crates/ui-egui/assets/tabler/chart-bar.svg
 new file mode 100644
-index 0000000..6eff654
+index 0000000000000000000000000000000000000000..6eff6541e062a34ed152030fe9882fe03f754949
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chart-bar.svg
 @@ -0,0 +1,18 @@
@@ -4786,7 +4786,7 @@ index 0000000..6eff654
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chart-infographic.svg b/crates/ui-egui/assets/tabler/chart-infographic.svg
 new file mode 100644
-index 0000000..ffb72b3
+index 0000000000000000000000000000000000000000..ffb72b363e3d29b8049691b902067bd656f808b4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chart-infographic.svg
 @@ -0,0 +1,20 @@
@@ -4813,7 +4813,7 @@ index 0000000..ffb72b3
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/check.svg b/crates/ui-egui/assets/tabler/check.svg
 new file mode 100644
-index 0000000..6e9231b
+index 0000000000000000000000000000000000000000..6e9231bcebd91e003fb9a9bcc7ae9e2bf7b32fbb
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/check.svg
 @@ -0,0 +1,15 @@
@@ -4835,7 +4835,7 @@ index 0000000..6e9231b
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/checkbox.svg b/crates/ui-egui/assets/tabler/checkbox.svg
 new file mode 100644
-index 0000000..425f961
+index 0000000000000000000000000000000000000000..425f96155be441f620a4fab4185d16c5abf8483d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/checkbox.svg
 @@ -0,0 +1,16 @@
@@ -4858,7 +4858,7 @@ index 0000000..425f961
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chevron-down.svg b/crates/ui-egui/assets/tabler/chevron-down.svg
 new file mode 100644
-index 0000000..92e2050
+index 0000000000000000000000000000000000000000..92e2050a2cac7af037fd858cd008752424b6dce5
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chevron-down.svg
 @@ -0,0 +1,15 @@
@@ -4880,7 +4880,7 @@ index 0000000..92e2050
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chevron-left.svg b/crates/ui-egui/assets/tabler/chevron-left.svg
 new file mode 100644
-index 0000000..db7aff7
+index 0000000000000000000000000000000000000000..db7aff789319413b6135d94e853338a42528c092
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chevron-left.svg
 @@ -0,0 +1,15 @@
@@ -4902,7 +4902,7 @@ index 0000000..db7aff7
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chevron-right.svg b/crates/ui-egui/assets/tabler/chevron-right.svg
 new file mode 100644
-index 0000000..fb03f1e
+index 0000000000000000000000000000000000000000..fb03f1efdd53d8dd14003db1fde0b2b913c4de16
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chevron-right.svg
 @@ -0,0 +1,15 @@
@@ -4924,7 +4924,7 @@ index 0000000..fb03f1e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chevron-up.svg b/crates/ui-egui/assets/tabler/chevron-up.svg
 new file mode 100644
-index 0000000..cdc3057
+index 0000000000000000000000000000000000000000..cdc3057207e4c4da43fb82c4e7d4e575e3b60798
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chevron-up.svg
 @@ -0,0 +1,15 @@
@@ -4946,7 +4946,7 @@ index 0000000..cdc3057
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chevrons-left.svg b/crates/ui-egui/assets/tabler/chevrons-left.svg
 new file mode 100644
-index 0000000..90e8946
+index 0000000000000000000000000000000000000000..90e8946cdd9c8141cd9e2b137d6f859412b32eff
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chevrons-left.svg
 @@ -0,0 +1,16 @@
@@ -4969,7 +4969,7 @@ index 0000000..90e8946
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/chevrons-right.svg b/crates/ui-egui/assets/tabler/chevrons-right.svg
 new file mode 100644
-index 0000000..1a64c9b
+index 0000000000000000000000000000000000000000..1a64c9bbcb7c40be2c870bc571f1061678c16f30
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/chevrons-right.svg
 @@ -0,0 +1,16 @@
@@ -4992,7 +4992,7 @@ index 0000000..1a64c9b
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/circle-check.svg b/crates/ui-egui/assets/tabler/circle-check.svg
 new file mode 100644
-index 0000000..a1a9317
+index 0000000000000000000000000000000000000000..a1a93179a5efcabcecb9d29e054d83e6f5d2bc85
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/circle-check.svg
 @@ -0,0 +1,16 @@
@@ -5015,7 +5015,7 @@ index 0000000..a1a9317
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/circle-letter-a.svg b/crates/ui-egui/assets/tabler/circle-letter-a.svg
 new file mode 100644
-index 0000000..ede2cfe
+index 0000000000000000000000000000000000000000..ede2cfece40a02910d32b5fd8262aac05e1a06b5
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/circle-letter-a.svg
 @@ -0,0 +1,17 @@
@@ -5039,7 +5039,7 @@ index 0000000..ede2cfe
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/clear-formatting.svg b/crates/ui-egui/assets/tabler/clear-formatting.svg
 new file mode 100644
-index 0000000..84ecca6
+index 0000000000000000000000000000000000000000..84ecca6aad5bad723d3f8f984bfa1568dd52e8c4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/clear-formatting.svg
 @@ -0,0 +1,18 @@
@@ -5064,7 +5064,7 @@ index 0000000..84ecca6
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/clipboard-text.svg b/crates/ui-egui/assets/tabler/clipboard-text.svg
 new file mode 100644
-index 0000000..be42437
+index 0000000000000000000000000000000000000000..be42437d7d05374fc3b32e6022cdcde9df8253d1
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/clipboard-text.svg
 @@ -0,0 +1,18 @@
@@ -5089,7 +5089,7 @@ index 0000000..be42437
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/code.svg b/crates/ui-egui/assets/tabler/code.svg
 new file mode 100644
-index 0000000..33a9942
+index 0000000000000000000000000000000000000000..33a99427fdfc162934851b9513753919ea8ebd1b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/code.svg
 @@ -0,0 +1,17 @@
@@ -5113,7 +5113,7 @@ index 0000000..33a9942
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/color-swatch.svg b/crates/ui-egui/assets/tabler/color-swatch.svg
 new file mode 100644
-index 0000000..0340dbb
+index 0000000000000000000000000000000000000000..0340dbb83357b1200150b2005d9420dad6f0262e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/color-swatch.svg
 @@ -0,0 +1,18 @@
@@ -5138,7 +5138,7 @@ index 0000000..0340dbb
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/column-insert-left.svg b/crates/ui-egui/assets/tabler/column-insert-left.svg
 new file mode 100644
-index 0000000..b8a02f0
+index 0000000000000000000000000000000000000000..b8a02f00ac3d7516536c100d4e39ced6c669e3b5
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/column-insert-left.svg
 @@ -0,0 +1,17 @@
@@ -5162,7 +5162,7 @@ index 0000000..b8a02f0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/column-insert-right.svg b/crates/ui-egui/assets/tabler/column-insert-right.svg
 new file mode 100644
-index 0000000..0caaf7e
+index 0000000000000000000000000000000000000000..0caaf7e240b8551a0cb9d70814096bef03a717e6
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/column-insert-right.svg
 @@ -0,0 +1,17 @@
@@ -5186,7 +5186,7 @@ index 0000000..0caaf7e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/columns-2.svg b/crates/ui-egui/assets/tabler/columns-2.svg
 new file mode 100644
-index 0000000..23abcdf
+index 0000000000000000000000000000000000000000..23abcdf597e700ba95c5608eb973f063179f7c4f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/columns-2.svg
 @@ -0,0 +1,16 @@
@@ -5209,7 +5209,7 @@ index 0000000..23abcdf
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/components.svg b/crates/ui-egui/assets/tabler/components.svg
 new file mode 100644
-index 0000000..4f17753
+index 0000000000000000000000000000000000000000..4f177536967ce462fc0e60e7ca3d4b93fed2791c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/components.svg
 @@ -0,0 +1,18 @@
@@ -5234,7 +5234,7 @@ index 0000000..4f17753
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/copy.svg b/crates/ui-egui/assets/tabler/copy.svg
 new file mode 100644
-index 0000000..91efff9
+index 0000000000000000000000000000000000000000..91efff9aae0f2555aea60f291b050635eefc5b7c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/copy.svg
 @@ -0,0 +1,16 @@
@@ -5257,7 +5257,7 @@ index 0000000..91efff9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/cube.svg b/crates/ui-egui/assets/tabler/cube.svg
 new file mode 100644
-index 0000000..76d4566
+index 0000000000000000000000000000000000000000..76d4566a9be8dc4de48a765cfac160cc29af060b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/cube.svg
 @@ -0,0 +1,18 @@
@@ -5282,7 +5282,7 @@ index 0000000..76d4566
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/device-floppy.svg b/crates/ui-egui/assets/tabler/device-floppy.svg
 new file mode 100644
-index 0000000..d998bfa
+index 0000000000000000000000000000000000000000..d998bfacd86e4f6b66c9e9cbaecea82f4de7957b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/device-floppy.svg
 @@ -0,0 +1,17 @@
@@ -5306,7 +5306,7 @@ index 0000000..d998bfa
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/dimensions.svg b/crates/ui-egui/assets/tabler/dimensions.svg
 new file mode 100644
-index 0000000..dcc30d4
+index 0000000000000000000000000000000000000000..dcc30d4c3423d2c1ff36769ff6b83d9ba266a972
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/dimensions.svg
 @@ -0,0 +1,21 @@
@@ -5334,7 +5334,7 @@ index 0000000..dcc30d4
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/dots.svg b/crates/ui-egui/assets/tabler/dots.svg
 new file mode 100644
-index 0000000..74bfe73
+index 0000000000000000000000000000000000000000..74bfe73c4126da8791aed5c05ad3c3f75b3bbbb7
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/dots.svg
 @@ -0,0 +1,17 @@
@@ -5358,7 +5358,7 @@ index 0000000..74bfe73
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/eraser.svg b/crates/ui-egui/assets/tabler/eraser.svg
 new file mode 100644
-index 0000000..515252f
+index 0000000000000000000000000000000000000000..515252f0afdba13db974e12046059c957f6c1979
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/eraser.svg
 @@ -0,0 +1,16 @@
@@ -5381,7 +5381,7 @@ index 0000000..515252f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/eye.svg b/crates/ui-egui/assets/tabler/eye.svg
 new file mode 100644
-index 0000000..6096f4a
+index 0000000000000000000000000000000000000000..6096f4ac0a959e11e1a56cb212c71dd85688cf23
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/eye.svg
 @@ -0,0 +1,16 @@
@@ -5404,7 +5404,7 @@ index 0000000..6096f4a
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-alert.svg b/crates/ui-egui/assets/tabler/file-alert.svg
 new file mode 100644
-index 0000000..464ac2e
+index 0000000000000000000000000000000000000000..464ac2e15a9d9cf20ae8860c3aa1f8fadb0bf80d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-alert.svg
 @@ -0,0 +1,18 @@
@@ -5429,7 +5429,7 @@ index 0000000..464ac2e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-check.svg b/crates/ui-egui/assets/tabler/file-check.svg
 new file mode 100644
-index 0000000..902379b
+index 0000000000000000000000000000000000000000..902379b1a17f95470fd198d835df273ea014cea4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-check.svg
 @@ -0,0 +1,17 @@
@@ -5453,7 +5453,7 @@ index 0000000..902379b
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-description.svg b/crates/ui-egui/assets/tabler/file-description.svg
 new file mode 100644
-index 0000000..b73ab3c
+index 0000000000000000000000000000000000000000..b73ab3c417fa4f61d7f78852216bafffffb4c247
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-description.svg
 @@ -0,0 +1,18 @@
@@ -5478,7 +5478,7 @@ index 0000000..b73ab3c
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-digit.svg b/crates/ui-egui/assets/tabler/file-digit.svg
 new file mode 100644
-index 0000000..d2472a5
+index 0000000000000000000000000000000000000000..d2472a55f1d1a8802248786c1350e4f62ecafb4e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-digit.svg
 @@ -0,0 +1,18 @@
@@ -5503,7 +5503,7 @@ index 0000000..d2472a5
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-orientation.svg b/crates/ui-egui/assets/tabler/file-orientation.svg
 new file mode 100644
-index 0000000..bfd0f30
+index 0000000000000000000000000000000000000000..bfd0f30fe23e030f1931b651919469a564382856
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-orientation.svg
 @@ -0,0 +1,19 @@
@@ -5529,7 +5529,7 @@ index 0000000..bfd0f30
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-pencil.svg b/crates/ui-egui/assets/tabler/file-pencil.svg
 new file mode 100644
-index 0000000..63c54cc
+index 0000000000000000000000000000000000000000..63c54ccdc17143e8fceb977ef073bc57daf8e36f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-pencil.svg
 @@ -0,0 +1,17 @@
@@ -5553,7 +5553,7 @@ index 0000000..63c54cc
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-plus.svg b/crates/ui-egui/assets/tabler/file-plus.svg
 new file mode 100644
-index 0000000..d88b243
+index 0000000000000000000000000000000000000000..d88b24324996d0f4af381ec82d38a40a8175e615
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-plus.svg
 @@ -0,0 +1,18 @@
@@ -5578,7 +5578,7 @@ index 0000000..d88b243
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-settings.svg b/crates/ui-egui/assets/tabler/file-settings.svg
 new file mode 100644
-index 0000000..7b524f9
+index 0000000000000000000000000000000000000000..7b524f97ae9418d0db0774b2a050e10af6213b94
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-settings.svg
 @@ -0,0 +1,23 @@
@@ -5608,7 +5608,7 @@ index 0000000..7b524f9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-symlink.svg b/crates/ui-egui/assets/tabler/file-symlink.svg
 new file mode 100644
-index 0000000..a215eb0
+index 0000000000000000000000000000000000000000..a215eb033903f6e83f712bb510b322d0e3fad2d1
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-symlink.svg
 @@ -0,0 +1,18 @@
@@ -5633,7 +5633,7 @@ index 0000000..a215eb0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-text.svg b/crates/ui-egui/assets/tabler/file-text.svg
 new file mode 100644
-index 0000000..23cf1e9
+index 0000000000000000000000000000000000000000..23cf1e9a243259b59b0e9ef06afd2ecc6306bed4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-text.svg
 @@ -0,0 +1,19 @@
@@ -5659,7 +5659,7 @@ index 0000000..23cf1e9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file-x.svg b/crates/ui-egui/assets/tabler/file-x.svg
 new file mode 100644
-index 0000000..5c7781c
+index 0000000000000000000000000000000000000000..5c7781c3b874e339341f7deb969761201f2cadf4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file-x.svg
 @@ -0,0 +1,17 @@
@@ -5683,7 +5683,7 @@ index 0000000..5c7781c
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/file.svg b/crates/ui-egui/assets/tabler/file.svg
 new file mode 100644
-index 0000000..53a5c09
+index 0000000000000000000000000000000000000000..53a5c0948a98202888ad9b40c1eb1ea0ee2c705f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/file.svg
 @@ -0,0 +1,16 @@
@@ -5706,7 +5706,7 @@ index 0000000..53a5c09
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/files.svg b/crates/ui-egui/assets/tabler/files.svg
 new file mode 100644
-index 0000000..8497346
+index 0000000000000000000000000000000000000000..84973467cf04852cef3b9b3fa4f2360732d541b0
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/files.svg
 @@ -0,0 +1,17 @@
@@ -5730,7 +5730,7 @@ index 0000000..8497346
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/float-center.svg b/crates/ui-egui/assets/tabler/float-center.svg
 new file mode 100644
-index 0000000..09789d7
+index 0000000000000000000000000000000000000000..09789d77761a473b061e132dc7d33b7baa26d41e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/float-center.svg
 @@ -0,0 +1,21 @@
@@ -5758,7 +5758,7 @@ index 0000000..09789d7
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/focus-centered.svg b/crates/ui-egui/assets/tabler/focus-centered.svg
 new file mode 100644
-index 0000000..3b8eb97
+index 0000000000000000000000000000000000000000..3b8eb97350ae2b1861b60725d60f910a95c46b1f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/focus-centered.svg
 @@ -0,0 +1,19 @@
@@ -5784,7 +5784,7 @@ index 0000000..3b8eb97
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/folder-open.svg b/crates/ui-egui/assets/tabler/folder-open.svg
 new file mode 100644
-index 0000000..46ae89d
+index 0000000000000000000000000000000000000000..46ae89dbcc8d4c1cf4b96c89f83344a8d8a8c4c3
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/folder-open.svg
 @@ -0,0 +1,15 @@
@@ -5806,7 +5806,7 @@ index 0000000..46ae89d
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/folder.svg b/crates/ui-egui/assets/tabler/folder.svg
 new file mode 100644
-index 0000000..721d6cd
+index 0000000000000000000000000000000000000000..721d6cd1706ba809c76c9bbcc24ea76b84df1c2f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/folder.svg
 @@ -0,0 +1,15 @@
@@ -5828,7 +5828,7 @@ index 0000000..721d6cd
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/geometry.svg b/crates/ui-egui/assets/tabler/geometry.svg
 new file mode 100644
-index 0000000..3ecd268
+index 0000000000000000000000000000000000000000..3ecd268afa6492ec8158ddb1b055a679c22275fc
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/geometry.svg
 @@ -0,0 +1,18 @@
@@ -5853,7 +5853,7 @@ index 0000000..3ecd268
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/grid-dots.svg b/crates/ui-egui/assets/tabler/grid-dots.svg
 new file mode 100644
-index 0000000..21ea4e1
+index 0000000000000000000000000000000000000000..21ea4e1e4cd85699df4342c996e44f9a7c884689
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/grid-dots.svg
 @@ -0,0 +1,23 @@
@@ -5883,7 +5883,7 @@ index 0000000..21ea4e1
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/help-circle.svg b/crates/ui-egui/assets/tabler/help-circle.svg
 new file mode 100644
-index 0000000..cd035a0
+index 0000000000000000000000000000000000000000..cd035a09ccdc268079666baeab9e56351c41724f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/help-circle.svg
 @@ -0,0 +1,17 @@
@@ -5907,7 +5907,7 @@ index 0000000..cd035a0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/highlight.svg b/crates/ui-egui/assets/tabler/highlight.svg
 new file mode 100644
-index 0000000..22ab7c5
+index 0000000000000000000000000000000000000000..22ab7c58602819bf4d7d317f98f55334d2ef6b4e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/highlight.svg
 @@ -0,0 +1,18 @@
@@ -5932,7 +5932,7 @@ index 0000000..22ab7c5
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/history.svg b/crates/ui-egui/assets/tabler/history.svg
 new file mode 100644
-index 0000000..e498497
+index 0000000000000000000000000000000000000000..e498497057995c6f9a220335cec7ece80a05ce7d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/history.svg
 @@ -0,0 +1,16 @@
@@ -5955,7 +5955,7 @@ index 0000000..e498497
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/indent-decrease.svg b/crates/ui-egui/assets/tabler/indent-decrease.svg
 new file mode 100644
-index 0000000..d9a1e36
+index 0000000000000000000000000000000000000000..d9a1e368db4604ac5978289c828d01738f127f80
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/indent-decrease.svg
 @@ -0,0 +1,18 @@
@@ -5980,7 +5980,7 @@ index 0000000..d9a1e36
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/indent-increase.svg b/crates/ui-egui/assets/tabler/indent-increase.svg
 new file mode 100644
-index 0000000..f892a8f
+index 0000000000000000000000000000000000000000..f892a8f7119a15ba9552c59d902a406a11307971
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/indent-increase.svg
 @@ -0,0 +1,18 @@
@@ -6005,7 +6005,7 @@ index 0000000..f892a8f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/info-circle.svg b/crates/ui-egui/assets/tabler/info-circle.svg
 new file mode 100644
-index 0000000..8d46185
+index 0000000000000000000000000000000000000000..8d461852c00a410832e429873b7b5b93ea4cc055
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/info-circle.svg
 @@ -0,0 +1,17 @@
@@ -6029,7 +6029,7 @@ index 0000000..8d46185
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/italic.svg b/crates/ui-egui/assets/tabler/italic.svg
 new file mode 100644
-index 0000000..db654e9
+index 0000000000000000000000000000000000000000..db654e999c7de224fd72de6298390ba96eab7a03
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/italic.svg
 @@ -0,0 +1,17 @@
@@ -6053,7 +6053,7 @@ index 0000000..db654e9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/language-hiragana.svg b/crates/ui-egui/assets/tabler/language-hiragana.svg
 new file mode 100644
-index 0000000..1561398
+index 0000000000000000000000000000000000000000..156139861e935aa14743cdf3c48f5b3e67aaffe8
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/language-hiragana.svg
 @@ -0,0 +1,19 @@
@@ -6079,7 +6079,7 @@ index 0000000..1561398
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/language.svg b/crates/ui-egui/assets/tabler/language.svg
 new file mode 100644
-index 0000000..e3370d3
+index 0000000000000000000000000000000000000000..e3370d306c5a21bc8df015da89df2573696de497
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/language.svg
 @@ -0,0 +1,20 @@
@@ -6106,7 +6106,7 @@ index 0000000..e3370d3
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/lasso.svg b/crates/ui-egui/assets/tabler/lasso.svg
 new file mode 100644
-index 0000000..fe7293f
+index 0000000000000000000000000000000000000000..fe7293f7cf2fb0a2a30da8cb7a68ea2dff7a503c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/lasso.svg
 @@ -0,0 +1,17 @@
@@ -6130,7 +6130,7 @@ index 0000000..fe7293f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layers-linked.svg b/crates/ui-egui/assets/tabler/layers-linked.svg
 new file mode 100644
-index 0000000..bbdb941
+index 0000000000000000000000000000000000000000..bbdb9413e531d4f46e43d806a1c16fdf6d73b59f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layers-linked.svg
 @@ -0,0 +1,16 @@
@@ -6153,7 +6153,7 @@ index 0000000..bbdb941
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layers-selected-bottom.svg b/crates/ui-egui/assets/tabler/layers-selected-bottom.svg
 new file mode 100644
-index 0000000..266071f
+index 0000000000000000000000000000000000000000..266071fd97cd4502c13230ed35cef49055d6239a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layers-selected-bottom.svg
 @@ -0,0 +1,19 @@
@@ -6179,7 +6179,7 @@ index 0000000..266071f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layers-selected.svg b/crates/ui-egui/assets/tabler/layers-selected.svg
 new file mode 100644
-index 0000000..75a6e65
+index 0000000000000000000000000000000000000000..75a6e657fedf7f522dca743db16dda59106a8af6
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layers-selected.svg
 @@ -0,0 +1,19 @@
@@ -6205,7 +6205,7 @@ index 0000000..75a6e65
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layers-union.svg b/crates/ui-egui/assets/tabler/layers-union.svg
 new file mode 100644
-index 0000000..b0c0d1f
+index 0000000000000000000000000000000000000000..b0c0d1f0e2e0145cbc0196e41d10701d35827539
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layers-union.svg
 @@ -0,0 +1,15 @@
@@ -6227,7 +6227,7 @@ index 0000000..b0c0d1f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-align-center.svg b/crates/ui-egui/assets/tabler/layout-align-center.svg
 new file mode 100644
-index 0000000..fa26b6d
+index 0000000000000000000000000000000000000000..fa26b6d80a5a870227c992a977de306381dd5aa1
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-align-center.svg
 @@ -0,0 +1,17 @@
@@ -6251,7 +6251,7 @@ index 0000000..fa26b6d
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-bottombar.svg b/crates/ui-egui/assets/tabler/layout-bottombar.svg
 new file mode 100644
-index 0000000..48bc2d0
+index 0000000000000000000000000000000000000000..48bc2d00ffeebacd33fc9806f365a43318fe4d1b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-bottombar.svg
 @@ -0,0 +1,16 @@
@@ -6274,7 +6274,7 @@ index 0000000..48bc2d0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-columns.svg b/crates/ui-egui/assets/tabler/layout-columns.svg
 new file mode 100644
-index 0000000..23a1bfd
+index 0000000000000000000000000000000000000000..23a1bfd2d3c8ab8949c60203547709e2c13dc3ab
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-columns.svg
 @@ -0,0 +1,16 @@
@@ -6297,7 +6297,7 @@ index 0000000..23a1bfd
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-distribute-horizontal.svg b/crates/ui-egui/assets/tabler/layout-distribute-horizontal.svg
 new file mode 100644
-index 0000000..821367c
+index 0000000000000000000000000000000000000000..821367c14c21d78beb00abff85c49649c3ae2de2
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-distribute-horizontal.svg
 @@ -0,0 +1,17 @@
@@ -6321,7 +6321,7 @@ index 0000000..821367c
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-distribute-vertical.svg b/crates/ui-egui/assets/tabler/layout-distribute-vertical.svg
 new file mode 100644
-index 0000000..d2c3ee8
+index 0000000000000000000000000000000000000000..d2c3ee8e5ce3d05a91ef2abb4282dc6206c084ab
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-distribute-vertical.svg
 @@ -0,0 +1,17 @@
@@ -6345,7 +6345,7 @@ index 0000000..d2c3ee8
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-grid.svg b/crates/ui-egui/assets/tabler/layout-grid.svg
 new file mode 100644
-index 0000000..a125bb4
+index 0000000000000000000000000000000000000000..a125bb48e45d75c1e716bda134482292cce799a9
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-grid.svg
 @@ -0,0 +1,18 @@
@@ -6370,7 +6370,7 @@ index 0000000..a125bb4
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-list.svg b/crates/ui-egui/assets/tabler/layout-list.svg
 new file mode 100644
-index 0000000..dcf4c74
+index 0000000000000000000000000000000000000000..dcf4c743f943bc5a4e5492b43e145a2389fd5cf3
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-list.svg
 @@ -0,0 +1,16 @@
@@ -6393,7 +6393,7 @@ index 0000000..dcf4c74
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-navbar.svg b/crates/ui-egui/assets/tabler/layout-navbar.svg
 new file mode 100644
-index 0000000..3594c00
+index 0000000000000000000000000000000000000000..3594c00c03f08eef886f27b0331e09826b249aa2
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-navbar.svg
 @@ -0,0 +1,16 @@
@@ -6416,7 +6416,7 @@ index 0000000..3594c00
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-off.svg b/crates/ui-egui/assets/tabler/layout-off.svg
 new file mode 100644
-index 0000000..4d2b489
+index 0000000000000000000000000000000000000000..4d2b489f416b415bdb577f075552fc896c161143
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-off.svg
 @@ -0,0 +1,18 @@
@@ -6441,7 +6441,7 @@ index 0000000..4d2b489
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-rows.svg b/crates/ui-egui/assets/tabler/layout-rows.svg
 new file mode 100644
-index 0000000..73c0d04
+index 0000000000000000000000000000000000000000..73c0d0426aada3da3fba5ce1169e7625257318ab
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-rows.svg
 @@ -0,0 +1,16 @@
@@ -6464,7 +6464,7 @@ index 0000000..73c0d04
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-sidebar-left-expand.svg b/crates/ui-egui/assets/tabler/layout-sidebar-left-expand.svg
 new file mode 100644
-index 0000000..fcd4f2a
+index 0000000000000000000000000000000000000000..fcd4f2ab36bfada7c3ad0c95e97a82a511df3ea9
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-sidebar-left-expand.svg
 @@ -0,0 +1,17 @@
@@ -6488,7 +6488,7 @@ index 0000000..fcd4f2a
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/layout-sidebar-right.svg b/crates/ui-egui/assets/tabler/layout-sidebar-right.svg
 new file mode 100644
-index 0000000..61487f0
+index 0000000000000000000000000000000000000000..61487f0037acc170fd9eaf79d27217f79a08e50e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/layout-sidebar-right.svg
 @@ -0,0 +1,16 @@
@@ -6511,7 +6511,7 @@ index 0000000..61487f0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/letter-a.svg b/crates/ui-egui/assets/tabler/letter-a.svg
 new file mode 100644
-index 0000000..4348366
+index 0000000000000000000000000000000000000000..434836665179012e388506c4d73d1ac8866397ea
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/letter-a.svg
 @@ -0,0 +1,16 @@
@@ -6534,7 +6534,7 @@ index 0000000..4348366
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/letter-case.svg b/crates/ui-egui/assets/tabler/letter-case.svg
 new file mode 100644
-index 0000000..d898705
+index 0000000000000000000000000000000000000000..d8987056a2afbf2740fb6f527b4e5d91e4df8a0f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/letter-case.svg
 @@ -0,0 +1,18 @@
@@ -6559,7 +6559,7 @@ index 0000000..d898705
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/letter-t.svg b/crates/ui-egui/assets/tabler/letter-t.svg
 new file mode 100644
-index 0000000..b24eeda
+index 0000000000000000000000000000000000000000..b24eeda7f5bfb889fd91fde6cfa19d59aafd3032
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/letter-t.svg
 @@ -0,0 +1,16 @@
@@ -6582,7 +6582,7 @@ index 0000000..b24eeda
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/library-photo.svg b/crates/ui-egui/assets/tabler/library-photo.svg
 new file mode 100644
-index 0000000..2d5cae4
+index 0000000000000000000000000000000000000000..2d5cae424c4f5b9870569114c2bb27016ec97d3a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/library-photo.svg
 @@ -0,0 +1,19 @@
@@ -6608,7 +6608,7 @@ index 0000000..2d5cae4
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/line-height.svg b/crates/ui-egui/assets/tabler/line-height.svg
 new file mode 100644
-index 0000000..630c7ab
+index 0000000000000000000000000000000000000000..630c7abf074ae95ce905d3e6fb8059ff6279490d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/line-height.svg
 @@ -0,0 +1,20 @@
@@ -6635,7 +6635,7 @@ index 0000000..630c7ab
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/link.svg b/crates/ui-egui/assets/tabler/link.svg
 new file mode 100644
-index 0000000..347b610
+index 0000000000000000000000000000000000000000..347b61008e0ae9a1bc671807d23d692ba08eaaad
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/link.svg
 @@ -0,0 +1,17 @@
@@ -6659,7 +6659,7 @@ index 0000000..347b610
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/list-check.svg b/crates/ui-egui/assets/tabler/list-check.svg
 new file mode 100644
-index 0000000..d464ba9
+index 0000000000000000000000000000000000000000..d464ba91dec9555305eab9d9fe57af2162534f76
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/list-check.svg
 @@ -0,0 +1,20 @@
@@ -6686,7 +6686,7 @@ index 0000000..d464ba9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/list-details.svg b/crates/ui-egui/assets/tabler/list-details.svg
 new file mode 100644
-index 0000000..7b5fcb4
+index 0000000000000000000000000000000000000000..7b5fcb4853f23337ce137aee1f365bff239c77b4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/list-details.svg
 @@ -0,0 +1,20 @@
@@ -6713,7 +6713,7 @@ index 0000000..7b5fcb4
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/list-numbers.svg b/crates/ui-egui/assets/tabler/list-numbers.svg
 new file mode 100644
-index 0000000..3973681
+index 0000000000000000000000000000000000000000..397368171f3604dfd901abfb16b7964cbdc55aa0
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/list-numbers.svg
 @@ -0,0 +1,19 @@
@@ -6739,7 +6739,7 @@ index 0000000..3973681
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/list-search.svg b/crates/ui-egui/assets/tabler/list-search.svg
 new file mode 100644
-index 0000000..dab630b
+index 0000000000000000000000000000000000000000..dab630bd0e5b6772584ef509e92cebcc52060977
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/list-search.svg
 @@ -0,0 +1,19 @@
@@ -6765,7 +6765,7 @@ index 0000000..dab630b
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/list-tree.svg b/crates/ui-egui/assets/tabler/list-tree.svg
 new file mode 100644
-index 0000000..1ae36e0
+index 0000000000000000000000000000000000000000..1ae36e00146d1cf1a5d2ba5f209408c5a2dd2150
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/list-tree.svg
 @@ -0,0 +1,20 @@
@@ -6792,7 +6792,7 @@ index 0000000..1ae36e0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/list.svg b/crates/ui-egui/assets/tabler/list.svg
 new file mode 100644
-index 0000000..91ceae0
+index 0000000000000000000000000000000000000000..91ceae0f48814c955a43e6c752ae416aae611e6b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/list.svg
 @@ -0,0 +1,20 @@
@@ -6819,7 +6819,7 @@ index 0000000..91ceae0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/lock.svg b/crates/ui-egui/assets/tabler/lock.svg
 new file mode 100644
-index 0000000..a72f9a4
+index 0000000000000000000000000000000000000000..a72f9a4126c46c51cbfd8a05dadb343dec4c2c48
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/lock.svg
 @@ -0,0 +1,17 @@
@@ -6843,7 +6843,7 @@ index 0000000..a72f9a4
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/mail-check.svg b/crates/ui-egui/assets/tabler/mail-check.svg
 new file mode 100644
-index 0000000..9d24a07
+index 0000000000000000000000000000000000000000..9d24a0744b78879acd2690716830c855d2377744
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/mail-check.svg
 @@ -0,0 +1,17 @@
@@ -6867,7 +6867,7 @@ index 0000000..9d24a07
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/mail-forward.svg b/crates/ui-egui/assets/tabler/mail-forward.svg
 new file mode 100644
-index 0000000..390438a
+index 0000000000000000000000000000000000000000..390438ae1367e346f7cb4665345a16e4d9eb1aa8
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/mail-forward.svg
 @@ -0,0 +1,18 @@
@@ -6892,7 +6892,7 @@ index 0000000..390438a
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/mail.svg b/crates/ui-egui/assets/tabler/mail.svg
 new file mode 100644
-index 0000000..1fd9cd6
+index 0000000000000000000000000000000000000000..1fd9cd6ea29f8bae9d6d73ec5e001131e8f7a87b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/mail.svg
 @@ -0,0 +1,16 @@
@@ -6915,7 +6915,7 @@ index 0000000..1fd9cd6
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/math-function.svg b/crates/ui-egui/assets/tabler/math-function.svg
 new file mode 100644
-index 0000000..3b98987
+index 0000000000000000000000000000000000000000..3b98987828a7a8cc6aef30ba57e1c025c8f99c63
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/math-function.svg
 @@ -0,0 +1,18 @@
@@ -6940,7 +6940,7 @@ index 0000000..3b98987
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/math-pi.svg b/crates/ui-egui/assets/tabler/math-pi.svg
 new file mode 100644
-index 0000000..ee83972
+index 0000000000000000000000000000000000000000..ee839725f85a2bbcc4c187885ce386025beaab6e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/math-pi.svg
 @@ -0,0 +1,17 @@
@@ -6964,7 +6964,7 @@ index 0000000..ee83972
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/math-symbols.svg b/crates/ui-egui/assets/tabler/math-symbols.svg
 new file mode 100644
-index 0000000..9f8d7fb
+index 0000000000000000000000000000000000000000..9f8d7fb04dbb019717e087da4ff81d43102fe68a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/math-symbols.svg
 @@ -0,0 +1,23 @@
@@ -6994,7 +6994,7 @@ index 0000000..9f8d7fb
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/message-2.svg b/crates/ui-egui/assets/tabler/message-2.svg
 new file mode 100644
-index 0000000..67abd8c
+index 0000000000000000000000000000000000000000..67abd8cd00be74b5fc4fe68e238b78b4b9f0a3fd
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/message-2.svg
 @@ -0,0 +1,17 @@
@@ -7018,7 +7018,7 @@ index 0000000..67abd8c
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/message-check.svg b/crates/ui-egui/assets/tabler/message-check.svg
 new file mode 100644
-index 0000000..09341e3
+index 0000000000000000000000000000000000000000..09341e3f33464fdc2efc6e26c2d9a2e657302629
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/message-check.svg
 @@ -0,0 +1,18 @@
@@ -7043,7 +7043,7 @@ index 0000000..09341e3
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/message-circle.svg b/crates/ui-egui/assets/tabler/message-circle.svg
 new file mode 100644
-index 0000000..7cb39f2
+index 0000000000000000000000000000000000000000..7cb39f2806cf0947f9a8391001be708f73705e69
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/message-circle.svg
 @@ -0,0 +1,15 @@
@@ -7065,7 +7065,7 @@ index 0000000..7cb39f2
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/message-forward.svg b/crates/ui-egui/assets/tabler/message-forward.svg
 new file mode 100644
-index 0000000..eb7a200
+index 0000000000000000000000000000000000000000..eb7a2001c49e995f102ae837132b7321de1a1f7d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/message-forward.svg
 @@ -0,0 +1,17 @@
@@ -7089,7 +7089,7 @@ index 0000000..eb7a200
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/message-plus.svg b/crates/ui-egui/assets/tabler/message-plus.svg
 new file mode 100644
-index 0000000..98e2e08
+index 0000000000000000000000000000000000000000..98e2e083f6077869bde478d23834bda588fb5847
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/message-plus.svg
 @@ -0,0 +1,19 @@
@@ -7115,7 +7115,7 @@ index 0000000..98e2e08
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/message-x.svg b/crates/ui-egui/assets/tabler/message-x.svg
 new file mode 100644
-index 0000000..d6c2b5f
+index 0000000000000000000000000000000000000000..d6c2b5f1e8ae4389d9194d5371c76f6e18ca92d2
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/message-x.svg
 @@ -0,0 +1,19 @@
@@ -7141,7 +7141,7 @@ index 0000000..d6c2b5f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/message.svg b/crates/ui-egui/assets/tabler/message.svg
 new file mode 100644
-index 0000000..6c4d690
+index 0000000000000000000000000000000000000000..6c4d6907f1d3800cf5c469c5c9d599bfb3954263
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/message.svg
 @@ -0,0 +1,17 @@
@@ -7165,7 +7165,7 @@ index 0000000..6c4d690
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/messages.svg b/crates/ui-egui/assets/tabler/messages.svg
 new file mode 100644
-index 0000000..4a4ab44
+index 0000000000000000000000000000000000000000..4a4ab4479aac2b1c321b2dc50601c2ab9f3b2b0a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/messages.svg
 @@ -0,0 +1,16 @@
@@ -7188,7 +7188,7 @@ index 0000000..4a4ab44
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/microphone.svg b/crates/ui-egui/assets/tabler/microphone.svg
 new file mode 100644
-index 0000000..3f5e397
+index 0000000000000000000000000000000000000000..3f5e3974df5aa42ae1da077565a68245265ce790
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/microphone.svg
 @@ -0,0 +1,18 @@
@@ -7213,7 +7213,7 @@ index 0000000..3f5e397
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/minus.svg b/crates/ui-egui/assets/tabler/minus.svg
 new file mode 100644
-index 0000000..2c8acf5
+index 0000000000000000000000000000000000000000..2c8acf51980963ead1a2b4ce0980f8ef8b2fdb95
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/minus.svg
 @@ -0,0 +1,15 @@
@@ -7235,7 +7235,7 @@ index 0000000..2c8acf5
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/moon.svg b/crates/ui-egui/assets/tabler/moon.svg
 new file mode 100644
-index 0000000..de836dc
+index 0000000000000000000000000000000000000000..de836dcd1032c561b6addd557469b4b4680fd739
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/moon.svg
 @@ -0,0 +1,15 @@
@@ -7257,7 +7257,7 @@ index 0000000..de836dc
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/movie.svg b/crates/ui-egui/assets/tabler/movie.svg
 new file mode 100644
-index 0000000..404026f
+index 0000000000000000000000000000000000000000..404026f83e06bd58f19dc24f65fe6745dfeb8634
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/movie.svg
 @@ -0,0 +1,22 @@
@@ -7286,7 +7286,7 @@ index 0000000..404026f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/note.svg b/crates/ui-egui/assets/tabler/note.svg
 new file mode 100644
-index 0000000..b4702f2
+index 0000000000000000000000000000000000000000..b4702f2cc7cde98ab1321858481e3b5741551752
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/note.svg
 @@ -0,0 +1,16 @@
@@ -7309,7 +7309,7 @@ index 0000000..b4702f2
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/notes.svg b/crates/ui-egui/assets/tabler/notes.svg
 new file mode 100644
-index 0000000..1fb8eb8
+index 0000000000000000000000000000000000000000..1fb8eb8ca8b265939f274b12a931a4dba4f3acb2
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/notes.svg
 @@ -0,0 +1,18 @@
@@ -7334,7 +7334,7 @@ index 0000000..1fb8eb8
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/numbers.svg b/crates/ui-egui/assets/tabler/numbers.svg
 new file mode 100644
-index 0000000..394d70e
+index 0000000000000000000000000000000000000000..394d70ea0d602be9b8df1221e4289022f860ed19
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/numbers.svg
 @@ -0,0 +1,18 @@
@@ -7359,7 +7359,7 @@ index 0000000..394d70e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/omega.svg b/crates/ui-egui/assets/tabler/omega.svg
 new file mode 100644
-index 0000000..ca6acd7
+index 0000000000000000000000000000000000000000..ca6acd7d43505494c3a74774f26dd38302f14c83
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/omega.svg
 @@ -0,0 +1,15 @@
@@ -7381,7 +7381,7 @@ index 0000000..ca6acd7
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/page-break.svg b/crates/ui-egui/assets/tabler/page-break.svg
 new file mode 100644
-index 0000000..04d94fe
+index 0000000000000000000000000000000000000000..04d94fed7c3893ac9093c2c3d69d9ffe25555067
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/page-break.svg
 @@ -0,0 +1,18 @@
@@ -7406,7 +7406,7 @@ index 0000000..04d94fe
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/paint.svg b/crates/ui-egui/assets/tabler/paint.svg
 new file mode 100644
-index 0000000..396373a
+index 0000000000000000000000000000000000000000..396373aff029df3ce377fced4ebc86164f2fb051
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/paint.svg
 @@ -0,0 +1,17 @@
@@ -7430,7 +7430,7 @@ index 0000000..396373a
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/palette.svg b/crates/ui-egui/assets/tabler/palette.svg
 new file mode 100644
-index 0000000..9cafdf9
+index 0000000000000000000000000000000000000000..9cafdf9c1ba40fe16c881e12221a661e80900763
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/palette.svg
 @@ -0,0 +1,18 @@
@@ -7455,7 +7455,7 @@ index 0000000..9cafdf9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/pencil-off.svg b/crates/ui-egui/assets/tabler/pencil-off.svg
 new file mode 100644
-index 0000000..5ee105d
+index 0000000000000000000000000000000000000000..5ee105dcb8b60e0112d09c4604bb554450cb1e17
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/pencil-off.svg
 @@ -0,0 +1,17 @@
@@ -7479,7 +7479,7 @@ index 0000000..5ee105d
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/pencil-plus.svg b/crates/ui-egui/assets/tabler/pencil-plus.svg
 new file mode 100644
-index 0000000..988d9d9
+index 0000000000000000000000000000000000000000..988d9d925604aec9070e34019c5e166c6a130ab0
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/pencil-plus.svg
 @@ -0,0 +1,18 @@
@@ -7504,7 +7504,7 @@ index 0000000..988d9d9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/pencil.svg b/crates/ui-egui/assets/tabler/pencil.svg
 new file mode 100644
-index 0000000..f2789a3
+index 0000000000000000000000000000000000000000..f2789a310ac759f005685edee3f46673cab3930f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/pencil.svg
 @@ -0,0 +1,16 @@
@@ -7527,7 +7527,7 @@ index 0000000..f2789a3
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/photo-edit.svg b/crates/ui-egui/assets/tabler/photo-edit.svg
 new file mode 100644
-index 0000000..97df5d9
+index 0000000000000000000000000000000000000000..97df5d9254c67f9bb049ccbbcdae7719087cdd47
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/photo-edit.svg
 @@ -0,0 +1,19 @@
@@ -7553,7 +7553,7 @@ index 0000000..97df5d9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/photo-search.svg b/crates/ui-egui/assets/tabler/photo-search.svg
 new file mode 100644
-index 0000000..3c70637
+index 0000000000000000000000000000000000000000..3c70637691c23d0f98efb97d01029be8f53157fc
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/photo-search.svg
 @@ -0,0 +1,19 @@
@@ -7579,7 +7579,7 @@ index 0000000..3c70637
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/photo.svg b/crates/ui-egui/assets/tabler/photo.svg
 new file mode 100644
-index 0000000..0ff0ab9
+index 0000000000000000000000000000000000000000..0ff0ab9cba134da1d230b9fcaf0e826421d893f4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/photo.svg
 @@ -0,0 +1,18 @@
@@ -7604,7 +7604,7 @@ index 0000000..0ff0ab9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/pilcrow.svg b/crates/ui-egui/assets/tabler/pilcrow.svg
 new file mode 100644
-index 0000000..f2f02a1
+index 0000000000000000000000000000000000000000..f2f02a14828c2e4f42eef40836903935b478ed3d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/pilcrow.svg
 @@ -0,0 +1,17 @@
@@ -7628,7 +7628,7 @@ index 0000000..f2f02a1
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/pin.svg b/crates/ui-egui/assets/tabler/pin.svg
 new file mode 100644
-index 0000000..e27ef49
+index 0000000000000000000000000000000000000000..e27ef49addce10c888741a4a452872080ecc554b
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/pin.svg
 @@ -0,0 +1,17 @@
@@ -7652,7 +7652,7 @@ index 0000000..e27ef49
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/player-pause.svg b/crates/ui-egui/assets/tabler/player-pause.svg
 new file mode 100644
-index 0000000..55bb23e
+index 0000000000000000000000000000000000000000..55bb23e4385e6b588e948d7815fd11e7f7164280
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/player-pause.svg
 @@ -0,0 +1,16 @@
@@ -7675,7 +7675,7 @@ index 0000000..55bb23e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/player-play.svg b/crates/ui-egui/assets/tabler/player-play.svg
 new file mode 100644
-index 0000000..35916d2
+index 0000000000000000000000000000000000000000..35916d29cfb1d749fd77c36716c5326f9c372257
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/player-play.svg
 @@ -0,0 +1,15 @@
@@ -7697,7 +7697,7 @@ index 0000000..35916d2
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/player-skip-back.svg b/crates/ui-egui/assets/tabler/player-skip-back.svg
 new file mode 100644
-index 0000000..9ae019e
+index 0000000000000000000000000000000000000000..9ae019ea14ed359d25a5c692d31f7cd8ab697a26
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/player-skip-back.svg
 @@ -0,0 +1,16 @@
@@ -7720,7 +7720,7 @@ index 0000000..9ae019e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/player-skip-forward.svg b/crates/ui-egui/assets/tabler/player-skip-forward.svg
 new file mode 100644
-index 0000000..654d141
+index 0000000000000000000000000000000000000000..654d14165025076cdaf3a10b126b1672b496bf2d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/player-skip-forward.svg
 @@ -0,0 +1,16 @@
@@ -7743,7 +7743,7 @@ index 0000000..654d141
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/player-stop.svg b/crates/ui-egui/assets/tabler/player-stop.svg
 new file mode 100644
-index 0000000..11182aa
+index 0000000000000000000000000000000000000000..11182aa58977c0b8b48967e826365b36f92eef50
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/player-stop.svg
 @@ -0,0 +1,15 @@
@@ -7765,7 +7765,7 @@ index 0000000..11182aa
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/plus.svg b/crates/ui-egui/assets/tabler/plus.svg
 new file mode 100644
-index 0000000..1018204
+index 0000000000000000000000000000000000000000..10182041603ace23488610c9228860e3b699cf29
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/plus.svg
 @@ -0,0 +1,16 @@
@@ -7788,7 +7788,7 @@ index 0000000..1018204
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/pointer.svg b/crates/ui-egui/assets/tabler/pointer.svg
 new file mode 100644
-index 0000000..1c7a09f
+index 0000000000000000000000000000000000000000..1c7a09f94db5ab006698899a1b6a4d480fa7e2b5
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/pointer.svg
 @@ -0,0 +1,15 @@
@@ -7810,7 +7810,7 @@ index 0000000..1c7a09f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/printer.svg b/crates/ui-egui/assets/tabler/printer.svg
 new file mode 100644
-index 0000000..5897a77
+index 0000000000000000000000000000000000000000..5897a77a7d5c825bb09d402ae5d7cefea47403af
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/printer.svg
 @@ -0,0 +1,17 @@
@@ -7834,7 +7834,7 @@ index 0000000..5897a77
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/quote.svg b/crates/ui-egui/assets/tabler/quote.svg
 new file mode 100644
-index 0000000..2ba563f
+index 0000000000000000000000000000000000000000..2ba563f36f18a76840aa76d14e20d96cc49a8867
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/quote.svg
 @@ -0,0 +1,16 @@
@@ -7857,7 +7857,7 @@ index 0000000..2ba563f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/refresh.svg b/crates/ui-egui/assets/tabler/refresh.svg
 new file mode 100644
-index 0000000..b29eb08
+index 0000000000000000000000000000000000000000..b29eb08105c9f6a55c7551130ee02cc30965171d
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/refresh.svg
 @@ -0,0 +1,16 @@
@@ -7880,7 +7880,7 @@ index 0000000..b29eb08
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/repeat.svg b/crates/ui-egui/assets/tabler/repeat.svg
 new file mode 100644
-index 0000000..dbe65ae
+index 0000000000000000000000000000000000000000..dbe65aea823014903624159046fcdfe32749c1af
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/repeat.svg
 @@ -0,0 +1,16 @@
@@ -7903,7 +7903,7 @@ index 0000000..dbe65ae
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/replace.svg b/crates/ui-egui/assets/tabler/replace.svg
 new file mode 100644
-index 0000000..450db2d
+index 0000000000000000000000000000000000000000..450db2d6e8dbf597cff0b6de73431beee7962836
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/replace.svg
 @@ -0,0 +1,18 @@
@@ -7928,7 +7928,7 @@ index 0000000..450db2d
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/restore.svg b/crates/ui-egui/assets/tabler/restore.svg
 new file mode 100644
-index 0000000..e7059ef
+index 0000000000000000000000000000000000000000..e7059ef1a57ce27794fe1ffbd7763aadba80f009
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/restore.svg
 @@ -0,0 +1,17 @@
@@ -7952,7 +7952,7 @@ index 0000000..e7059ef
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/rotate-clockwise.svg b/crates/ui-egui/assets/tabler/rotate-clockwise.svg
 new file mode 100644
-index 0000000..6729ec7
+index 0000000000000000000000000000000000000000..6729ec77a9900884f503b2ed0c6b07baf7740acb
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/rotate-clockwise.svg
 @@ -0,0 +1,15 @@
@@ -7974,7 +7974,7 @@ index 0000000..6729ec7
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/row-insert-bottom.svg b/crates/ui-egui/assets/tabler/row-insert-bottom.svg
 new file mode 100644
-index 0000000..4f18113
+index 0000000000000000000000000000000000000000..4f18113ec9ee4a0284afcd6a1d9e4c2e342247cd
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/row-insert-bottom.svg
 @@ -0,0 +1,17 @@
@@ -7998,7 +7998,7 @@ index 0000000..4f18113
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/row-insert-top.svg b/crates/ui-egui/assets/tabler/row-insert-top.svg
 new file mode 100644
-index 0000000..70664a5
+index 0000000000000000000000000000000000000000..70664a50cb8f87a3019e39fbb9098b592e9cdeea
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/row-insert-top.svg
 @@ -0,0 +1,17 @@
@@ -8022,7 +8022,7 @@ index 0000000..70664a5
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/rubber-stamp.svg b/crates/ui-egui/assets/tabler/rubber-stamp.svg
 new file mode 100644
-index 0000000..2eb1954
+index 0000000000000000000000000000000000000000..2eb195494fa416cd1647f1fad06fc25f0af73b9a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/rubber-stamp.svg
 @@ -0,0 +1,16 @@
@@ -8045,7 +8045,7 @@ index 0000000..2eb1954
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/ruler-2.svg b/crates/ui-egui/assets/tabler/ruler-2.svg
 new file mode 100644
-index 0000000..94c5443
+index 0000000000000000000000000000000000000000..94c5443b7e024c6fb43c7e0dac029082c21adcd2
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/ruler-2.svg
 @@ -0,0 +1,19 @@
@@ -8071,7 +8071,7 @@ index 0000000..94c5443
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/scissors.svg b/crates/ui-egui/assets/tabler/scissors.svg
 new file mode 100644
-index 0000000..924916f
+index 0000000000000000000000000000000000000000..924916f0b4178c746ab97c1ba38aa71dc2de8864
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/scissors.svg
 @@ -0,0 +1,18 @@
@@ -8096,7 +8096,7 @@ index 0000000..924916f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/screenshot.svg b/crates/ui-egui/assets/tabler/screenshot.svg
 new file mode 100644
-index 0000000..81ec98b
+index 0000000000000000000000000000000000000000..81ec98b9a101572909de34a4e32c9b5a436268aa
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/screenshot.svg
 @@ -0,0 +1,23 @@
@@ -8126,7 +8126,7 @@ index 0000000..81ec98b
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/search.svg b/crates/ui-egui/assets/tabler/search.svg
 new file mode 100644
-index 0000000..815c9d8
+index 0000000000000000000000000000000000000000..815c9d8934f8778f327c6de112fbec9042be29c2
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/search.svg
 @@ -0,0 +1,16 @@
@@ -8149,7 +8149,7 @@ index 0000000..815c9d8
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/settings.svg b/crates/ui-egui/assets/tabler/settings.svg
 new file mode 100644
-index 0000000..4530e90
+index 0000000000000000000000000000000000000000..4530e90bd1ec4fc7350839e5512148cfd3e7a5fa
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/settings.svg
 @@ -0,0 +1,16 @@
@@ -8172,7 +8172,7 @@ index 0000000..4530e90
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/shadow.svg b/crates/ui-egui/assets/tabler/shadow.svg
 new file mode 100644
-index 0000000..3784ab8
+index 0000000000000000000000000000000000000000..3784ab83c068453a34121bb41ae7af42c96008e5
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/shadow.svg
 @@ -0,0 +1,20 @@
@@ -8199,7 +8199,7 @@ index 0000000..3784ab8
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/shape.svg b/crates/ui-egui/assets/tabler/shape.svg
 new file mode 100644
-index 0000000..98a45ca
+index 0000000000000000000000000000000000000000..98a45ca5a1c440b5999540bca689a8da32383d8f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/shape.svg
 @@ -0,0 +1,22 @@
@@ -8228,7 +8228,7 @@ index 0000000..98a45ca
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/share-2.svg b/crates/ui-egui/assets/tabler/share-2.svg
 new file mode 100644
-index 0000000..a69d398
+index 0000000000000000000000000000000000000000..a69d39869e038cac96c96cbf0967ef984c2bafaf
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/share-2.svg
 @@ -0,0 +1,17 @@
@@ -8252,7 +8252,7 @@ index 0000000..a69d398
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/shield-lock.svg b/crates/ui-egui/assets/tabler/shield-lock.svg
 new file mode 100644
-index 0000000..d215a21
+index 0000000000000000000000000000000000000000..d215a21d43a0b17977eaf40b80ec83bf2cf60477
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/shield-lock.svg
 @@ -0,0 +1,17 @@
@@ -8276,7 +8276,7 @@ index 0000000..d215a21
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/sitemap.svg b/crates/ui-egui/assets/tabler/sitemap.svg
 new file mode 100644
-index 0000000..7645972
+index 0000000000000000000000000000000000000000..764597271b7adaaaa8560a2d0c99a959eaf087c1
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/sitemap.svg
 @@ -0,0 +1,19 @@
@@ -8302,7 +8302,7 @@ index 0000000..7645972
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/sort-ascending-letters.svg b/crates/ui-egui/assets/tabler/sort-ascending-letters.svg
 new file mode 100644
-index 0000000..605aab6
+index 0000000000000000000000000000000000000000..605aab6c60f6f2b5bb10c1a2ef96b83f4f4dceb9
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/sort-ascending-letters.svg
 @@ -0,0 +1,18 @@
@@ -8327,7 +8327,7 @@ index 0000000..605aab6
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/spacing-vertical.svg b/crates/ui-egui/assets/tabler/spacing-vertical.svg
 new file mode 100644
-index 0000000..a51d0c5
+index 0000000000000000000000000000000000000000..a51d0c570643e21dd4cd7130aea25dd34f8b8628
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/spacing-vertical.svg
 @@ -0,0 +1,17 @@
@@ -8351,7 +8351,7 @@ index 0000000..a51d0c5
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/sparkles.svg b/crates/ui-egui/assets/tabler/sparkles.svg
 new file mode 100644
-index 0000000..13fa70f
+index 0000000000000000000000000000000000000000..13fa70f8dcdc1877126e29ccfd1438c310d4ec02
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/sparkles.svg
 @@ -0,0 +1,15 @@
@@ -8373,7 +8373,7 @@ index 0000000..13fa70f
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/square-rounded-plus.svg b/crates/ui-egui/assets/tabler/square-rounded-plus.svg
 new file mode 100644
-index 0000000..74f9a51
+index 0000000000000000000000000000000000000000..74f9a51fd7664b0602ce0eb20ec918bbafbf6115
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/square-rounded-plus.svg
 @@ -0,0 +1,17 @@
@@ -8397,7 +8397,7 @@ index 0000000..74f9a51
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/strikethrough.svg b/crates/ui-egui/assets/tabler/strikethrough.svg
 new file mode 100644
-index 0000000..b70a08a
+index 0000000000000000000000000000000000000000..b70a08a1cabc9b50124d809b2ccb94f34c4876f9
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/strikethrough.svg
 @@ -0,0 +1,16 @@
@@ -8420,7 +8420,7 @@ index 0000000..b70a08a
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/subscript.svg b/crates/ui-egui/assets/tabler/subscript.svg
 new file mode 100644
-index 0000000..4566f58
+index 0000000000000000000000000000000000000000..4566f582fc17a71f2bb1178ea3e3ca0b72f81611
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/subscript.svg
 @@ -0,0 +1,16 @@
@@ -8443,7 +8443,7 @@ index 0000000..4566f58
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/superscript.svg b/crates/ui-egui/assets/tabler/superscript.svg
 new file mode 100644
-index 0000000..9c48fb0
+index 0000000000000000000000000000000000000000..9c48fb00e4357b416f43f95b87eb12f39a75d394
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/superscript.svg
 @@ -0,0 +1,16 @@
@@ -8466,7 +8466,7 @@ index 0000000..9c48fb0
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/table-export.svg b/crates/ui-egui/assets/tabler/table-export.svg
 new file mode 100644
-index 0000000..0dbcaa3
+index 0000000000000000000000000000000000000000..0dbcaa35f15f1cdfb9ef85e715d4dcc7bb5d10e8
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/table-export.svg
 @@ -0,0 +1,19 @@
@@ -8492,7 +8492,7 @@ index 0000000..0dbcaa3
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/table-import.svg b/crates/ui-egui/assets/tabler/table-import.svg
 new file mode 100644
-index 0000000..07c4a92
+index 0000000000000000000000000000000000000000..07c4a92659bfab82e98edabec65e8d5433740366
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/table-import.svg
 @@ -0,0 +1,19 @@
@@ -8518,7 +8518,7 @@ index 0000000..07c4a92
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/table-minus.svg b/crates/ui-egui/assets/tabler/table-minus.svg
 new file mode 100644
-index 0000000..074ef7e
+index 0000000000000000000000000000000000000000..074ef7efff1fd728364901682bebe1bb62e55c83
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/table-minus.svg
 @@ -0,0 +1,18 @@
@@ -8543,7 +8543,7 @@ index 0000000..074ef7e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/table-options.svg b/crates/ui-egui/assets/tabler/table-options.svg
 new file mode 100644
-index 0000000..a30bf4c
+index 0000000000000000000000000000000000000000..a30bf4cbb281f1bf4b0ca5ba1a43b41388bae691
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/table-options.svg
 @@ -0,0 +1,24 @@
@@ -8574,7 +8574,7 @@ index 0000000..a30bf4c
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/table-row.svg b/crates/ui-egui/assets/tabler/table-row.svg
 new file mode 100644
-index 0000000..9911267
+index 0000000000000000000000000000000000000000..9911267832da507caf7c3b888068d85500f2a36c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/table-row.svg
 @@ -0,0 +1,21 @@
@@ -8602,7 +8602,7 @@ index 0000000..9911267
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/table-shortcut.svg b/crates/ui-egui/assets/tabler/table-shortcut.svg
 new file mode 100644
-index 0000000..373d071
+index 0000000000000000000000000000000000000000..373d0713fced2b500dddcce3400f4d5af1efe17a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/table-shortcut.svg
 @@ -0,0 +1,19 @@
@@ -8628,7 +8628,7 @@ index 0000000..373d071
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/table.svg b/crates/ui-egui/assets/tabler/table.svg
 new file mode 100644
-index 0000000..d8e8a5d
+index 0000000000000000000000000000000000000000..d8e8a5ddb82f891ec7b30edc3c9b4c2a3ca8e9c8
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/table.svg
 @@ -0,0 +1,17 @@
@@ -8652,7 +8652,7 @@ index 0000000..d8e8a5d
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/tag.svg b/crates/ui-egui/assets/tabler/tag.svg
 new file mode 100644
-index 0000000..2b91aa5
+index 0000000000000000000000000000000000000000..2b91aa5000ce40e5e4f23f2558365a7fb44e3538
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/tag.svg
 @@ -0,0 +1,16 @@
@@ -8675,7 +8675,7 @@ index 0000000..2b91aa5
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/tags.svg b/crates/ui-egui/assets/tabler/tags.svg
 new file mode 100644
-index 0000000..f6994d7
+index 0000000000000000000000000000000000000000..f6994d7fa856cdde61b09527591dadfc11738c42
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/tags.svg
 @@ -0,0 +1,17 @@
@@ -8699,7 +8699,7 @@ index 0000000..f6994d7
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-caption.svg b/crates/ui-egui/assets/tabler/text-caption.svg
 new file mode 100644
-index 0000000..bf31594
+index 0000000000000000000000000000000000000000..bf3159476fba62b6441cc98d8d21d34ced09c11c
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-caption.svg
 @@ -0,0 +1,17 @@
@@ -8723,7 +8723,7 @@ index 0000000..bf31594
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-color.svg b/crates/ui-egui/assets/tabler/text-color.svg
 new file mode 100644
-index 0000000..f5f87ba
+index 0000000000000000000000000000000000000000..f5f87badb4593422ed97898b5e82da069e134d46
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-color.svg
 @@ -0,0 +1,17 @@
@@ -8747,7 +8747,7 @@ index 0000000..f5f87ba
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-decrease.svg b/crates/ui-egui/assets/tabler/text-decrease.svg
 new file mode 100644
-index 0000000..2ba0524
+index 0000000000000000000000000000000000000000..2ba0524530104247640fd9032dea75da1ec4dd15
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-decrease.svg
 @@ -0,0 +1,17 @@
@@ -8771,7 +8771,7 @@ index 0000000..2ba0524
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-direction-ltr.svg b/crates/ui-egui/assets/tabler/text-direction-ltr.svg
 new file mode 100644
-index 0000000..99e8e5e
+index 0000000000000000000000000000000000000000..99e8e5ecb8a9bb7cc8d4a9485e228b5417495609
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-direction-ltr.svg
 @@ -0,0 +1,19 @@
@@ -8797,7 +8797,7 @@ index 0000000..99e8e5e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-direction-rtl.svg b/crates/ui-egui/assets/tabler/text-direction-rtl.svg
 new file mode 100644
-index 0000000..7cc4407
+index 0000000000000000000000000000000000000000..7cc4407ce9c86761f95d0c7a643f34494962582f
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-direction-rtl.svg
 @@ -0,0 +1,19 @@
@@ -8823,7 +8823,7 @@ index 0000000..7cc4407
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-increase.svg b/crates/ui-egui/assets/tabler/text-increase.svg
 new file mode 100644
-index 0000000..627fa6a
+index 0000000000000000000000000000000000000000..627fa6a5fc5fe9a78a2a9940a42dac22d15d06db
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-increase.svg
 @@ -0,0 +1,18 @@
@@ -8848,7 +8848,7 @@ index 0000000..627fa6a
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-orientation.svg b/crates/ui-egui/assets/tabler/text-orientation.svg
 new file mode 100644
-index 0000000..6125feb
+index 0000000000000000000000000000000000000000..6125febabd97328cee1d97d02d4c88e04196a935
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-orientation.svg
 @@ -0,0 +1,19 @@
@@ -8874,7 +8874,7 @@ index 0000000..6125feb
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-outline.svg b/crates/ui-egui/assets/tabler/text-outline.svg
 new file mode 100644
-index 0000000..1b0a233
+index 0000000000000000000000000000000000000000..1b0a23386e04c00cb85c120d2426205ee496e20e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-outline.svg
 @@ -0,0 +1,20 @@
@@ -8901,7 +8901,7 @@ index 0000000..1b0a233
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-plus.svg b/crates/ui-egui/assets/tabler/text-plus.svg
 new file mode 100644
-index 0000000..b8612e9
+index 0000000000000000000000000000000000000000..b8612e99033d0bf9b284d0392b23d8a38dae2a13
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-plus.svg
 @@ -0,0 +1,20 @@
@@ -8928,7 +8928,7 @@ index 0000000..b8612e9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-resize.svg b/crates/ui-egui/assets/tabler/text-resize.svg
 new file mode 100644
-index 0000000..985227e
+index 0000000000000000000000000000000000000000..985227e64ddfb33e596de364086f55bcdb296060
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-resize.svg
 @@ -0,0 +1,24 @@
@@ -8959,7 +8959,7 @@ index 0000000..985227e
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-size.svg b/crates/ui-egui/assets/tabler/text-size.svg
 new file mode 100644
-index 0000000..ce247f9
+index 0000000000000000000000000000000000000000..ce247f9cd3adc914aa2a2cc110b92d3243be473a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-size.svg
 @@ -0,0 +1,20 @@
@@ -8986,7 +8986,7 @@ index 0000000..ce247f9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-spellcheck.svg b/crates/ui-egui/assets/tabler/text-spellcheck.svg
 new file mode 100644
-index 0000000..4adf0ed
+index 0000000000000000000000000000000000000000..4adf0edae5fe5d810f2ce9d713030320a70599a6
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-spellcheck.svg
 @@ -0,0 +1,17 @@
@@ -9010,7 +9010,7 @@ index 0000000..4adf0ed
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/text-wrap.svg b/crates/ui-egui/assets/tabler/text-wrap.svg
 new file mode 100644
-index 0000000..ce71661
+index 0000000000000000000000000000000000000000..ce71661c3df6f834fbeceb17b8a5b687499449f6
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/text-wrap.svg
 @@ -0,0 +1,17 @@
@@ -9034,7 +9034,7 @@ index 0000000..ce71661
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/typography.svg b/crates/ui-egui/assets/tabler/typography.svg
 new file mode 100644
-index 0000000..af261fd
+index 0000000000000000000000000000000000000000..af261fd52d75f0bb6dd0ed067b39620fa642a275
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/typography.svg
 @@ -0,0 +1,19 @@
@@ -9060,7 +9060,7 @@ index 0000000..af261fd
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/underline.svg b/crates/ui-egui/assets/tabler/underline.svg
 new file mode 100644
-index 0000000..e9bb444
+index 0000000000000000000000000000000000000000..e9bb444724961b7f77910d05e7e0e2c69f977dde
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/underline.svg
 @@ -0,0 +1,16 @@
@@ -9083,7 +9083,7 @@ index 0000000..e9bb444
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/unlink.svg b/crates/ui-egui/assets/tabler/unlink.svg
 new file mode 100644
-index 0000000..40062d9
+index 0000000000000000000000000000000000000000..40062d9ad3e22db24a74e9b2c9569c91dc95d185
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/unlink.svg
 @@ -0,0 +1,21 @@
@@ -9111,7 +9111,7 @@ index 0000000..40062d9
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/user-cancel.svg b/crates/ui-egui/assets/tabler/user-cancel.svg
 new file mode 100644
-index 0000000..e696646
+index 0000000000000000000000000000000000000000..e6966468e76d992e5f4001e4c7c8ed098c89c4e9
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/user-cancel.svg
 @@ -0,0 +1,18 @@
@@ -9136,7 +9136,7 @@ index 0000000..e696646
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/user-circle.svg b/crates/ui-egui/assets/tabler/user-circle.svg
 new file mode 100644
-index 0000000..26967ee
+index 0000000000000000000000000000000000000000..26967eefa7961525738f5a8109b83fa4972b2365
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/user-circle.svg
 @@ -0,0 +1,17 @@
@@ -9160,7 +9160,7 @@ index 0000000..26967ee
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/user-edit.svg b/crates/ui-egui/assets/tabler/user-edit.svg
 new file mode 100644
-index 0000000..56c2bf7
+index 0000000000000000000000000000000000000000..56c2bf7da7bf438227b8cab8fe96caca4b2b430e
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/user-edit.svg
 @@ -0,0 +1,17 @@
@@ -9184,7 +9184,7 @@ index 0000000..56c2bf7
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/users.svg b/crates/ui-egui/assets/tabler/users.svg
 new file mode 100644
-index 0000000..be9fb2c
+index 0000000000000000000000000000000000000000..be9fb2c6006e4ca329cc640f3607a1015b3f8186
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/users.svg
 @@ -0,0 +1,18 @@
@@ -9209,7 +9209,7 @@ index 0000000..be9fb2c
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/vocabulary.svg b/crates/ui-egui/assets/tabler/vocabulary.svg
 new file mode 100644
-index 0000000..2da4446
+index 0000000000000000000000000000000000000000..2da44461fd9fe1782d540c3571c543206014a27a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/vocabulary.svg
 @@ -0,0 +1,21 @@
@@ -9237,7 +9237,7 @@ index 0000000..2da4446
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/volume.svg b/crates/ui-egui/assets/tabler/volume.svg
 new file mode 100644
-index 0000000..b85dd43
+index 0000000000000000000000000000000000000000..b85dd43c85342dd6df985ccd7d9c296e6ee1744a
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/volume.svg
 @@ -0,0 +1,17 @@
@@ -9261,7 +9261,7 @@ index 0000000..b85dd43
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/writing-sign.svg b/crates/ui-egui/assets/tabler/writing-sign.svg
 new file mode 100644
-index 0000000..3c495ac
+index 0000000000000000000000000000000000000000..3c495acc8e9a0f5fc3b0635b4d4b03dacb20e5c4
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/writing-sign.svg
 @@ -0,0 +1,17 @@
@@ -9285,7 +9285,7 @@ index 0000000..3c495ac
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/x.svg b/crates/ui-egui/assets/tabler/x.svg
 new file mode 100644
-index 0000000..e435048
+index 0000000000000000000000000000000000000000..e435048137eb4cb25e94ce4e31f69117272cd384
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/x.svg
 @@ -0,0 +1,16 @@
@@ -9308,7 +9308,7 @@ index 0000000..e435048
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/zoom-in.svg b/crates/ui-egui/assets/tabler/zoom-in.svg
 new file mode 100644
-index 0000000..b82a983
+index 0000000000000000000000000000000000000000..b82a983dc50312a4b473a0fde9def6a70642f0fc
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/zoom-in.svg
 @@ -0,0 +1,18 @@
@@ -9333,7 +9333,7 @@ index 0000000..b82a983
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/zoom-out.svg b/crates/ui-egui/assets/tabler/zoom-out.svg
 new file mode 100644
-index 0000000..da5ca79
+index 0000000000000000000000000000000000000000..da5ca7988db89154c0916838bb8d099f40e9c3aa
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/zoom-out.svg
 @@ -0,0 +1,17 @@
@@ -9357,7 +9357,7 @@ index 0000000..da5ca79
 \ No newline at end of file
 diff --git a/crates/ui-egui/assets/tabler/zoom-scan.svg b/crates/ui-egui/assets/tabler/zoom-scan.svg
 new file mode 100644
-index 0000000..f053aea
+index 0000000000000000000000000000000000000000..f053aead732afe324befc682ad1d96c2d2fcbdce
 --- /dev/null
 +++ b/crates/ui-egui/assets/tabler/zoom-scan.svg
 @@ -0,0 +1,20 @@
@@ -9383,7 +9383,7 @@ index 0000000..f053aea
 +</svg>
 \ No newline at end of file
 diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
-index 28dc72f..d2f1107 100644
+index 28dc72fe013a77e7e029ff97a8e08b8df4e8cb4c..9bf4416d4e456941d0880b214286278d7100ae55 100644
 --- a/crates/ui-egui/src/backstage.rs
 +++ b/crates/ui-egui/src/backstage.rs
 @@ -111,7 +111,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
@@ -9395,7 +9395,7 @@ index 28dc72f..d2f1107 100644
                      let (r, resp) = ui.allocate_exact_size(vec2(200.0, 32.0), Sense::click());
                      resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, ui.is_enabled(), tl!(label)));
                      if resp.hovered() {
-@@ -119,11 +119,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+@@ -119,25 +119,28 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
                      }
                      ui.painter().text(pos2(r.min.x + 22.0, r.center().y), Align2::LEFT_CENTER, tl!(label), regular(13.0), egui::Color32::WHITE);
                      if resp.clicked() {
@@ -9408,8 +9408,100 @@ index 28dc72f..d2f1107 100644
                      }
                  }
              });
+         });
+     egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.ribbon).inner_margin(egui::Margin::symmetric(40, 30))).show(ui, |ui| {
+-        egui::ScrollArea::vertical().show(ui, |ui| match app.ui.backstage_page.as_str() {
+-            "home" => home_page(app, ui),
+-            "new" => new_page(app, ui),
+-            "open" => open_page(app, ui),
+-            "saveAs" => save_as_page(app, ui),
+-            "info" => info_page(app, ui),
+-            "print" | "export" => export_page(app, ui),
+-            "options" => crate::options::page(app, ui),
+-            _ => home_page(app, ui),
++        egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
++            // Keep the page content aligned to the full available width. Without this, a long
++            // recent-document path can make the scroll area's child narrower than its viewport,
++            // which leaves a visible seam and lets the text paint into the blank right side.
++            let content_width = ui.available_width();
++            ui.set_min_width(content_width);
++            match app.ui.backstage_page.as_str() {
++                "home" => home_page(app, ui),
++                "new" => new_page(app, ui),
++                "open" => open_page(app, ui),
++                "saveAs" => save_as_page(app, ui),
++                "info" => info_page(app, ui),
++                "print" | "export" => export_page(app, ui),
++                "options" => crate::options::page(app, ui),
++                _ => home_page(app, ui),
++            }
+         });
+     });
+ }
+@@ -229,7 +232,7 @@ fn home_page(app: &mut WordApp, ui: &mut Ui) {
+             "Good evening"
+         },
+     );
+-    ui.horizontal(|ui| {
++    ui.horizontal_wrapped(|ui| {
+         ui.spacing_mut().item_spacing = vec2(18.0, 0.0);
+         for (label, template) in TEMPLATES.into_iter().take(HOME_TEMPLATES) {
+             template_tile(ui, app, label, template);
+@@ -276,14 +279,20 @@ fn open_list(app: &mut WordApp, ui: &mut Ui) {
+         ui.label(egui::RichText::new(tl!("Documents you open will show up here.")).color(t.text_dim));
+     }
+     for p in app.ui.recent.iter().take(app.ui.recent_shown()).cloned().collect::<Vec<_>>() {
+-        let name = std::path::Path::new(&p).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or(p.clone());
+-        let (r, resp) = ui.allocate_exact_size(vec2(ui.available_width().min(700.0), 40.0), Sense::click());
++        let full_name = std::path::Path::new(&p).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or(p.clone());
++        let row_width = ui.available_width().min(700.0);
++        let text_width = (row_width - 40.0).max(0.0);
++        let name_font = medium(13.0);
++        let path_font = regular(11.0);
++        let name = ellipsize(ui, &full_name, text_width, name_font.clone(), t.text);
++        let path = ellipsize(ui, &p, text_width, path_font.clone(), t.text_dim);
++        let (r, resp) = ui.allocate_exact_size(vec2(row_width, 40.0), Sense::click());
+         if resp.hovered() {
+             ui.painter().rect_filled(r, 4.0, t.hover);
+         }
+         icons::paint(ui.painter(), Rect::from_center_size(pos2(r.min.x + 18.0, r.center().y), vec2(22.0, 22.0)), "printLayout", t.icon, t.accent);
+-        ui.painter().text(pos2(r.min.x + 40.0, r.min.y + 13.0), Align2::LEFT_CENTER, &name, medium(13.0), t.text);
+-        ui.painter().text(pos2(r.min.x + 40.0, r.min.y + 29.0), Align2::LEFT_CENTER, &p, regular(11.0), t.text_dim);
++        ui.painter().text(pos2(r.min.x + 40.0, r.min.y + 13.0), Align2::LEFT_CENTER, name, name_font, t.text);
++        ui.painter().text(pos2(r.min.x + 40.0, r.min.y + 29.0), Align2::LEFT_CENTER, path, path_font, t.text_dim);
+         if resp.clicked() {
+             let _ = app.run("file.open", json!({"path": p}));
+             app.ui.backstage = false;
+@@ -292,6 +301,27 @@ fn open_list(app: &mut WordApp, ui: &mut Ui) {
+     }
+ }
+ 
++/// Keep welcome-page labels inside the recent-document row while retaining the useful tail of a
++/// long path/name. This prevents the painter text from crossing the page's content boundary.
++fn ellipsize(ui: &Ui, text: &str, max_width: f32, font: egui::FontId, color: egui::Color32) -> String {
++    if max_width <= 0.0 {
++        return String::new();
++    }
++    let fits = |value: &str| ui.ctx().fonts_mut(|fonts| fonts.layout_no_wrap(value.to_owned(), font.clone(), color).size().x <= max_width);
++    if fits(text) {
++        return text.to_owned();
++    }
++    let mut result = String::new();
++    for ch in text.chars() {
++        let candidate = format!("{result}{ch}…");
++        if !fits(&candidate) {
++            break;
++        }
++        result.push(ch);
++    }
++    format!("{result}…")
++}
++
+ fn open_page(app: &mut WordApp, ui: &mut Ui) {
+     heading(ui, "Open");
+     if ui.button(egui::RichText::new(tl!("Browse…")).font(medium(14.0))).clicked() {
 diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
-index 49860fe..a868bdc 100644
+index 49860fe0ab0b4b85f446302df200562b2a53bb84..a868bdc38ffb7324e75c80cf3c83dba2827ec166 100644
 --- a/crates/ui-egui/src/canvas.rs
 +++ b/crates/ui-egui/src/canvas.rs
 @@ -726,7 +726,7 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
@@ -9453,7 +9545,7 @@ index 49860fe..a868bdc 100644
          // Fixed navigation chrome, independent of the horizontally moving columns.
          let step = app.session.view.read_width * app.canvas.scale + GAP;
 diff --git a/crates/ui-egui/src/chrome.rs b/crates/ui-egui/src/chrome.rs
-index 7e7483a..dcb18a2 100644
+index 7e7483a9e2876e25236b374d54f5ff090ae75bb7..dcb18a2c614ca75041729f45aff21ee2565e07d4 100644
 --- a/crates/ui-egui/src/chrome.rs
 +++ b/crates/ui-egui/src/chrome.rs
 @@ -269,12 +269,12 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
@@ -9473,7 +9565,7 @@ index 7e7483a..dcb18a2 100644
                          }
                          ui.add_space(8.0);
 diff --git a/crates/ui-egui/src/dialogs.rs b/crates/ui-egui/src/dialogs.rs
-index 975ff90..89bf4ed 100644
+index 975ff9012726664f995f00c0db5ab4c5ec9ae479..89bf4edff794223a9a359afe564c779b9c2cbd11 100644
 --- a/crates/ui-egui/src/dialogs.rs
 +++ b/crates/ui-egui/src/dialogs.rs
 @@ -348,10 +348,6 @@ pub enum Dialog {
@@ -9580,7 +9672,7 @@ index 975ff90..89bf4ed 100644
                  save.request_focus();
              }
 diff --git a/crates/ui-egui/src/file_browser.rs b/crates/ui-egui/src/file_browser.rs
-index c36864b..a54aada 100644
+index c36864bfbccd2a15fcd7904878e92a5304df73f5..a54aadac6485cf0a62abc8373130823bbac3d172 100644
 --- a/crates/ui-egui/src/file_browser.rs
 +++ b/crates/ui-egui/src/file_browser.rs
 @@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
@@ -9667,7 +9759,7 @@ index c36864b..a54aada 100644
      }
  
 diff --git a/crates/ui-egui/src/file_dialogs.rs b/crates/ui-egui/src/file_dialogs.rs
-index a8ff95e..6feb22d 100644
+index a8ff95ecf9910ff5b30b2e056b884f6a5be0a45d..6feb22d88129e00777d2b0a14d63f4e16fb35de4 100644
 --- a/crates/ui-egui/src/file_dialogs.rs
 +++ b/crates/ui-egui/src/file_dialogs.rs
 @@ -16,6 +16,7 @@ use std::sync::mpsc::{Receiver, TryRecvError};
@@ -9841,7 +9933,7 @@ index a8ff95e..6feb22d 100644
      }
  
 diff --git a/crates/ui-egui/src/i18n/audit.rs b/crates/ui-egui/src/i18n/audit.rs
-index de25080..cea45fc 100644
+index de25080e95fa9cae45d1f9f558304d7767443c45..cea45fc7fa9a8e695476ac1a2d5c4e8475ab0a9d 100644
 --- a/crates/ui-egui/src/i18n/audit.rs
 +++ b/crates/ui-egui/src/i18n/audit.rs
 @@ -154,7 +154,7 @@ impl Exempt {
@@ -9864,7 +9956,7 @@ index de25080..cea45fc 100644
          "findRecipient",
          "caption",
 diff --git a/crates/ui-egui/src/i18n/bg.tsv b/crates/ui-egui/src/i18n/bg.tsv
-index 013fdc1..4d02c90 100644
+index 013fdc1e770e652ec406d8c41aec244248d8f908..4d02c908259dd10656845d2a0d95498895c5e6fe 100644
 --- a/crates/ui-egui/src/i18n/bg.tsv
 +++ b/crates/ui-egui/src/i18n/bg.tsv
 @@ -2474,3 +2474,6 @@
@@ -9875,7 +9967,7 @@ index 013fdc1..4d02c90 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/cs.tsv b/crates/ui-egui/src/i18n/cs.tsv
-index a7b8f04..54d99fe 100644
+index a7b8f04c46f3dbb850132013cc9573201a42ed41..54d99fe90b1738c3818e85192b74b5f7fd5c9d5a 100644
 --- a/crates/ui-egui/src/i18n/cs.tsv
 +++ b/crates/ui-egui/src/i18n/cs.tsv
 @@ -2090,3 +2090,6 @@
@@ -9886,7 +9978,7 @@ index a7b8f04..54d99fe 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/de.tsv b/crates/ui-egui/src/i18n/de.tsv
-index 78c03ca..a2ba4c4 100644
+index 78c03cae1b333294fdb89def9bf01c4eadf17fcb..a2ba4c4a50bf7019cab7893f47971c216a2c8bec 100644
 --- a/crates/ui-egui/src/i18n/de.tsv
 +++ b/crates/ui-egui/src/i18n/de.tsv
 @@ -2084,3 +2084,6 @@
@@ -9897,7 +9989,7 @@ index 78c03ca..a2ba4c4 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/es.tsv b/crates/ui-egui/src/i18n/es.tsv
-index d9dbabb..f473661 100644
+index d9dbabb4c50bf715042155fd58011d4b198ec19d..f473661e66ddae386cd0f026a5c6e2506c5b52f1 100644
 --- a/crates/ui-egui/src/i18n/es.tsv
 +++ b/crates/ui-egui/src/i18n/es.tsv
 @@ -2451,3 +2451,6 @@ preview	Title	Título
@@ -9908,7 +10000,7 @@ index d9dbabb..f473661 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/et.tsv b/crates/ui-egui/src/i18n/et.tsv
-index 94de44c..7d741cc 100644
+index 94de44c7511ce2e1be934d0a1ccb789d5f21c308..7d741cce8a4d3e05ab5eb795d2a9b2a03672494e 100644
 --- a/crates/ui-egui/src/i18n/et.tsv
 +++ b/crates/ui-egui/src/i18n/et.tsv
 @@ -2119,3 +2119,6 @@
@@ -9919,7 +10011,7 @@ index 94de44c..7d741cc 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/fr.tsv b/crates/ui-egui/src/i18n/fr.tsv
-index c459e24..e26d1bf 100644
+index c459e24de9bb2f661e86c46b802b4d132e3fc941..e26d1bfbe86ed35a9b19252025e3829a1318bef4 100644
 --- a/crates/ui-egui/src/i18n/fr.tsv
 +++ b/crates/ui-egui/src/i18n/fr.tsv
 @@ -2093,3 +2093,6 @@
@@ -9930,7 +10022,7 @@ index c459e24..e26d1bf 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/hu.tsv b/crates/ui-egui/src/i18n/hu.tsv
-index 03baf13..0300ab8 100644
+index 03baf13f34432bb1e8757590da643bb6783d2110..0300ab8ef95072234270f1fa4fcc2a4ffbfdc645 100644
 --- a/crates/ui-egui/src/i18n/hu.tsv
 +++ b/crates/ui-egui/src/i18n/hu.tsv
 @@ -2483,3 +2483,6 @@
@@ -9941,7 +10033,7 @@ index 03baf13..0300ab8 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/it.tsv b/crates/ui-egui/src/i18n/it.tsv
-index 70ae803..51ffb74 100644
+index 70ae8035bcd72a2d73fe90e022fa7915d430f9d7..51ffb742dd6204d65b75eef869da7ea757df2fa6 100644
 --- a/crates/ui-egui/src/i18n/it.tsv
 +++ b/crates/ui-egui/src/i18n/it.tsv
 @@ -2469,3 +2469,6 @@ preview	Title	Esempio
@@ -9952,7 +10044,7 @@ index 70ae803..51ffb74 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/ja.tsv b/crates/ui-egui/src/i18n/ja.tsv
-index 0a82ebf..01296a1 100644
+index 0a82ebf86010743e9cc6b7cd96c9e1bfbd95f74b..01296a112a8bcf05dfffa5c8847e043cb9023aa9 100644
 --- a/crates/ui-egui/src/i18n/ja.tsv
 +++ b/crates/ui-egui/src/i18n/ja.tsv
 @@ -2085,3 +2085,6 @@
@@ -9963,7 +10055,7 @@ index 0a82ebf..01296a1 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/mod.rs b/crates/ui-egui/src/i18n/mod.rs
-index 328a5c6..a961ed3 100644
+index 328a5c6d7aae3d8934954af23055ff750a4b979e..a961ed316684b0928a505d535b33d266a9368d76 100644
 --- a/crates/ui-egui/src/i18n/mod.rs
 +++ b/crates/ui-egui/src/i18n/mod.rs
 @@ -278,8 +278,12 @@ pub fn system_lang() -> Lang {
@@ -9982,7 +10074,7 @@ index 328a5c6..a961ed3 100644
      let tags: Vec<String> = sys_locale::get_locales().take(16).collect();
      first_supported(tags.iter().map(String::as_str)).unwrap_or(Lang::EN)
 diff --git a/crates/ui-egui/src/i18n/pl.tsv b/crates/ui-egui/src/i18n/pl.tsv
-index fa46d79..43b35d8 100644
+index fa46d7918a60510e26e97efc66b837b6c9c4dd9b..43b35d85480361fda120b8ec6186f198562826e7 100644
 --- a/crates/ui-egui/src/i18n/pl.tsv
 +++ b/crates/ui-egui/src/i18n/pl.tsv
 @@ -2478,3 +2478,6 @@ preview	Title	Tytuł
@@ -9993,7 +10085,7 @@ index fa46d79..43b35d8 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/pt-br.tsv b/crates/ui-egui/src/i18n/pt-br.tsv
-index 83f870b..1324f6c 100644
+index 83f870b54573223762a51a7a7f1713c95f719310..1324f6cfb3509844a8883c5191dfbf17a5c701dd 100644
 --- a/crates/ui-egui/src/i18n/pt-br.tsv
 +++ b/crates/ui-egui/src/i18n/pt-br.tsv
 @@ -2097,3 +2097,6 @@
@@ -10004,7 +10096,7 @@ index 83f870b..1324f6c 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/ru.tsv b/crates/ui-egui/src/i18n/ru.tsv
-index 6b20dcb..f95d7df 100644
+index 6b20dcbb3c7301498210d60f04ca17e7fc45da09..f95d7df294cc470f495b123510a8b90b3bcd0f11 100644
 --- a/crates/ui-egui/src/i18n/ru.tsv
 +++ b/crates/ui-egui/src/i18n/ru.tsv
 @@ -2484,3 +2484,6 @@ preview	Title	Пример
@@ -10015,7 +10107,7 @@ index 6b20dcb..f95d7df 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/sr-latn.tsv b/crates/ui-egui/src/i18n/sr-latn.tsv
-index 8dd5be1..d999d1b 100644
+index 8dd5be1770314cdb97b834580f2606a4050c9dae..d999d1b8678b561b5fa1dc763784ee27b239e96e 100644
 --- a/crates/ui-egui/src/i18n/sr-latn.tsv
 +++ b/crates/ui-egui/src/i18n/sr-latn.tsv
 @@ -2095,3 +2095,6 @@
@@ -10026,7 +10118,7 @@ index 8dd5be1..d999d1b 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/sr.tsv b/crates/ui-egui/src/i18n/sr.tsv
-index 3c35a31..d46c64a 100644
+index 3c35a316652c6deaadba064d2d2ad3f466b81429..d46c64a646640656184ad7ef5ee4d9e611ad15be 100644
 --- a/crates/ui-egui/src/i18n/sr.tsv
 +++ b/crates/ui-egui/src/i18n/sr.tsv
 @@ -2099,3 +2099,6 @@
@@ -10037,7 +10129,7 @@ index 3c35a31..d46c64a 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/tr.tsv b/crates/ui-egui/src/i18n/tr.tsv
-index 32d528e..a202b47 100644
+index 32d528ed103a6b6047bb485a21f56c7aa728a9bb..a202b475822064346b6d853155fe8b4ab3f44eff 100644
 --- a/crates/ui-egui/src/i18n/tr.tsv
 +++ b/crates/ui-egui/src/i18n/tr.tsv
 @@ -2483,3 +2483,6 @@ preview	Title	Örnek
@@ -10048,7 +10140,7 @@ index 32d528e..a202b47 100644
 +	Clear Paragraph Layout	Clear Paragraph Layout
 +	Hide Paragraph Layout Button	Hide Paragraph Layout Button
 diff --git a/crates/ui-egui/src/i18n/uk.tsv b/crates/ui-egui/src/i18n/uk.tsv
-index aa1ba4d..d1c6021 100644
+index aa1ba4d49c31a93c709c5caaaaa491424e38ee66..d1c60211707dd2643aebc9c5c95610279a66c766 100644
 --- a/crates/ui-egui/src/i18n/uk.tsv
 +++ b/crates/ui-egui/src/i18n/uk.tsv
 @@ -167,6 +167,7 @@
@@ -10069,7 +10161,7 @@ index aa1ba4d..d1c6021 100644
  	Clipboard	Буфер обміну
  	Clipboard Pane	Панель буфера обміну
 diff --git a/crates/ui-egui/src/i18n/zh-hans.tsv b/crates/ui-egui/src/i18n/zh-hans.tsv
-index 9eab713..0176c2f 100644
+index 9eab71385ddd5ad7bbfedcb93686c42830d6e5be..0176c2fd8b95f5709525f4aa9aec89b387498a53 100644
 --- a/crates/ui-egui/src/i18n/zh-hans.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hans.tsv
 @@ -197,6 +197,7 @@
@@ -10130,7 +10222,7 @@ index 9eab713..0176c2f 100644
  	Clear Character Formatting	清除字符格式
  	Paste Special	选择性粘贴
 diff --git a/crates/ui-egui/src/i18n/zh-hant.tsv b/crates/ui-egui/src/i18n/zh-hant.tsv
-index 0b968cc..b9e93b9 100644
+index 0b968cc77c438514345f3bbea11ffce019f57881..b9e93b9f174a7a1ef61d3d90202cae2136bf6ac7 100644
 --- a/crates/ui-egui/src/i18n/zh-hant.tsv
 +++ b/crates/ui-egui/src/i18n/zh-hant.tsv
 @@ -186,6 +186,7 @@
@@ -10191,7 +10283,7 @@ index 0b968cc..b9e93b9 100644
  	Clear Character Formatting	清除字元格式設定
  	Paste Special	選擇性貼上
 diff --git a/crates/ui-egui/src/icons.rs b/crates/ui-egui/src/icons.rs
-index 87ae0eb..84fb134 100644
+index 87ae0ebd22f23b26f2928a3ab9b6d0015f9f4118..84fb134f071c5dc8b11a5c93c91aab2888934ff9 100644
 --- a/crates/ui-egui/src/icons.rs
 +++ b/crates/ui-egui/src/icons.rs
 @@ -1,1436 +1,375 @@
@@ -11992,7 +12084,7 @@ index 87ae0eb..84fb134 100644
  }
  
 diff --git a/crates/ui-egui/src/keytips.rs b/crates/ui-egui/src/keytips.rs
-index c50ebd4..259c97e 100644
+index c50ebd4e0e3dc875be8b0eaac8ccf1016beb1a67..259c97eee514110ceadd2a8555311f5dfed45370 100644
 --- a/crates/ui-egui/src/keytips.rs
 +++ b/crates/ui-egui/src/keytips.rs
 @@ -335,7 +335,7 @@ fn controls(tab: &str) -> Vec<Control> {
@@ -12005,7 +12097,7 @@ index c50ebd4..259c97e 100644
              vec![m("Shading", "table.shading"), m("Borders", "table.borders"), c("Border Painter", "table.borderPainter")]
          }
 diff --git a/crates/ui-egui/src/lib.rs b/crates/ui-egui/src/lib.rs
-index af0385e..235cff0 100644
+index af0385e80951afdc688501719d0f9b1cbaa62577..235cff09a8dc64b706490baaeced8603070a81f6 100644
 --- a/crates/ui-egui/src/lib.rs
 +++ b/crates/ui-egui/src/lib.rs
 @@ -61,6 +61,7 @@ pub mod mini_toolbar;
@@ -12085,7 +12177,7 @@ index af0385e..235cff0 100644
              let dir = scratch(&format!("arrows-{}-{}", arrows.len(), focused.len()));
              let path = docx_on_disk(&dir, "Draft");
 diff --git a/crates/ui-egui/src/mini_toolbar.rs b/crates/ui-egui/src/mini_toolbar.rs
-index e5efee6..78c6917 100644
+index e5efee6d388c8df661c716aa059a0fd0bdb9bffd..78c6917d20407de03f036f28b248b4ac536aa4bf 100644
 --- a/crates/ui-egui/src/mini_toolbar.rs
 +++ b/crates/ui-egui/src/mini_toolbar.rs
 @@ -149,12 +149,10 @@ fn content(app: &mut WordApp, ui: &mut egui::Ui, t: &Tokens) {
@@ -12105,7 +12197,7 @@ index e5efee6..78c6917 100644
              let _ = app.run("format.size", json!({"size": x}));
          }
 diff --git a/crates/ui-egui/src/options.rs b/crates/ui-egui/src/options.rs
-index da75c87..eaa8c6b 100644
+index da75c87a4c608afff53782e97081376ea9db6d24..eaa8c6b934aae1ec82d29610eb3465a26b01f4c4 100644
 --- a/crates/ui-egui/src/options.rs
 +++ b/crates/ui-egui/src/options.rs
 @@ -172,6 +172,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
@@ -12118,7 +12210,7 @@ index da75c87..eaa8c6b 100644
          .checkbox(&mut dark_page, tl!("Dark page (white text on black)"))
 diff --git a/crates/ui-egui/src/paragraph_layout.rs b/crates/ui-egui/src/paragraph_layout.rs
 new file mode 100644
-index 0000000..7066ea4
+index 0000000000000000000000000000000000000000..7066ea43ecd7523b647addae7f803b798d2f99db
 --- /dev/null
 +++ b/crates/ui-egui/src/paragraph_layout.rs
 @@ -0,0 +1,129 @@
@@ -12252,7 +12344,7 @@ index 0000000..7066ea4
 +    }
 +}
 diff --git a/crates/ui-egui/src/previews.rs b/crates/ui-egui/src/previews.rs
-index 528e95f..cef69c1 100644
+index 528e95f5e1b10af0ab394e211be9d29ff5828e12..cef69c1ff8b7f6502cff486bbcfaa190b0648910 100644
 --- a/crates/ui-egui/src/previews.rs
 +++ b/crates/ui-egui/src/previews.rs
 @@ -166,6 +166,11 @@ impl Previews {
@@ -12326,7 +12418,7 @@ index 528e95f..cef69c1 100644
              resp
          })
 diff --git a/crates/ui-egui/src/ribbon.rs b/crates/ui-egui/src/ribbon.rs
-index b52d210..6a12662 100644
+index b52d210b2bb98723a446ac684cd105a52bd28db7..4ae05ce0c928136d51f88d9849467d99f95fa66b 100644
 --- a/crates/ui-egui/src/ribbon.rs
 +++ b/crates/ui-egui/src/ribbon.rs
 @@ -1,6 +1,6 @@
@@ -12337,7 +12429,7 @@ index b52d210..6a12662 100644
  use serde_json::{Value, json};
  
  use crate::colors::{Remember, Target};
-@@ -9,7 +9,55 @@ use crate::theme::{Tokens, medium, regular, semibold};
+@@ -9,7 +9,58 @@ use crate::theme::{Tokens, medium, regular, semibold};
  use crate::widgets::{CONTENT_H, LABEL_H, big, big_toggle, combo, font_combo, group, menu_button, small, split};
  use crate::{WordApp, icons};
  
@@ -12367,6 +12459,9 @@ index b52d210..6a12662 100644
 +    5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 9.0, 10.0, 10.5, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 36.0, 48.0, 72.0,
 +];
 +
++/// WPS-style Chinese size labels need room for both characters and the drop-down marker.
++const WPS_FONT_SIZE_BOX_WIDTH: f32 = 78.0;
++
 +pub(crate) fn wps_font_size_label(size: f64) -> String {
 +    if let Some((label, _)) = WPS_NAMED_FONT_SIZES.iter().find(|(_, points)| (*points - size).abs() < 0.01) {
 +        (*label).to_owned()
@@ -12394,7 +12489,7 @@ index b52d210..6a12662 100644
  
  /// True when the caret/selection touches a picture (#147).
  pub fn has_picture_selected(s: &wordcraft_engine::Session) -> bool {
-@@ -305,7 +353,6 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+@@ -305,7 +356,6 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
                          "Review" => review(app, ui),
                          "View" => view(app, ui),
                          "Developer" => developer(app, ui),
@@ -12402,7 +12497,7 @@ index b52d210..6a12662 100644
                          "Help" => help(app, ui),
                          "Table Design" => table_design(app, ui),
                          "Table Layout" => table_layout(app, ui),
-@@ -418,6 +465,83 @@ fn mi_text(ui: &mut Ui, app: &mut WordApp, text: &str, id: &str, params: Value)
+@@ -418,6 +468,83 @@ fn mi_text(ui: &mut Ui, app: &mut WordApp, text: &str, id: &str, params: Value)
      }
  }
  
@@ -12486,7 +12581,7 @@ index b52d210..6a12662 100644
  /// The proofing languages the Language menu offers: tag and English name (translated when drawn).
  pub(crate) const PROOFING_LANGUAGES: [(&str, &str); 6] = [
      ("en-US", "English (United States)"),
-@@ -546,20 +670,17 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+@@ -546,20 +673,17 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
                          app.run("font.add", json!({}))
                      } else {
                          let f = app.previews.font_stored(&f);
@@ -12501,10 +12596,11 @@ index b52d210..6a12662 100644
 -                    .unwrap_or_default();
 -                let sizes: Vec<String> =
 -                    wordcraft_engine::cmd::format::SIZES.iter().map(|s| if s.fract() == 0.0 { format!("{s:.0}") } else { s.to_string() }).collect();
+-                if let Some(v) = combo(ui, "size", 52.0, &size, &sizes, None)
+-                    && let Ok(x) = v.trim().parse::<f64>()
 +                let size = st.get("size").and_then(Value::as_f64).map(wps_font_size_label).unwrap_or_default();
 +                let sizes = wps_font_size_items();
-                 if let Some(v) = combo(ui, "size", 52.0, &size, &sizes, None)
--                    && let Ok(x) = v.trim().parse::<f64>()
++                if let Some(v) = combo(ui, "size", WPS_FONT_SIZE_BOX_WIDTH, &size, &sizes, None)
 +                    && let Some(x) = wps_font_size_points(&v)
                  {
                      let _ = app.run("format.size", json!({"size": x}));
@@ -12512,7 +12608,7 @@ index b52d210..6a12662 100644
                  }
                  ui.add_space(3.0);
                  small(ui, app, "grow", None, "Increase Font Size", "format.growFont", json!({}), false);
-@@ -614,7 +735,8 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+@@ -614,7 +738,8 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
                      mi(ui, app, "Double Strikethrough", "format.doubleStrikethrough", json!({}));
                  });
                  let hl = app.canvas.last_highlight.clone();
@@ -12522,7 +12618,7 @@ index b52d210..6a12662 100644
                      let grid = wordcraft_doc::props::Highlight::ALL;
                      egui::Grid::new("hl").spacing(vec2(3.0, 3.0)).show(ui, |ui| {
                          for (i, h) in grid.iter().enumerate().skip(1) {
-@@ -731,21 +853,26 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
+@@ -731,21 +856,26 @@ fn home(app: &mut WordApp, ui: &mut Ui) {
                      crate::colors::menu(ui, app, &theme, Target::cmd("para.shading").remember(Remember::Shading));
                  });
                  split(ui, app, "borders", "Borders", "para.borders", json!({"kind": "bottom"}), false, None, |ui, app| {
@@ -12561,7 +12657,7 @@ index b52d210..6a12662 100644
                  });
              });
          });
-@@ -1488,23 +1615,6 @@ fn mailings(app: &mut WordApp, ui: &mut Ui) {
+@@ -1488,23 +1618,6 @@ fn mailings(app: &mut WordApp, ui: &mut Ui) {
      });
  }
  
@@ -12585,7 +12681,7 @@ index b52d210..6a12662 100644
  fn review(app: &mut WordApp, ui: &mut Ui) {
      group(ui, "Proofing", None, app, |ui, app| {
          big(ui, app, "spelling", "Spelling &\nGrammar", "review.spelling", json!({}), false);
-@@ -1759,8 +1869,7 @@ fn outlining(app: &mut WordApp, ui: &mut Ui) {
+@@ -1759,8 +1872,7 @@ fn outlining(app: &mut WordApp, ui: &mut Ui) {
  
  fn help(app: &mut WordApp, ui: &mut Ui) {
      group(ui, "Help", None, app, |ui, app| {
@@ -12595,7 +12691,7 @@ index b52d210..6a12662 100644
      });
      group(ui, "Agents", None, app, |ui, app| {
          big(ui, app, "macros", "Commands", "ui.dialog", json!({"name": "commands"}), false);
-@@ -2255,15 +2364,22 @@ fn table_design(app: &mut WordApp, ui: &mut Ui) {
+@@ -2255,15 +2367,22 @@ fn table_design(app: &mut WordApp, ui: &mut Ui) {
      });
      group(ui, "Borders", None, app, |ui, app| {
          menu_button(ui, app, "borders", Some("Borders"), "Borders", true, "table.borders", |ui, app| {
@@ -12626,7 +12722,7 @@ index b52d210..6a12662 100644
              }
          });
          big(ui, app, "borderPainter", "Border\nPainter", "table.borderPainter", json!({}), false);
-@@ -2584,3 +2700,24 @@ mod tests {
+@@ -2584,3 +2703,24 @@ mod tests {
          assert_eq!(resolve_tab("Home", &["Home"]), "Home");
      }
  }
@@ -12652,7 +12748,7 @@ index b52d210..6a12662 100644
 +    }
 +}
 diff --git a/crates/ui-egui/src/table_mouse.rs b/crates/ui-egui/src/table_mouse.rs
-index f98c08f..bde9247 100644
+index f98c08fa765c292f70724f100ffadd0ded9799d1..bde924766fa0002d5bae6d62f4885245b15111f1 100644
 --- a/crates/ui-egui/src/table_mouse.rs
 +++ b/crates/ui-egui/src/table_mouse.rs
 @@ -9,6 +9,7 @@
@@ -12701,7 +12797,7 @@ index f98c08f..bde9247 100644
          Some(m) => {
              if let (Some(c), Some(a), Some(b)) = (s(m.center.0, m.center.1), s(m.from.0, m.from.1), s(m.to.0, m.to.1)) {
 diff --git a/crates/ui-egui/src/table_resize.rs b/crates/ui-egui/src/table_resize.rs
-index 33cfd26..fb36035 100644
+index 33cfd267d768868b0ca7a1731829eb6401106ebc..fb360358d9828a276572fa30dbabbcef51eda699 100644
 --- a/crates/ui-egui/src/table_resize.rs
 +++ b/crates/ui-egui/src/table_resize.rs
 @@ -8,6 +8,7 @@
@@ -12765,7 +12861,7 @@ index 33cfd26..fb36035 100644
          None => None,
      };
 diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
-index 441ff2a..48596b8 100644
+index 441ff2ad946283ce7eafe13a371ce70958c0dc33..48596b816b21825452fccdcd51dd28a6aff349f6 100644
 --- a/crates/ui-egui/src/theme.rs
 +++ b/crates/ui-egui/src/theme.rs
 @@ -752,7 +752,7 @@ mod tests {
@@ -12778,7 +12874,7 @@ index 441ff2a..48596b8 100644
      #[test]
      fn interface_colours_come_from_the_theme() {
 diff --git a/crates/ui-egui/src/widgets.rs b/crates/ui-egui/src/widgets.rs
-index ad4adcd..3ea779a 100644
+index ad4adcdd381829a8bdfae8371de4e52dd7981cde..3ea779a44fcce99caeca781df914165bcb301169 100644
 --- a/crates/ui-egui/src/widgets.rs
 +++ b/crates/ui-egui/src/widgets.rs
 @@ -113,9 +113,9 @@ pub(crate) fn bg(ui: &Ui, r: Rect, resp: &Response, checked: bool, t: &Tokens) {
@@ -12864,7 +12960,7 @@ index ad4adcd..3ea779a 100644
  /// A combo's scrolling list. Only the rows in view are built: the font menu lists every installed
  /// family and each preview loads that font, so building all rows loaded every font on the system
 diff --git a/docs/file-format-parity.md b/docs/file-format-parity.md
-index 641da4f..0c368c0 100644
+index 641da4f75071eead69f4e9775537551edcb84c37..0c368c048cb2c417917e68ae183e521fa7822110 100644
 --- a/docs/file-format-parity.md
 +++ b/docs/file-format-parity.md
 @@ -1,6 +1,6 @@
@@ -12922,7 +13018,7 @@ index 641da4f..0c368c0 100644
  | 2026-10-13 | trivial | Remove personal information / Remove date and time settings kept and honoured on save: anonymous annotation authors, no creator or last-modified-by, no annotation dates (#1062) |
  | 2026-10-12 | trivial | Direct run-level `w:contentPart` InkML keeps its relationship, content type and bytes through DOCX edits and repeated saves; nested group/canvas ink and native rendering remain missing |
 diff --git a/docs/gaps.md b/docs/gaps.md
-index a85a8f0..4a982dd 100644
+index a85a8f0eeeda6e06bb1b0ec289cd0aef0b455ff5..4a982dd3bbb642dcdb77bda71d966d5631139810 100644
 --- a/docs/gaps.md
 +++ b/docs/gaps.md
 @@ -1,6 +1,6 @@
@@ -12969,7 +13065,7 @@ index a85a8f0..4a982dd 100644
  | 2026-10-12 | minor | Italian proofing landed (it-IT spelling from the installed Hunspell dictionary, accent-first suggestions, conservative grammar); gap #8 narrowed to the remaining languages |
  | 2026-10-12 | trivial | #2 narrowed: direct run-level `w:contentPart` InkML survives DOCX edits and repeated saves; nested group/canvas ink and native rendering remain |
 diff --git a/docs/layout-parity.md b/docs/layout-parity.md
-index 2a8bc2b..9b4a24d 100644
+index 2a8bc2bf2bfbc37667de5fefcf4277decb84740c..9b4a24dedca3932c447ba642411c0227c06a78bd 100644
 --- a/docs/layout-parity.md
 +++ b/docs/layout-parity.md
 @@ -25,7 +25,7 @@ font can't match Word's metrics.
@@ -12991,7 +13087,7 @@ index 2a8bc2b..9b4a24d 100644
  | Bidirectional paragraphs, mixed-direction lines; RTL tables and sections | 🟡 | #207; RTL tables (#362): grid columns from the right edge, start alignment and indent from the right margin, cell margins and left/right borders mirrored, merged and turned cells and nested tables included; RTL sections (#362): newspaper columns right to left with the line between mirrored. Right-hand page gutter (`w:rtlGutter`) missing | 1 |
  | Equations: display layout, numbering, wrapping long display equations | ✅ | #191; long display equations break at top-level operators (`m:brkBin`, `m:brkBinSub`), manual breaks and `m:alnAt`, continuation lines indented by `m:wrapIndent` or set right (`m:wrapRight`) (#326) | — |
 diff --git a/docs/ui-parity.md b/docs/ui-parity.md
-index 843b087..43bbe51 100644
+index 843b0874174ecab4b545cfda8c5c4d3f1964305d..43bbe51c7d16c3842977c1c6dec00f901aa8a08c 100644
 --- a/docs/ui-parity.md
 +++ b/docs/ui-parity.md
 @@ -3,8 +3,11 @@
@@ -13017,7 +13113,7 @@ index 843b087..43bbe51 100644
  | 2026-10-13 | trivial | Clicks on ribbon and status-bar chrome that run no command button (Styles and style-set gallery tiles, tab names, empty ribbon space, View check boxes, the status bar's view buttons and language menu) no longer take keyboard focus from the page: the caret stays and typing continues, as in Word; text fields such as the font size box still take focus. Tabs, gallery tiles and the status bar's view buttons report their name and state to screen readers (#1093) |
  | 2026-10-13 | trivial | Interface size: a chosen size is absolute ("100%" is one screen pixel per point, even where the system reports 200 % under a bare window manager) and the new default, Auto, keeps the display scale and shows the size it draws at; 75–300 %; an old saved size becomes the size it drew at; on the web a chosen size cancels browser zoom, Auto follows it (#822) |
 diff --git a/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in b/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
-index be11038..5aa993d 100644
+index be11038a6e0b5c28424adc56af5973ef5a561fc7..5aa993dcdcf74ca507e5a9f92005cb4a810117e8 100644
 --- a/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
 +++ b/packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in
 @@ -21,7 +21,7 @@
@@ -13030,7 +13126,7 @@ index be11038..5aa993d 100644
      <category>Office</category>
      <category>WordProcessor</category>
 diff --git a/packaging/windows/wordcraft.wxs b/packaging/windows/wordcraft.wxs
-index c0fa1f0..d2afbf0 100644
+index c0fa1f0aa86ec5d2f531c5cb5c7427d5b8c4de7c..d2afbf079d80a1ab7dcb94dbe2927a27efbeab84 100644
 --- a/packaging/windows/wordcraft.wxs
 +++ b/packaging/windows/wordcraft.wxs
 @@ -35,7 +35,7 @@
