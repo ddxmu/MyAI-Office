@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "1.0.8",
-  "releaseNotes": "段落对话框按 WPS 风格优化缩进和间距、换行和分页，并补充行距预设、设置值与预览。",
+  "latestVersion": "1.1.0",
+  "releaseNotes": "Word/Excel 中文文档版式兼容性增强：中文字体与字体度量、WPS 风格目录分页、行距与文档网格、表格宽度适配、工作表图标与下拉控件优化，并新增逐页版式差异检查工具。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.8-arm64.zip",
-    "sha256": "8bfe1bf45a63314ee941e1b3b59eeb593cde4c9047fa91318ac86be0347e9be3",
-    "size": 165182797,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.0/MyAI-Office-1.1.0-arm64.zip",
+    "sha256": "01958ec3ec8e560e6f482e809aa401da5127d14836447c3735651493e500b25c",
+    "size": 165185678,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.8-arm64.dmg",
-    "sha256": "334bc1e9d430ff6bf7f9a11873c20252cf64545c64b8175a1c4e09832bd7e926",
-    "size": 164980925
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.0/MyAI-Office-1.1.0-arm64.dmg",
+    "sha256": "7ba744438b5549e859ff4c0d84d3e9ded3c94b660b910e8af992a0102cbb281a",
+    "size": 164978420
   },
   "deltas": [
     {
-      "baseVersion": "1.0.7",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.7-to-1.0.8-arm64.bsdiff.zip",
-      "sha256": "8f845c140f0182a2782d37eaf3b9752562d72638ed4e1193e3c0391a7170951d",
-      "size": 1982262,
+      "baseVersion": "1.0.8",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.0/MyAI-Office-1.0.8-to-1.1.0-arm64.bsdiff.zip",
+      "sha256": "a34c97b20dfc332fa4331fec680c150172f2d32925eb280d986402d784733b82",
+      "size": 2638378,
       "format": "bsdiff-v2"
     }
   ]
