@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "1.1.3",
+  "releaseNotes": "Excel 与 WPS 版面一致性修复：校正列宽、行高和表格整体显示比例，改善多种 XLSX/旧版 XLS 文件的打开显示。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.3/MyAI-Office-1.1.3-arm64.zip",
+    "sha256": "db3bfc1abe29c6de8b9aebfc009b2dfd079627481f973d87e799a2b8b6ef37ea",
+    "size": 165201514,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.3/MyAI-Office-1.1.3-arm64.dmg",
+    "sha256": "8bf568c80fb6d849b33ee6e0d278c35356dfd363094f0a8f2dad7f92e2ed815c",
+    "size": 164987495
+  },
+  "deltas": [
+    {
+      "baseVersion": "1.1.2",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.3/MyAI-Office-1.1.2-to-1.1.3-arm64.bsdiff.zip",
+      "sha256": "3adc0d764ea8169fec221850b6e1fbcbac9ee667bbda3447a492fef7e25d9a92",
+      "size": 6759,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
