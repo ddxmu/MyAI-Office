@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "1.0.7",
+  "releaseNotes": "修复 Word 中文字号框显示不全；欢迎页改为响应式布局，并修复最近文档长路径越界导致的错位。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.7/MyAI-Office-1.0.7-arm64.zip",
+    "sha256": "60052e5b145986e8428738141f69d96e1189aa0f12836e0f1f86a89b8062f938",
+    "size": 165172656,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.7/MyAI-Office-1.0.7-arm64.dmg",
+    "sha256": "3c8f6ede6b7800d33bc598f901f6410917ddf2ea14c3d65a57d4c29c3c4965dc",
+    "size": 164948265
+  },
+  "deltas": [
+    {
+      "baseVersion": "1.0.6",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.7/MyAI-Office-1.0.6-to-1.0.7-arm64.bsdiff.zip",
+      "sha256": "3661b5f616421448619ac810186d3a6da3e163a44e624e04f065f21b72426c0b",
+      "size": 1760742,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
