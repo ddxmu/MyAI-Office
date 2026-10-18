@@ -1116,6 +1116,2813 @@ index 85a24dd..5dab312 100644
  serde = { workspace = true }
  serde_json = { workspace = true }
  log = { workspace = true }
+diff --git a/crates/ui-egui/assets/tabler/LICENSE b/crates/ui-egui/assets/tabler/LICENSE
+new file mode 100644
+index 0000000..3e82379
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/LICENSE
+@@ -0,0 +1,21 @@
++MIT License
++
++Copyright (c) 2020-2026 Paweł Kuna
++
++Permission is hereby granted, free of charge, to any person obtaining a copy
++of this software and associated documentation files (the "Software"), to deal
++in the Software without restriction, including without limitation the rights
++to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++copies of the Software, and to permit persons to whom the Software is
++furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice shall be included in all
++copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++SOFTWARE.
+diff --git a/crates/ui-egui/assets/tabler/abc.svg b/crates/ui-egui/assets/tabler/abc.svg
+new file mode 100644
+index 0000000..3ba4844
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/abc.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-abc"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 16v-6a2 2 0 1 1 4 0v6" />
++  <path d="M3 13h4" />
++  <path d="M10 8v6a2 2 0 1 0 4 0v-1a2 2 0 1 0 -4 0v1" />
++  <path d="M20.732 12a2 2 0 0 0 -3.732 1v1a2 2 0 0 0 3.726 1.01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/align-box-bottom-center.svg b/crates/ui-egui/assets/tabler/align-box-bottom-center.svg
+new file mode 100644
+index 0000000..1b07245
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/align-box-bottom-center.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-align-box-bottom-center"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14" />
++  <path d="M9 15v2" />
++  <path d="M12 11v6" />
++  <path d="M15 13v4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/align-box-center-middle.svg b/crates/ui-egui/assets/tabler/align-box-center-middle.svg
+new file mode 100644
+index 0000000..869cdcf
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/align-box-center-middle.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-align-box-center-middle"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 19v-14a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2" />
++  <path d="M11 15h2" />
++  <path d="M9 12h6" />
++  <path d="M10 9h4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/align-box-top-center.svg b/crates/ui-egui/assets/tabler/align-box-top-center.svg
+new file mode 100644
+index 0000000..cd38841
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/align-box-top-center.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-align-box-top-center"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14" />
++  <path d="M9 9v-2" />
++  <path d="M12 13v-6" />
++  <path d="M15 11v-4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/align-center.svg b/crates/ui-egui/assets/tabler/align-center.svg
+new file mode 100644
+index 0000000..198469e
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/align-center.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-align-center"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6l16 0" />
++  <path d="M8 12l8 0" />
++  <path d="M6 18l12 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/align-left.svg b/crates/ui-egui/assets/tabler/align-left.svg
+new file mode 100644
+index 0000000..544a723
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/align-left.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-align-left"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6l16 0" />
++  <path d="M4 12l10 0" />
++  <path d="M4 18l14 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/align-right.svg b/crates/ui-egui/assets/tabler/align-right.svg
+new file mode 100644
+index 0000000..ac9ca1e
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/align-right.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-align-right"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6l16 0" />
++  <path d="M10 12l10 0" />
++  <path d="M6 18l14 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/arrow-back-up.svg b/crates/ui-egui/assets/tabler/arrow-back-up.svg
+new file mode 100644
+index 0000000..1da9bfa
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/arrow-back-up.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-back-up"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9 14l-4 -4l4 -4" />
++  <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/arrow-bar-to-down.svg b/crates/ui-egui/assets/tabler/arrow-bar-to-down.svg
+new file mode 100644
+index 0000000..aa1ea6b
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/arrow-bar-to-down.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-bar-to-down"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 20l16 0" />
++  <path d="M12 14l0 -10" />
++  <path d="M12 14l4 -4" />
++  <path d="M12 14l-4 -4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/arrow-forward-up.svg b/crates/ui-egui/assets/tabler/arrow-forward-up.svg
+new file mode 100644
+index 0000000..9d9bc0b
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/arrow-forward-up.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-forward-up"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M15 14l4 -4l-4 -4" />
++  <path d="M19 10h-11a4 4 0 1 0 0 8h1" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/arrow-left.svg b/crates/ui-egui/assets/tabler/arrow-left.svg
+new file mode 100644
+index 0000000..aafc627
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/arrow-left.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 12l14 0" />
++  <path d="M5 12l6 6" />
++  <path d="M5 12l6 -6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/arrows-minimize.svg b/crates/ui-egui/assets/tabler/arrows-minimize.svg
+new file mode 100644
+index 0000000..f89c811
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/arrows-minimize.svg
+@@ -0,0 +1,22 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-minimize"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 9l4 0l0 -4" />
++  <path d="M3 3l6 6" />
++  <path d="M5 15l4 0l0 4" />
++  <path d="M3 21l6 -6" />
++  <path d="M19 9l-4 0l0 -4" />
++  <path d="M15 9l6 -6" />
++  <path d="M19 15l-4 0l0 4" />
++  <path d="M15 15l6 6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/arrows-split.svg b/crates/ui-egui/assets/tabler/arrows-split.svg
+new file mode 100644
+index 0000000..0ef0991
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/arrows-split.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-split"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M21 17h-8l-3.5 -5h-6.5" />
++  <path d="M21 7h-8l-3.495 5" />
++  <path d="M18 10l3 -3l-3 -3" />
++  <path d="M18 20l3 -3l-3 -3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/ballpen.svg b/crates/ui-egui/assets/tabler/ballpen.svg
+new file mode 100644
+index 0000000..19ab8f0
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/ballpen.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-ballpen"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 6l7 7l-4 4" />
++  <path d="M5.828 18.172a2.828 2.828 0 0 0 4 0l10.586 -10.586a2 2 0 0 0 0 -2.829l-1.171 -1.171a2 2 0 0 0 -2.829 0l-10.586 10.586a2.828 2.828 0 0 0 0 4" />
++  <path d="M4 20l1.768 -1.768" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/bold.svg b/crates/ui-egui/assets/tabler/bold.svg
+new file mode 100644
+index 0000000..c0c3aa1
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/bold.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-bold"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M7 5h6a3.5 3.5 0 0 1 0 7h-6l0 -7" />
++  <path d="M13 12h1a3.5 3.5 0 0 1 0 7h-7v-7" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/book.svg b/crates/ui-egui/assets/tabler/book.svg
+new file mode 100644
+index 0000000..973deaa
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/book.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-book"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
++  <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
++  <path d="M3 6l0 13" />
++  <path d="M12 6l0 13" />
++  <path d="M21 6l0 13" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/border-all.svg b/crates/ui-egui/assets/tabler/border-all.svg
+new file mode 100644
+index 0000000..719849b
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/border-all.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-border-all"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
++  <path d="M4 12l16 0" />
++  <path d="M12 4l0 16" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/border-bottom.svg b/crates/ui-egui/assets/tabler/border-bottom.svg
+new file mode 100644
+index 0000000..07cd28f
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/border-bottom.svg
+@@ -0,0 +1,31 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-border-bottom"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M20 20l-16 0" />
++  <path d="M4 4l0 .01" />
++  <path d="M8 4l0 .01" />
++  <path d="M12 4l0 .01" />
++  <path d="M16 4l0 .01" />
++  <path d="M20 4l0 .01" />
++  <path d="M4 8l0 .01" />
++  <path d="M12 8l0 .01" />
++  <path d="M20 8l0 .01" />
++  <path d="M4 12l0 .01" />
++  <path d="M8 12l0 .01" />
++  <path d="M12 12l0 .01" />
++  <path d="M16 12l0 .01" />
++  <path d="M20 12l0 .01" />
++  <path d="M4 16l0 .01" />
++  <path d="M12 16l0 .01" />
++  <path d="M20 16l0 .01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/border-none.svg b/crates/ui-egui/assets/tabler/border-none.svg
+new file mode 100644
+index 0000000..948f81e
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/border-none.svg
+@@ -0,0 +1,35 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-border-none"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 4l0 .01" />
++  <path d="M8 4l0 .01" />
++  <path d="M12 4l0 .01" />
++  <path d="M16 4l0 .01" />
++  <path d="M20 4l0 .01" />
++  <path d="M4 8l0 .01" />
++  <path d="M12 8l0 .01" />
++  <path d="M20 8l0 .01" />
++  <path d="M4 12l0 .01" />
++  <path d="M8 12l0 .01" />
++  <path d="M12 12l0 .01" />
++  <path d="M16 12l0 .01" />
++  <path d="M20 12l0 .01" />
++  <path d="M4 16l0 .01" />
++  <path d="M12 16l0 .01" />
++  <path d="M20 16l0 .01" />
++  <path d="M4 20l0 .01" />
++  <path d="M8 20l0 .01" />
++  <path d="M12 20l0 .01" />
++  <path d="M16 20l0 .01" />
++  <path d="M20 20l0 .01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/border-outer.svg b/crates/ui-egui/assets/tabler/border-outer.svg
+new file mode 100644
+index 0000000..a071293
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/border-outer.svg
+@@ -0,0 +1,20 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-border-outer"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
++  <path d="M12 8l0 .01" />
++  <path d="M8 12l0 .01" />
++  <path d="M12 12l0 .01" />
++  <path d="M16 12l0 .01" />
++  <path d="M12 16l0 .01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/border-style-2.svg b/crates/ui-egui/assets/tabler/border-style-2.svg
+new file mode 100644
+index 0000000..b9110ea
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/border-style-2.svg
+@@ -0,0 +1,23 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-border-style-2"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 18v.01" />
++  <path d="M8 18v.01" />
++  <path d="M12 18v.01" />
++  <path d="M16 18v.01" />
++  <path d="M20 18v.01" />
++  <path d="M18 12h2" />
++  <path d="M11 12h2" />
++  <path d="M4 12h2" />
++  <path d="M4 6h16" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/box-margin.svg b/crates/ui-egui/assets/tabler/box-margin.svg
+new file mode 100644
+index 0000000..b2188fb
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/box-margin.svg
+@@ -0,0 +1,31 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-box-margin"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M8 8h8v8h-8l0 -8" />
++  <path d="M4 4v.01" />
++  <path d="M8 4v.01" />
++  <path d="M12 4v.01" />
++  <path d="M16 4v.01" />
++  <path d="M20 4v.01" />
++  <path d="M4 20v.01" />
++  <path d="M8 20v.01" />
++  <path d="M12 20v.01" />
++  <path d="M16 20v.01" />
++  <path d="M20 20v.01" />
++  <path d="M20 16v.01" />
++  <path d="M20 12v.01" />
++  <path d="M20 8v.01" />
++  <path d="M4 16v.01" />
++  <path d="M4 12v.01" />
++  <path d="M4 8v.01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/brightness-half.svg b/crates/ui-egui/assets/tabler/brightness-half.svg
+new file mode 100644
+index 0000000..74a892a
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/brightness-half.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-brightness-half"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M12 9a3 3 0 0 0 0 6v-6" />
++  <path d="M6 6h3.5l2.5 -2.5l2.5 2.5h3.5v3.5l2.5 2.5l-2.5 2.5v3.5h-3.5l-2.5 2.5l-2.5 -2.5h-3.5v-3.5l-2.5 -2.5l2.5 -2.5l0 -3.5" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/bucket-droplet.svg b/crates/ui-egui/assets/tabler/bucket-droplet.svg
+new file mode 100644
+index 0000000..7c1cde4
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/bucket-droplet.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-bucket-droplet"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 16l1.465 1.638a2 2 0 1 1 -3.015 .099l1.55 -1.737" />
++  <path d="M13.737 9.737c2.299 -2.3 3.23 -5.095 2.081 -6.245c-1.15 -1.15 -3.945 -.217 -6.244 2.082c-2.3 2.299 -3.231 5.095 -2.082 6.244c1.15 1.15 3.946 .218 6.245 -2.081" />
++  <path d="M7.492 11.818c.362 .362 .768 .676 1.208 .934l6.895 4.047c1.078 .557 2.255 -.075 3.692 -1.512c1.437 -1.437 2.07 -2.614 1.512 -3.692c-.372 -.718 -1.72 -3.017 -4.047 -6.895a6.015 6.015 0 0 0 -.934 -1.208" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/calculator.svg b/crates/ui-egui/assets/tabler/calculator.svg
+new file mode 100644
+index 0000000..6e62271
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/calculator.svg
+@@ -0,0 +1,22 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-calculator"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 5a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -14" />
++  <path d="M8 8a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1l0 -1" />
++  <path d="M8 14l0 .01" />
++  <path d="M12 14l0 .01" />
++  <path d="M16 14l0 .01" />
++  <path d="M8 17l0 .01" />
++  <path d="M12 17l0 .01" />
++  <path d="M16 17l0 .01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/calendar.svg b/crates/ui-egui/assets/tabler/calendar.svg
+new file mode 100644
+index 0000000..307e7b6
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/calendar.svg
+@@ -0,0 +1,20 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12" />
++  <path d="M16 3v4" />
++  <path d="M8 3v4" />
++  <path d="M4 11h16" />
++  <path d="M11 15h1" />
++  <path d="M12 15v3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chart-bar.svg b/crates/ui-egui/assets/tabler/chart-bar.svg
+new file mode 100644
+index 0000000..6eff654
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chart-bar.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chart-bar"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -6" />
++  <path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -10" />
++  <path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -14" />
++  <path d="M4 20h14" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chart-dots.svg b/crates/ui-egui/assets/tabler/chart-dots.svg
+new file mode 100644
+index 0000000..f27bf4b
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chart-dots.svg
+@@ -0,0 +1,20 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chart-dots"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 3v18h18" />
++  <path d="M7 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M17 7a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M12 15a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M10.16 10.62l2.34 2.88" />
++  <path d="M15.088 13.328l2.837 -4.586" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chart-line.svg b/crates/ui-egui/assets/tabler/chart-line.svg
+new file mode 100644
+index 0000000..8141196
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chart-line.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chart-line"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 19l16 0" />
++  <path d="M4 15l4 -6l4 2l4 -5l4 4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chart-pie.svg b/crates/ui-egui/assets/tabler/chart-pie.svg
+new file mode 100644
+index 0000000..ef91d43
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chart-pie.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chart-pie"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M10 3.2a9 9 0 1 0 10.8 10.8a1 1 0 0 0 -1 -1h-6.8a2 2 0 0 1 -2 -2v-7a.9 .9 0 0 0 -1 -.8" />
++  <path d="M15 3.5a9 9 0 0 1 5.5 5.5h-4.5a1 1 0 0 1 -1 -1v-4.5" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/check.svg b/crates/ui-egui/assets/tabler/check.svg
+new file mode 100644
+index 0000000..6e9231b
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/check.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-check"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 12l5 5l10 -10" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/checkbox.svg b/crates/ui-egui/assets/tabler/checkbox.svg
+new file mode 100644
+index 0000000..425f961
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/checkbox.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9 11l3 3l8 -8" />
++  <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/checklist.svg b/crates/ui-egui/assets/tabler/checklist.svg
+new file mode 100644
+index 0000000..3052b01
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/checklist.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-checklist"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9.615 20h-2.615a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8" />
++  <path d="M14 19l2 2l4 -4" />
++  <path d="M9 8h4" />
++  <path d="M9 12h2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chevron-down.svg b/crates/ui-egui/assets/tabler/chevron-down.svg
+new file mode 100644
+index 0000000..92e2050
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chevron-down.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M6 9l6 6l6 -6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chevron-left.svg b/crates/ui-egui/assets/tabler/chevron-left.svg
+new file mode 100644
+index 0000000..db7aff7
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chevron-left.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M15 6l-6 6l6 6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chevron-right.svg b/crates/ui-egui/assets/tabler/chevron-right.svg
+new file mode 100644
+index 0000000..fb03f1e
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chevron-right.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9 6l6 6l-6 6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/chevron-up.svg b/crates/ui-egui/assets/tabler/chevron-up.svg
+new file mode 100644
+index 0000000..cdc3057
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/chevron-up.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-up"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M6 15l6 -6l6 6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/clipboard-text.svg b/crates/ui-egui/assets/tabler/clipboard-text.svg
+new file mode 100644
+index 0000000..be42437
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/clipboard-text.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-text"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
++  <path d="M9 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2" />
++  <path d="M9 12h6" />
++  <path d="M9 16h6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/clock.svg b/crates/ui-egui/assets/tabler/clock.svg
+new file mode 100644
+index 0000000..20d3bf3
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/clock.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-clock"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
++  <path d="M12 7v5l3 3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/code.svg b/crates/ui-egui/assets/tabler/code.svg
+new file mode 100644
+index 0000000..33a9942
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/code.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-code"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M7 8l-4 4l4 4" />
++  <path d="M17 8l4 4l-4 4" />
++  <path d="M14 4l-4 16" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/color-swatch.svg b/crates/ui-egui/assets/tabler/color-swatch.svg
+new file mode 100644
+index 0000000..0340dbb
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/color-swatch.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-color-swatch"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M19 3h-4a2 2 0 0 0 -2 2v12a4 4 0 0 0 8 0v-12a2 2 0 0 0 -2 -2" />
++  <path d="M13 7.35l-2 -2a2 2 0 0 0 -2.828 0l-2.828 2.828a2 2 0 0 0 0 2.828l9 9" />
++  <path d="M7.3 13h-2.3a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h12" />
++  <path d="M17 17l0 .01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/columns-3.svg b/crates/ui-egui/assets/tabler/columns-3.svg
+new file mode 100644
+index 0000000..e5caae1
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/columns-3.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-columns-3"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 4a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v16a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-16" />
++  <path d="M9 3v18" />
++  <path d="M15 3v18" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/copy-minus.svg b/crates/ui-egui/assets/tabler/copy-minus.svg
+new file mode 100644
+index 0000000..d1569fe
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/copy-minus.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-copy-minus"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666" />
++  <path d="M4.012 16.737a2 2 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
++  <path d="M11 14h6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/copy.svg b/crates/ui-egui/assets/tabler/copy.svg
+new file mode 100644
+index 0000000..91efff9
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/copy.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-copy"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666" />
++  <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/crop.svg b/crates/ui-egui/assets/tabler/crop.svg
+new file mode 100644
+index 0000000..a8c0465
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/crop.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-crop"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M8 5v10a1 1 0 0 0 1 1h10" />
++  <path d="M5 8h10a1 1 0 0 1 1 1v10" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/currency-dollar.svg b/crates/ui-egui/assets/tabler/currency-dollar.svg
+new file mode 100644
+index 0000000..b3df961
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/currency-dollar.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-currency-dollar"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
++  <path d="M12 3v3m0 12v3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/decimal.svg b/crates/ui-egui/assets/tabler/decimal.svg
+new file mode 100644
+index 0000000..5f602c2
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/decimal.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-decimal"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M17 8a2 2 0 0 1 2 2v4a2 2 0 1 1 -4 0v-4a2 2 0 0 1 2 -2" />
++  <path d="M10 8a2 2 0 0 1 2 2v4a2 2 0 1 1 -4 0v-4a2 2 0 0 1 2 -2" />
++  <path d="M5 16h.01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/device-floppy.svg b/crates/ui-egui/assets/tabler/device-floppy.svg
+new file mode 100644
+index 0000000..d998bfa
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/device-floppy.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
++  <path d="M10 14a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M14 4l0 4l-6 0l0 -4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/dots.svg b/crates/ui-egui/assets/tabler/dots.svg
+new file mode 100644
+index 0000000..74bfe73
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/dots.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-dots"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/eraser.svg b/crates/ui-egui/assets/tabler/eraser.svg
+new file mode 100644
+index 0000000..515252f
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/eraser.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-eraser"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3" />
++  <path d="M18 13.3l-6.3 -6.3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/file-digit.svg b/crates/ui-egui/assets/tabler/file-digit.svg
+new file mode 100644
+index 0000000..d2472a5
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/file-digit.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-file-digit"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M9 13a1 1 0 0 1 1 -1h1a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1l0 -3" />
++  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
++  <path d="M15 12v5" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/file-orientation.svg b/crates/ui-egui/assets/tabler/file-orientation.svg
+new file mode 100644
+index 0000000..bfd0f30
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/file-orientation.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-file-orientation"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M10 21h-3a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v2" />
++  <path d="M13 20h5a2 2 0 0 0 2 -2v-5" />
++  <path d="M15 22l-2 -2l2 -2" />
++  <path d="M18 15l2 -2l2 2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/file-plus.svg b/crates/ui-egui/assets/tabler/file-plus.svg
+new file mode 100644
+index 0000000..d88b243
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/file-plus.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-file-plus"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
++  <path d="M12 11l0 6" />
++  <path d="M9 14l6 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/file-spreadsheet.svg b/crates/ui-egui/assets/tabler/file-spreadsheet.svg
+new file mode 100644
+index 0000000..c5807af
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/file-spreadsheet.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-file-spreadsheet"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
++  <path d="M8 11h8v7h-8l0 -7" />
++  <path d="M8 15h8" />
++  <path d="M11 11v7" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/file-text.svg b/crates/ui-egui/assets/tabler/file-text.svg
+new file mode 100644
+index 0000000..23cf1e9
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/file-text.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-file-text"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
++  <path d="M9 9l1 0" />
++  <path d="M9 13l6 0" />
++  <path d="M9 17l6 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/file.svg b/crates/ui-egui/assets/tabler/file.svg
+new file mode 100644
+index 0000000..53a5c09
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/file.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-file"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/files.svg b/crates/ui-egui/assets/tabler/files.svg
+new file mode 100644
+index 0000000..8497346
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/files.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-files"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M15 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2" />
++  <path d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/filter.svg b/crates/ui-egui/assets/tabler/filter.svg
+new file mode 100644
+index 0000000..10e6c10
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/filter.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-filter"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/folder-open.svg b/crates/ui-egui/assets/tabler/folder-open.svg
+new file mode 100644
+index 0000000..46ae89d
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/folder-open.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-open"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 19l2.757 -7.351a1 1 0 0 1 .936 -.649h12.307a1 1 0 0 1 .986 1.164l-.996 5.211a2 2 0 0 1 -1.964 1.625h-14.026a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/folder.svg b/crates/ui-egui/assets/tabler/folder.svg
+new file mode 100644
+index 0000000..721d6cd
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/folder.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-folder"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/freeze-row-column.svg b/crates/ui-egui/assets/tabler/freeze-row-column.svg
+new file mode 100644
+index 0000000..82688ed
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/freeze-row-column.svg
+@@ -0,0 +1,20 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-freeze-row-column"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14" />
++  <path d="M15 3l-12 12" />
++  <path d="M9.5 3l-6 6" />
++  <path d="M20 3.5l-5.5 5.5" />
++  <path d="M9 15l-5 5" />
++  <path d="M21 9h-12v12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/grid-dots.svg b/crates/ui-egui/assets/tabler/grid-dots.svg
+new file mode 100644
+index 0000000..21ea4e1
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/grid-dots.svg
+@@ -0,0 +1,23 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-grid-dots"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M18 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M4 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M18 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/home.svg b/crates/ui-egui/assets/tabler/home.svg
+new file mode 100644
+index 0000000..e84e7a2
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/home.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-home"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
++  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
++  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/indent-decrease.svg b/crates/ui-egui/assets/tabler/indent-decrease.svg
+new file mode 100644
+index 0000000..d9a1e36
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/indent-decrease.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-indent-decrease"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M20 6l-7 0" />
++  <path d="M20 12l-9 0" />
++  <path d="M20 18l-7 0" />
++  <path d="M8 8l-4 4l4 4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/indent-increase.svg b/crates/ui-egui/assets/tabler/indent-increase.svg
+new file mode 100644
+index 0000000..f892a8f
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/indent-increase.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-indent-increase"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M20 6l-11 0" />
++  <path d="M20 12l-7 0" />
++  <path d="M20 18l-11 0" />
++  <path d="M4 8l4 4l-4 4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/info-circle.svg b/crates/ui-egui/assets/tabler/info-circle.svg
+new file mode 100644
+index 0000000..8d46185
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/info-circle.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
++  <path d="M12 9h.01" />
++  <path d="M11 12h1v4h1" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/italic.svg b/crates/ui-egui/assets/tabler/italic.svg
+new file mode 100644
+index 0000000..db654e9
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/italic.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-italic"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M11 5l6 0" />
++  <path d="M7 19l6 0" />
++  <path d="M14 5l-4 14" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/layers-linked.svg b/crates/ui-egui/assets/tabler/layers-linked.svg
+new file mode 100644
+index 0000000..bbdb941
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/layers-linked.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-layers-linked"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M19 8.268a2 2 0 0 1 1 1.732v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2v-8a2 2 0 0 1 2 -2h3" />
++  <path d="M5 15.734a2 2 0 0 1 -1 -1.734v-8a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/layers-off.svg b/crates/ui-egui/assets/tabler/layers-off.svg
+new file mode 100644
+index 0000000..cc78456
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/layers-off.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-layers-off"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M8.59 4.581c.362 -.359 .86 -.581 1.41 -.581h8a2 2 0 0 1 2 2v8c0 .556 -.227 1.06 -.594 1.422m-3.406 .578h-6a2 2 0 0 1 -2 -2v-6" />
++  <path d="M16 16v2a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2v-8a2 2 0 0 1 2 -2h2" />
++  <path d="M3 3l18 18" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/layout-bottombar.svg b/crates/ui-egui/assets/tabler/layout-bottombar.svg
+new file mode 100644
+index 0000000..48bc2d0
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/layout-bottombar.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-layout-bottombar"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
++  <path d="M4 15l16 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/layout-navbar.svg b/crates/ui-egui/assets/tabler/layout-navbar.svg
+new file mode 100644
+index 0000000..3594c00
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/layout-navbar.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-layout-navbar"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
++  <path d="M4 9l16 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/layout.svg b/crates/ui-egui/assets/tabler/layout.svg
+new file mode 100644
+index 0000000..eb37e04
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/layout.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-layout"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2l0 -1" />
++  <path d="M4 15a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2l0 -3" />
++  <path d="M14 6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2l0 -12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/letter-a.svg b/crates/ui-egui/assets/tabler/letter-a.svg
+new file mode 100644
+index 0000000..4348366
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/letter-a.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-letter-a"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M7 20v-12a4 4 0 0 1 4 -4h2a4 4 0 0 1 4 4v12" />
++  <path d="M7 13l10 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/link.svg b/crates/ui-egui/assets/tabler/link.svg
+new file mode 100644
+index 0000000..347b610
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/link.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-link"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9 15l6 -6" />
++  <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" />
++  <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/list.svg b/crates/ui-egui/assets/tabler/list.svg
+new file mode 100644
+index 0000000..91ceae0
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/list.svg
+@@ -0,0 +1,20 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-list"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9 6l11 0" />
++  <path d="M9 12l11 0" />
++  <path d="M9 18l11 0" />
++  <path d="M5 6l0 .01" />
++  <path d="M5 12l0 .01" />
++  <path d="M5 18l0 .01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/lock.svg b/crates/ui-egui/assets/tabler/lock.svg
+new file mode 100644
+index 0000000..a72f9a4
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/lock.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-lock"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6" />
++  <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
++  <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/math-function.svg b/crates/ui-egui/assets/tabler/math-function.svg
+new file mode 100644
+index 0000000..3b98987
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/math-function.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-math-function"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 19a2 2 0 0 0 2 2c2 0 2 -4 3 -9s1 -9 3 -9a2 2 0 0 1 2 2" />
++  <path d="M5 12h6" />
++  <path d="M15 12l6 6" />
++  <path d="M15 18l6 -6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/message.svg b/crates/ui-egui/assets/tabler/message.svg
+new file mode 100644
+index 0000000..6c4d690
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/message.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-message"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M8 9h8" />
++  <path d="M8 13h6" />
++  <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/minus.svg b/crates/ui-egui/assets/tabler/minus.svg
+new file mode 100644
+index 0000000..2c8acf5
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/minus.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-minus"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 12l14 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/note.svg b/crates/ui-egui/assets/tabler/note.svg
+new file mode 100644
+index 0000000..b4702f2
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/note.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-note"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M13 20l7 -7" />
++  <path d="M13 20v-6a1 1 0 0 1 1 -1h6v-7a2 2 0 0 0 -2 -2h-12a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/omega.svg b/crates/ui-egui/assets/tabler/omega.svg
+new file mode 100644
+index 0000000..ca6acd7
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/omega.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-omega"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 19h5v-1a7.35 7.35 0 1 1 6 0v1h5" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/page-break.svg b/crates/ui-egui/assets/tabler/page-break.svg
+new file mode 100644
+index 0000000..04d94fe
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/page-break.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-page-break"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
++  <path d="M19 18v1a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-1" />
++  <path d="M3 14h3m4.5 0h3m4.5 0h3" />
++  <path d="M5 10v-5a2 2 0 0 1 2 -2h7l5 5v2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/paint.svg b/crates/ui-egui/assets/tabler/paint.svg
+new file mode 100644
+index 0000000..396373a
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/paint.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-paint"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 5a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -2" />
++  <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
++  <path d="M10 16a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/palette.svg b/crates/ui-egui/assets/tabler/palette.svg
+new file mode 100644
+index 0000000..9cafdf9
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/palette.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-palette"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
++  <path d="M7.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M11.5 7.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M15.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/percentage.svg b/crates/ui-egui/assets/tabler/percentage.svg
+new file mode 100644
+index 0000000..ab6f3f6
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/percentage.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-percentage"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M16 17a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M6 7a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
++  <path d="M6 18l12 -12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/photo.svg b/crates/ui-egui/assets/tabler/photo.svg
+new file mode 100644
+index 0000000..0ff0ab9
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/photo.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-photo"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M15 8h.01" />
++  <path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12" />
++  <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" />
++  <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/plus.svg b/crates/ui-egui/assets/tabler/plus.svg
+new file mode 100644
+index 0000000..1018204
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/plus.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M12 5l0 14" />
++  <path d="M5 12l14 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/printer.svg b/crates/ui-egui/assets/tabler/printer.svg
+new file mode 100644
+index 0000000..5897a77
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/printer.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
++  <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
++  <path d="M7 15a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2l0 -4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/quote.svg b/crates/ui-egui/assets/tabler/quote.svg
+new file mode 100644
+index 0000000..2ba563f
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/quote.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-quote"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5" />
++  <path d="M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/scissors.svg b/crates/ui-egui/assets/tabler/scissors.svg
+new file mode 100644
+index 0000000..924916f
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/scissors.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-scissors"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 7a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
++  <path d="M3 17a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
++  <path d="M8.6 8.6l10.4 10.4" />
++  <path d="M8.6 15.4l10.4 -10.4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/search.svg b/crates/ui-egui/assets/tabler/search.svg
+new file mode 100644
+index 0000000..815c9d8
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/search.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-search"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
++  <path d="M21 21l-6 -6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/settings.svg b/crates/ui-egui/assets/tabler/settings.svg
+new file mode 100644
+index 0000000..4530e90
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/settings.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-settings"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065" />
++  <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/shape.svg b/crates/ui-egui/assets/tabler/shape.svg
+new file mode 100644
+index 0000000..98a45ca
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/shape.svg
+@@ -0,0 +1,22 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-shape"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 5a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M17 5a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M3 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M17 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M5 7l0 10" />
++  <path d="M7 5l10 0" />
++  <path d="M7 19l10 0" />
++  <path d="M19 7l0 10" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/share-2.svg b/crates/ui-egui/assets/tabler/share-2.svg
+new file mode 100644
+index 0000000..a69d398
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/share-2.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-share-2"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M8 9h-1a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-8a2 2 0 0 0 -2 -2h-1" />
++  <path d="M12 14v-11" />
++  <path d="M9 6l3 -3l3 3" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/sort-ascending-letters.svg b/crates/ui-egui/assets/tabler/sort-ascending-letters.svg
+new file mode 100644
+index 0000000..605aab6
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/sort-ascending-letters.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-sort-ascending-letters"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M15 10v-5c0 -1.38 .62 -2 2 -2s2 .62 2 2v5m0 -3h-4" />
++  <path d="M19 21h-4l4 -7h-4" />
++  <path d="M4 15l3 3l3 -3" />
++  <path d="M7 6v12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/sort-ascending.svg b/crates/ui-egui/assets/tabler/sort-ascending.svg
+new file mode 100644
+index 0000000..166912c
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/sort-ascending.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-sort-ascending"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6l7 0" />
++  <path d="M4 12l7 0" />
++  <path d="M4 18l9 0" />
++  <path d="M15 9l3 -3l3 3" />
++  <path d="M18 6l0 12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/sort-descending-letters.svg b/crates/ui-egui/assets/tabler/sort-descending-letters.svg
+new file mode 100644
+index 0000000..845f317
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/sort-descending-letters.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-sort-descending-letters"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M15 21v-5c0 -1.38 .62 -2 2 -2s2 .62 2 2v5m0 -3h-4" />
++  <path d="M19 10h-4l4 -7h-4" />
++  <path d="M4 15l3 3l3 -3" />
++  <path d="M7 6v12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/strikethrough.svg b/crates/ui-egui/assets/tabler/strikethrough.svg
+new file mode 100644
+index 0000000..b70a08a
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/strikethrough.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-strikethrough"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M5 12l14 0" />
++  <path d="M16 6.5a4 2 0 0 0 -4 -1.5h-1a3.5 3.5 0 0 0 0 7h2a3.5 3.5 0 0 1 0 7h-1.5a4 2 0 0 1 -4 -1.5" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/sum.svg b/crates/ui-egui/assets/tabler/sum.svg
+new file mode 100644
+index 0000000..fc340e8
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/sum.svg
+@@ -0,0 +1,15 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-sum"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M18 16v2a1 1 0 0 1 -1 1h-11l6 -7l-6 -7h11a1 1 0 0 1 1 1v2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/table-minus.svg b/crates/ui-egui/assets/tabler/table-minus.svg
+new file mode 100644
+index 0000000..074ef7e
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/table-minus.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-table-minus"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M12.5 21h-7.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10" />
++  <path d="M3 10h18" />
++  <path d="M10 3v18" />
++  <path d="M16 19h6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/table-options.svg b/crates/ui-egui/assets/tabler/table-options.svg
+new file mode 100644
+index 0000000..a30bf4c
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/table-options.svg
+@@ -0,0 +1,24 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-table-options"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M12 21h-7a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v7" />
++  <path d="M3 10h18" />
++  <path d="M10 3v18" />
++  <path d="M17.001 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
++  <path d="M19.001 15.5v1.5" />
++  <path d="M19.001 21v1.5" />
++  <path d="M22.032 17.25l-1.299 .75" />
++  <path d="M17.27 20l-1.3 .75" />
++  <path d="M15.97 17.25l1.3 .75" />
++  <path d="M20.733 20l1.3 .75" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/table-plus.svg b/crates/ui-egui/assets/tabler/table-plus.svg
+new file mode 100644
+index 0000000..ccf8d55
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/table-plus.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-table-plus"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M12.5 21h-7.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v7.5" />
++  <path d="M3 10h18" />
++  <path d="M10 3v18" />
++  <path d="M16 19h6" />
++  <path d="M19 16v6" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/table-share.svg b/crates/ui-egui/assets/tabler/table-share.svg
+new file mode 100644
+index 0000000..c568bd1
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/table-share.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-table-share"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M12 21h-7a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8" />
++  <path d="M3 10h18" />
++  <path d="M10 3v18" />
++  <path d="M16 22l5 -5" />
++  <path d="M21 21.5v-4.5h-4.5" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/table.svg b/crates/ui-egui/assets/tabler/table.svg
+new file mode 100644
+index 0000000..d8e8a5d
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/table.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-table"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14" />
++  <path d="M3 10h18" />
++  <path d="M10 3v18" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/tags.svg b/crates/ui-egui/assets/tabler/tags.svg
+new file mode 100644
+index 0000000..f6994d7
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/tags.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-tags"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 8v4.172a2 2 0 0 0 .586 1.414l5.71 5.71a2.41 2.41 0 0 0 3.408 0l3.592 -3.592a2.41 2.41 0 0 0 0 -3.408l-5.71 -5.71a2 2 0 0 0 -1.414 -.586h-4.172a2 2 0 0 0 -2 2" />
++  <path d="M18 19l1.592 -1.592a4.82 4.82 0 0 0 0 -6.816l-4.592 -4.592" />
++  <path d="M7 10h-.01" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/text-direction-rtl.svg b/crates/ui-egui/assets/tabler/text-direction-rtl.svg
+new file mode 100644
+index 0000000..7cc4407
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/text-direction-rtl.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-text-direction-rtl"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M16 4h-6.5a3.5 3.5 0 0 0 0 7h.5" />
++  <path d="M14 15v-11" />
++  <path d="M10 15v-11" />
++  <path d="M5 19h14" />
++  <path d="M7 21l-2 -2l2 -2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/text-orientation.svg b/crates/ui-egui/assets/tabler/text-orientation.svg
+new file mode 100644
+index 0000000..6125feb
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/text-orientation.svg
+@@ -0,0 +1,19 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-text-orientation"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M9 15l-5 -5c-1.367 -1.367 -1.367 -3.633 0 -5s3.633 -1.367 5 0l5 5" />
++  <path d="M5.5 11.5l5 -5" />
++  <path d="M21 12l-9 9" />
++  <path d="M21 12v4" />
++  <path d="M21 12h-4" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/text-size.svg b/crates/ui-egui/assets/tabler/text-size.svg
+new file mode 100644
+index 0000000..ce247f9
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/text-size.svg
+@@ -0,0 +1,20 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-text-size"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 7v-2h13v2" />
++  <path d="M10 5v14" />
++  <path d="M12 19h-4" />
++  <path d="M15 13v-1h6v1" />
++  <path d="M18 12v7" />
++  <path d="M17 19h2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/text-wrap.svg b/crates/ui-egui/assets/tabler/text-wrap.svg
+new file mode 100644
+index 0000000..ce71661
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/text-wrap.svg
+@@ -0,0 +1,17 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-text-wrap"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M4 6l16 0" />
++  <path d="M4 18l5 0" />
++  <path d="M4 12h13a3 3 0 0 1 0 6h-4l2 -2m0 4l-2 -2" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/underline.svg b/crates/ui-egui/assets/tabler/underline.svg
+new file mode 100644
+index 0000000..e9bb444
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/underline.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-underline"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M7 5v5a5 5 0 0 0 10 0v-5" />
++  <path d="M5 19h14" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/x.svg b/crates/ui-egui/assets/tabler/x.svg
+new file mode 100644
+index 0000000..e435048
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/x.svg
+@@ -0,0 +1,16 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-x"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M18 6l-12 12" />
++  <path d="M6 6l12 12" />
++</svg>
+\ No newline at end of file
+diff --git a/crates/ui-egui/assets/tabler/zoom-in.svg b/crates/ui-egui/assets/tabler/zoom-in.svg
+new file mode 100644
+index 0000000..b82a983
+--- /dev/null
++++ b/crates/ui-egui/assets/tabler/zoom-in.svg
+@@ -0,0 +1,18 @@
++<svg
++  xmlns="http://www.w3.org/2000/svg"
++  width="24"
++  height="24"
++  viewBox="0 0 24 24"
++  fill="none"
++  stroke="#ffffff"
++  stroke-width="1.75"
++  stroke-linecap="round"
++  stroke-linejoin="round"
++  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-in"
++>
++  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
++  <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
++  <path d="M7 10l6 0" />
++  <path d="M10 7l0 6" />
++  <path d="M21 21l-6 -6" />
++</svg>
+\ No newline at end of file
 diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
 index 922baab..b1f7643 100644
 --- a/crates/ui-egui/src/backstage.rs
@@ -1464,9 +4271,22 @@ index d5a8ea1..c99e608 100644
      fn style_names_map_to_weight_and_slant() {
          assert_eq!(style_weight("Bold"), 700.0);
 diff --git a/crates/ui-egui/src/grid.rs b/crates/ui-egui/src/grid.rs
-index 97b787e..a723e62 100644
+index 97b787e..4d75a7f 100644
 --- a/crates/ui-egui/src/grid.rs
 +++ b/crates/ui-egui/src/grid.rs
+@@ -16,9 +16,9 @@ use crate::editor::{EditState, REF_COLORS};
+ use crate::theme::{self, Tokens};
+ 
+ pub const COL_HEADER_H: f32 = 21.0;
+-/// Sheet units are 96-dpi pixels (as in XLSX); on screen one unit is drawn at this many points,
+-/// which matches desktop spreadsheet density (a default 20 px row is 16 pt tall).
+-pub const DISPLAY_SCALE: f32 = 0.8;
++/// Sheet units are 96-dpi pixels (as in XLSX); at the normal 100% sheet zoom one unit is drawn
++/// one-for-one. This keeps imported column widths and row heights aligned with desktop Excel/WPS.
++pub const DISPLAY_SCALE: f32 = 0.9;
+ 
+ /// The zoom percentages a Ctrl+wheel notch steps between: four per doubling (about 20% apart),
+ /// so 25, 50, 100, 200 and 400 are on it. Excel steps 15 points a notch instead; the status bar's
 @@ -945,6 +945,21 @@ pub(crate) fn cell_text_y(valign: VAlign, rect: Rect, gh: f32, z: f32) -> f32 {
      }
  }
@@ -1920,6 +4740,125 @@ index 0017592..dc7b18c 100644
          _ => return None,
      })
  }
+diff --git a/crates/ui-egui/src/i18n/zh_hant.rs b/crates/ui-egui/src/i18n/zh_hant.rs
+new file mode 100644
+index 0000000..1d12a68
+--- /dev/null
++++ b/crates/ui-egui/src/i18n/zh_hant.rs
+@@ -0,0 +1,113 @@
++//! Traditional Chinese uses the complete Simplified Chinese catalog as its source and applies
++//! the corresponding script and common UI vocabulary at the display boundary. Keeping one source
++//! catalog prevents the four Excel surfaces from drifting apart while still honoring zh-Hant,
++//! zh-TW, zh-HK and zh-MO system locales.
++
++use std::collections::HashMap;
++use std::sync::{Mutex, OnceLock};
++
++static CACHE: OnceLock<Mutex<HashMap<String, &'static str>>> = OnceLock::new();
++
++pub(super) fn translate(text: &str) -> Option<&'static str> {
++    let source = super::zh::translate(text)?;
++    if source == text {
++        return Some(source);
++    }
++    let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
++    if let Ok(values) = cache.lock()
++        && let Some(value) = values.get(text)
++    {
++        return Some(*value);
++    }
++    let value = Box::leak(to_traditional(source).into_boxed_str());
++    if let Ok(mut values) = cache.lock() {
++        values.insert(text.to_owned(), value);
++    }
++    Some(value)
++}
++
++fn to_traditional(source: &str) -> String {
++    let mut value = source.to_owned();
++    for (simplified, traditional) in [
++        ("数据", "資料"),
++        ("图表", "圖表"),
++        ("版式", "版面配置"),
++        ("布局", "版面配置"),
++        ("首选项", "偏好設定"),
++        ("常规", "一般"),
++        ("编辑", "編輯"),
++        ("显示", "顯示"),
++        ("网格线", "網格線"),
++        ("网格", "網格"),
++        ("颜色", "顏色"),
++        ("标题", "標題"),
++        ("标签", "標籤"),
++        ("边", "邊"),
++        ("内容", "內容"),
++        ("设置", "設定"),
++        ("字体", "字體"),
++        ("复制", "複製"),
++        ("粘贴", "貼上"),
++        ("删除", "刪除"),
++        ("插入", "插入"),
++        ("动画", "動畫"),
++        ("录制", "錄製"),
++        ("审阅", "審閱"),
++        ("旁白", "旁白"),
++        ("控件", "控制項"),
++        ("播放", "播放"),
++        ("隐藏", "隱藏"),
++        ("自动", "自動"),
++        ("内", "內"),
++        ("双", "雙"),
++        ("完成", "完成"),
++        ("逗号", "逗號"),
++        ("网页", "網頁"),
++        ("简体", "簡體"),
++        ("帮助", "幫助"),
++        ("开始", "開始"),
++        ("文件", "檔案"),
++        ("打开", "開啟"),
++        ("保存", "儲存"),
++        ("关闭", "關閉"),
++        ("撤销", "復原"),
++        ("重做", "重做"),
++        ("取消", "取消"),
++        ("无", "無"),
++        ("顶部", "頂部"),
++        ("右侧", "右側"),
++        ("左侧", "左側"),
++        ("轴", "軸"),
++        ("选", "選"),
++        ("择", "擇"),
++        ("更改", "變更"),
++        ("图", "圖"),
++        ("标", "標"),
++        ("题", "題"),
++        ("类", "類"),
++        ("数", "數"),
++        ("据", "據"),
++        ("签", "籤"),
++        ("线", "線"),
++        ("顶", "頂"),
++        ("侧", "側"),
++        ("规", "規"),
++        ("显", "顯"),
++        ("动", "動"),
++    ] {
++        value = value.replace(simplified, traditional);
++    }
++    value
++}
++
++#[cfg(test)]
++mod tests {
++    use super::translate;
++
++    #[test]
++    fn common_excel_labels_use_traditional_script() {
++        assert_eq!(translate("Data"), Some("資料"));
++        assert_eq!(translate("Chart\nTitle"), Some("圖表\n標題"));
++        assert_eq!(translate("Gridlines"), Some("網格線"));
++    }
++}
 diff --git a/crates/ui-egui/src/icons.rs b/crates/ui-egui/src/icons.rs
 index 3e5cdf3..76a93cb 100644
 --- a/crates/ui-egui/src/icons.rs
@@ -2997,6 +5936,30 @@ index 691eef3..3af0cdb 100644
  #[test]
  fn file_options_opens_the_options_page_and_pages_are_reachable_by_command() {
      let mut h = harness(Services::default());
+diff --git a/crates/ui-egui/tests/font_setup.rs b/crates/ui-egui/tests/font_setup.rs
+new file mode 100644
+index 0000000..6f9fab4
+--- /dev/null
++++ b/crates/ui-egui/tests/font_setup.rs
+@@ -0,0 +1,18 @@
++//! Persisted-language startup must discover workbook fonts, just like default startup.
++#![cfg(not(target_arch = "wasm32"))]
++
++use gridcraft_ui_egui::{SheetApp, fonts, i18n::Language};
++use std::time::Duration;
++
++#[test]
++fn chinese_context_setup_starts_the_font_catalog() {
++    let context = egui::Context::default();
++    SheetApp::setup_context_for_language(&context, false, Language::Zh);
++    for _ in 0..1500 {
++        if fonts::scan_done() {
++            return;
++        }
++        std::thread::sleep(Duration::from_millis(10));
++    }
++    assert!(fonts::scan_done(), "language-specific startup never completed the font scan");
++}
 diff --git a/crates/ui-egui/tests/keytips_generated.rs b/crates/ui-egui/tests/keytips_generated.rs
 index 6535548..8998356 100644
 --- a/crates/ui-egui/tests/keytips_generated.rs
@@ -3443,6 +6406,326 @@ index 91e63c1..cc845e0 100644
  #[test]
  fn reads_values_formulas_formats_and_layout() {
      for big in [false, true] {
+diff --git a/crates/xlsx/src/xls/formatting.rs b/crates/xlsx/src/xls/formatting.rs
+new file mode 100644
+index 0000000..ff85978
+--- /dev/null
++++ b/crates/xlsx/src/xls/formatting.rs
+@@ -0,0 +1,314 @@
++//! BIFF8 Font, Palette and XF formatting, from [MS-XLS] 2.4.122, 2.4.188 and 2.4.353.
++//! Keep font and palette references until all globals have been read: Palette often follows XF.
++
++use gridcraft_model::{
++    Alignment, BorderLine, BorderStyle, Borders, Color, Fill, Font, HAlign, NumFmt, PatternType, Style, Theme, Underline, VAlign, VertAlign,
++};
++
++use super::records::Cursor;
++use crate::IoError;
++
++pub(super) struct FontRecord {
++    font: Font,
++    color: u16,
++}
++
++impl FontRecord {
++    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
++        let height = c.u16()?;
++        let flags = c.u16()?;
++        let color = c.u16()?;
++        let weight = c.u16()?;
++        let escapement = c.u16()?;
++        let underline = c.u8()?;
++        c.skip(3)?; // family, character set, reserved
++        let name = c.short_string()?;
++        let mut font = Font {
++            size: (f32::from(height) / 20.0).clamp(1.0, 409.5),
++            bold: weight >= 700,
++            italic: flags & 2 != 0,
++            strike: flags & 8 != 0,
++            underline: match underline {
++                1 => Underline::Single,
++                2 => Underline::Double,
++                0x21 => Underline::SingleAccounting,
++                0x22 => Underline::DoubleAccounting,
++                _ => Underline::None,
++            },
++            vert: match escapement {
++                1 => VertAlign::Superscript,
++                2 => VertAlign::Subscript,
++                _ => VertAlign::Baseline,
++            },
++            ..Font::default()
++        };
++        if !name.is_empty() {
++            font.name = name;
++        }
++        Ok(Self { font, color })
++    }
++
++    pub(super) fn name(&self) -> &str {
++        &self.font.name
++    }
++
++    pub(super) fn resolve(&self, palette: &[u32]) -> Font {
++        Font { color: color(self.color, palette), ..self.font.clone() }
++    }
++}
++
++pub(super) struct Xf {
++    font: u16,
++    pub(super) format: u16,
++    data: Option<[u8; 16]>,
++}
++
++impl Xf {
++    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
++        let font = c.u16()?;
++        let format = c.u16()?;
++        // Keep accepting the short XFs accepted by the old reader; use default properties
++        // for a missing tail, rather than interpreting zero padding as real formatting.
++        let data = if c.remaining() >= 16 {
++            let mut data = [0; 16];
++            for b in &mut data {
++                *b = c.u8()?;
++            }
++            Some(data)
++        } else {
++            None
++        };
++        Ok(Self { font, format, data })
++    }
++
++    pub(super) fn resolve(&self, fonts: &[FontRecord], palette: &[u32], number_format: &str) -> Style {
++        // FontIndex 4 is reserved. Indices above it are one greater than their array index.
++        let index = match self.font {
++            0..=3 => Some(usize::from(self.font)),
++            5.. => Some(usize::from(self.font - 1)),
++            _ => None,
++        };
++        let font = index.and_then(|i| fonts.get(i)).or_else(|| fonts.first()).map(|f| f.resolve(palette)).unwrap_or_default();
++        let mut style = Style { font, num_fmt: NumFmt::new(number_format), ..Style::default() };
++        let Some([p0, p1, align, rotation, indent, _, b0, b1, b2, b3, b4, b5, b6, b7, f0, f1]) = self.data else { return style };
++        let lr = u32::from_le_bytes([b0, b1, b2, b3]);
++        let tb = u32::from_le_bytes([b4, b5, b6, b7]);
++        let fill = u16::from_le_bytes([f0, f1]);
++        let border = |kind: u32, index: u32| {
++            let style = border_style(kind as u8);
++            if style == BorderStyle::None { BorderLine::default() } else { BorderLine { style, color: color(index as u16, palette) } }
++        };
++        let diagonal = border((tb >> 21) & 15, (tb >> 14) & 127);
++        style.borders = Borders {
++            left: border(lr & 15, (lr >> 16) & 127),
++            right: border((lr >> 4) & 15, (lr >> 23) & 127),
++            top: border((lr >> 8) & 15, tb & 127),
++            bottom: border((lr >> 12) & 15, (tb >> 7) & 127),
++            diag_down: if lr & (1 << 30) != 0 { diagonal } else { BorderLine::default() },
++            diag_up: if lr & (1 << 31) != 0 { diagonal } else { BorderLine::default() },
++        };
++        let pattern = pattern((tb >> 26) as u8);
++        if pattern != PatternType::None {
++            style.fill = Fill { pattern, fg: color(fill & 127, palette), bg: color((fill >> 7) & 127, palette) };
++        }
++        style.align = Alignment {
++            h: match align & 7 {
++                1 => HAlign::Left,
++                2 => HAlign::Center,
++                3 => HAlign::Right,
++                4 => HAlign::Fill,
++                5 => HAlign::Justify,
++                6 => HAlign::CenterAcross,
++                7 => HAlign::Distributed,
++                _ => HAlign::General,
++            },
++            v: match (align >> 4) & 7 {
++                0 => VAlign::Top,
++                1 => VAlign::Center,
++                3 => VAlign::Justify,
++                4 => VAlign::Distributed,
++                _ => VAlign::Bottom,
++            },
++            wrap: align & 8 != 0,
++            shrink: indent & 16 != 0,
++            indent: indent & 15,
++            rotation: match rotation {
++                0..=90 => i16::from(rotation),
++                91..=180 => 90 - i16::from(rotation),
++                255 => 255,
++                _ => 0,
++            },
++        };
++        let protection = u16::from_le_bytes([p0, p1]);
++        style.protection.locked = protection & 1 != 0;
++        style.protection.hidden = protection & 2 != 0;
++        style
++    }
++}
++
++/// XFExt colours override the older, lossy palette approximations in XF/Font records.
++pub(super) struct XfExt {
++    pub(super) index: usize,
++    colors: Vec<(u16, [u8; 16])>,
++    indent: Option<u8>,
++}
++
++impl XfExt {
++    pub(super) fn read(c: &mut Cursor<'_, '_>) -> Result<Self, IoError> {
++        c.skip(14)?; // FrtHeader and reserved1
++        let index = usize::from(c.u16()?);
++        c.skip(2)?;
++        let count = c.u16()?;
++        let mut ext = Self { index, colors: Vec::new(), indent: None };
++        for _ in 0..count {
++            let kind = c.u16()?;
++            let size = usize::from(c.u16()?).checked_sub(4).ok_or_else(|| super::invalid("short XFExt property"))?;
++            if size > c.remaining() {
++                return Err(super::invalid("truncated XFExt property"));
++            }
++            if matches!(kind, 4 | 5 | 7..=11 | 13) && size == 16 {
++                let mut bytes = [0; 16];
++                for b in &mut bytes {
++                    *b = c.u8()?;
++                }
++                ext.colors.push((kind, bytes));
++            } else if kind == 15 && size == 2 {
++                ext.indent = Some(c.u16()?.min(250) as u8);
++            } else {
++                c.skip(size)?;
++            }
++        }
++        Ok(ext)
++    }
++
++    pub(super) fn apply(&self, style: &mut Style, palette: &[u32]) {
++        for (kind, bytes) in &self.colors {
++            let Some(color) = full_color(bytes, palette) else { continue };
++            match kind {
++                4 => style.fill.fg = color,
++                5 => style.fill.bg = color,
++                7 => style.borders.top.color = color,
++                8 => style.borders.bottom.color = color,
++                9 => style.borders.left.color = color,
++                10 => style.borders.right.color = color,
++                11 => {
++                    style.borders.diag_up.color = color;
++                    style.borders.diag_down.color = color;
++                }
++                13 => style.font.color = color,
++                _ => {}
++            }
++        }
++        if let Some(indent) = self.indent {
++            style.align.indent = indent;
++        }
++    }
++}
++
++fn full_color(b: &[u8; 16], palette: &[u32]) -> Option<Color> {
++    let [t0, t1, s0, s1, r, g, bl, a, ..] = *b;
++    let kind = u16::from_le_bytes([t0, t1]);
++    let tint = (f32::from(i16::from_le_bytes([s0, s1])) / 32767.0).clamp(-1.0, 1.0);
++    let value = u32::from_le_bytes([r, g, bl, a]);
++    if kind == 3 && value < 12 {
++        // Extended cell colours use background/text slots, not clrScheme XML order.
++        return Some(Color::Theme(value as u8, (tint * 1000.0).round() as i16));
++    }
++    let color = match kind {
++        0 => Color::Auto,
++        1 => color(value.min(u32::from(u16::MAX)) as u16, palette),
++        2 => Color::rgb(r, g, bl),
++        _ => return None,
++    };
++    Some(match color {
++        Color::Rgb(v) if tint != 0.0 => {
++            let [r, g, b] = gridcraft_model::style::apply_tint([(v >> 16) as u8, (v >> 8) as u8, v as u8], f64::from(tint));
++            Color::rgb(r, g, b)
++        }
++        _ => color,
++    })
++}
++
++pub(super) fn theme(c: &mut Cursor<'_, '_>) -> Result<Option<Theme>, IoError> {
++    c.skip(12)?;
++    let version = c.u32()?;
++    if c.remaining() == 0 && version == 124226 {
++        // Default Office 2007 theme, not GridCraft's own default palette.
++        return Ok(Some(Theme {
++            name: "Office".into(),
++            colors: [0xFFFFFF, 0, 0xEEECE1, 0x1F497D, 0x4F81BD, 0xC0504D, 0x9BBB59, 0x8064A2, 0x4BACC6, 0xF79646, 0x0000FF, 0x800080],
++            major_font: "Cambria".into(),
++            minor_font: "Calibri".into(),
++        }));
++    }
++    let bytes = c.rest();
++    let mut pkg = crate::package::Package::open(&bytes)?;
++    for part in ["theme/theme/theme1.xml", "theme/theme1.xml", "theme1.xml"] {
++        if let Some(xml) = pkg.read_limited(part, 1024 * 1024)? {
++            return Ok(Some(crate::theme::read_theme(&crate::xml::parse(&xml)?)));
++        }
++    }
++    Ok(None)
++}
++
++pub(super) fn palette(c: &mut Cursor<'_, '_>, colors: &mut [u32]) -> Result<(), IoError> {
++    let count = usize::from(c.u16()?).min(56).min(c.remaining() / 4);
++    for slot in colors.iter_mut().skip(8).take(count) {
++        let (r, g, b) = (c.u8()?, c.u8()?, c.u8()?);
++        c.u8()?; // reserved
++        *slot = (u32::from(r) << 16) | (u32::from(g) << 8) | u32::from(b);
++    }
++    Ok(())
++}
++
++fn color(index: u16, palette: &[u32]) -> Color {
++    match index {
++        64 => Color::Rgb(0),        // system window text
++        65 => Color::Rgb(0xFFFFFF), // system window background
++        _ => palette.get(usize::from(index)).copied().map(Color::Rgb).unwrap_or(Color::Auto),
++    }
++}
++
++fn border_style(index: u8) -> BorderStyle {
++    match index {
++        1 => BorderStyle::Thin,
++        2 => BorderStyle::Medium,
++        3 => BorderStyle::Dashed,
++        4 => BorderStyle::Dotted,
++        5 => BorderStyle::Thick,
++        6 => BorderStyle::Double,
++        7 => BorderStyle::Hair,
++        8 => BorderStyle::MediumDashed,
++        9 => BorderStyle::DashDot,
++        10 => BorderStyle::MediumDashDot,
++        11 => BorderStyle::DashDotDot,
++        12 => BorderStyle::MediumDashDotDot,
++        13 => BorderStyle::SlantDashDot,
++        _ => BorderStyle::None,
++    }
++}
++
++fn pattern(index: u8) -> PatternType {
++    use PatternType::*;
++    match index {
++        1 => Solid,
++        2 => Gray50,
++        3 => Gray75,
++        4 => Gray25,
++        5 => DarkHorizontal,
++        6 => DarkVertical,
++        7 => DarkDown,
++        8 => DarkUp,
++        9 => DarkGrid,
++        10 => DarkTrellis,
++        11 => LightHorizontal,
++        12 => LightVertical,
++        13 => LightDown,
++        14 => LightUp,
++        15 => LightGrid,
++        16 => LightTrellis,
++        17 => Gray125,
++        18 => Gray0625,
++        _ => None,
++    }
++}
 diff --git a/crates/xlsx/src/xls/mod.rs b/crates/xlsx/src/xls/mod.rs
 index dde8641..8c19f37 100644
 --- a/crates/xlsx/src/xls/mod.rs
@@ -3583,6 +6866,765 @@ index dde8641..8c19f37 100644
                  }
              }
              0x00FC => g.sst = shared_strings(&mut c, budget)?,
+diff --git a/crates/xlsx/src/xls/write.rs b/crates/xlsx/src/xls/write.rs
+new file mode 100644
+index 0000000..29c8528
+--- /dev/null
++++ b/crates/xlsx/src/xls/write.rs
+@@ -0,0 +1,753 @@
++//! BIFF8 writer for the supported Excel 97-2003 workbook data.
++//!
++//! The writer intentionally keeps formulas as their cached values. This mirrors the importer
++//! fallback for formulas the legacy format cannot represent from GridCraft's model, while still
++//! preserving the cell values, styles and sheet layout that users see in Excel/WPS.
++
++use std::collections::HashMap;
++
++use gridcraft_core::{CellError, CellRef, DateSystem, RangeRef, Value};
++use gridcraft_model::{
++    BorderStyle, Color, Font, HAlign, LineInfo, PatternType, Sheet, Style, StyleId, Theme, Underline, VAlign, VertAlign, Visibility, Workbook,
++};
++
++use super::invalid;
++use crate::IoError;
++use crate::cfb;
++use crate::tables::{self, INDEXED};
++
++const MAX_ROW: u32 = 65_535;
++const MAX_COL: u32 = 255;
++const MAX_RECORD_PAYLOAD: usize = u16::MAX as usize;
++const FIRST_CUSTOM_FORMAT: u16 = 164;
++
++const BOF: u16 = 0x0809;
++const EOF: u16 = 0x000A;
++const CONTINUE: u16 = 0x003C;
++
++fn record(id: u16, payload: &[u8]) -> Result<Vec<u8>, IoError> {
++    if payload.len() > MAX_RECORD_PAYLOAD {
++        return Err(invalid(format!("record 0x{id:04X} is too large")));
++    }
++    let len = u16::try_from(payload.len()).map_err(|_| invalid("record length overflow"))?;
++    let mut out = Vec::with_capacity(4 + payload.len());
++    out.extend_from_slice(&id.to_le_bytes());
++    out.extend_from_slice(&len.to_le_bytes());
++    out.extend_from_slice(payload);
++    Ok(out)
++}
++
++fn push_record(out: &mut Vec<u8>, id: u16, payload: &[u8]) -> Result<(), IoError> {
++    out.extend_from_slice(&record(id, payload)?);
++    Ok(())
++}
++
++fn bof(kind: u16) -> Result<Vec<u8>, IoError> {
++    let mut p = Vec::with_capacity(16);
++    for value in [0x0600u16, kind, 0x0DBB, 0x07CC] {
++        p.extend_from_slice(&value.to_le_bytes());
++    }
++    p.extend_from_slice(&[0; 8]);
++    record(BOF, &p)
++}
++
++fn short_string(s: &str) -> Result<Vec<u8>, IoError> {
++    let units: Vec<u16> = s.encode_utf16().collect();
++    if units.len() > u8::MAX as usize {
++        return Err(invalid("worksheet or font name is longer than 255 UTF-16 characters"));
++    }
++    let mut out = Vec::with_capacity(2 + units.len() * 2);
++    out.push(u8::try_from(units.len()).map_err(|_| invalid("short string length overflow"))?);
++    // Always use the Unicode form. It keeps Chinese, Japanese and supplementary characters
++    // intact instead of relying on the legacy compressed code page.
++    out.push(1);
++    for unit in units {
++        out.extend_from_slice(&unit.to_le_bytes());
++    }
++    Ok(out)
++}
++
++fn put_u16(out: &mut Vec<u8>, value: u16) {
++    out.extend_from_slice(&value.to_le_bytes());
++}
++
++fn put_u32(out: &mut Vec<u8>, value: u32) {
++    out.extend_from_slice(&value.to_le_bytes());
++}
++
++fn style_index(styles: &HashMap<StyleId, u16>, id: StyleId) -> Result<u16, IoError> {
++    styles.get(&id).copied().ok_or_else(|| invalid(format!("style {} is not present in the workbook style table", id.0)))
++}
++
++#[derive(Default)]
++struct Palette {
++    custom: Vec<u32>,
++    ids: HashMap<u32, u16>,
++}
++
++impl Palette {
++    fn index(&mut self, color: Color, theme: &Theme, background: bool) -> u16 {
++        let Some([r, g, b]) = color.resolve(theme) else {
++            return if background { 65 } else { 64 };
++        };
++        let rgb = (u32::from(r) << 16) | (u32::from(g) << 8) | u32::from(b);
++        if let Some(index) = INDEXED.iter().position(|candidate| *candidate == rgb) {
++            return u16::try_from(index).unwrap_or(63);
++        }
++        if let Some(index) = self.ids.get(&rgb) {
++            return *index;
++        }
++        if self.custom.len() < 56 {
++            let index = 8u16.saturating_add(u16::try_from(self.custom.len()).unwrap_or(55));
++            self.custom.push(rgb);
++            self.ids.insert(rgb, index);
++            return index;
++        }
++        // A BIFF8 palette has 56 writable slots. Keep the closest indexed colour when a modern
++        // workbook contains more colours than that legacy palette can carry.
++        let mut best = (u32::MAX, 0u16);
++        for (index, candidate) in INDEXED.iter().enumerate() {
++            let distance = colour_distance(rgb, *candidate);
++            if distance < best.0 {
++                best = (distance, u16::try_from(index).unwrap_or(0));
++            }
++        }
++        for (offset, candidate) in self.custom.iter().enumerate() {
++            let distance = colour_distance(rgb, *candidate);
++            if distance < best.0 {
++                best = (distance, 8u16.saturating_add(u16::try_from(offset).unwrap_or(55)));
++            }
++        }
++        best.1
++    }
++}
++
++fn colour_distance(a: u32, b: u32) -> u32 {
++    let channels = |v: u32| ((v >> 16) & 0xFF, (v >> 8) & 0xFF, v & 0xFF);
++    let (ar, ag, ab) = channels(a);
++    let (br, bg, bb) = channels(b);
++    ar.abs_diff(br) + ag.abs_diff(bg) + ab.abs_diff(bb)
++}
++
++fn collect_palette(wb: &Workbook, palette: &mut Palette) {
++    for (_, style) in wb.styles.iter() {
++        palette.index(style.font.color, &wb.theme, false);
++        palette.index(style.fill.fg, &wb.theme, true);
++        palette.index(style.fill.bg, &wb.theme, true);
++        for border in
++            [style.borders.left, style.borders.right, style.borders.top, style.borders.bottom, style.borders.diag_down, style.borders.diag_up]
++        {
++            if border.style != BorderStyle::None {
++                palette.index(border.color, &wb.theme, false);
++            }
++        }
++    }
++}
++
++fn font_record(font: &Font, palette: &mut Palette, theme: &Theme) -> Result<Vec<u8>, IoError> {
++    let height = (font.size.clamp(1.0, 409.5) * 20.0).round();
++    let height = u16::try_from(height as u32).map_err(|_| invalid("font height is out of BIFF8 range"))?;
++    let flags = u16::from(font.italic) * 2 | u16::from(font.strike) * 8;
++    let weight = if font.bold { 700 } else { 400 };
++    let escapement = match font.vert {
++        VertAlign::Superscript => 1,
++        VertAlign::Subscript => 2,
++        VertAlign::Baseline => 0,
++    };
++    let underline = match font.underline {
++        Underline::None => 0,
++        Underline::Single => 1,
++        Underline::Double => 2,
++        Underline::SingleAccounting => 0x21,
++        Underline::DoubleAccounting => 0x22,
++    };
++    let mut out = Vec::new();
++    put_u16(&mut out, height);
++    put_u16(&mut out, flags);
++    put_u16(&mut out, palette.index(font.color, theme, false));
++    put_u16(&mut out, weight);
++    put_u16(&mut out, escapement);
++    out.push(underline);
++    out.extend_from_slice(&[0, 0, 0]); // family, character set, reserved
++    out.extend_from_slice(&short_string(&font.name)?);
++    record(0x0031, &out)
++}
++
++fn format_id(code: &str, formats: &mut HashMap<String, u16>, custom: &mut Vec<String>) -> Result<u16, IoError> {
++    if let Some(id) = tables::builtin_id(code) {
++        return u16::try_from(id).map_err(|_| invalid("built-in number format id overflow"));
++    }
++    if let Some(id) = formats.get(code) {
++        return Ok(*id);
++    }
++    let id = FIRST_CUSTOM_FORMAT
++        .checked_add(u16::try_from(custom.len()).map_err(|_| invalid("too many custom number formats"))?)
++        .ok_or_else(|| invalid("too many custom number formats"))?;
++    formats.insert(code.to_string(), id);
++    custom.push(code.to_string());
++    Ok(id)
++}
++
++fn border_code(style: BorderStyle) -> u32 {
++    match style {
++        BorderStyle::None => 0,
++        BorderStyle::Thin => 1,
++        BorderStyle::Medium => 2,
++        BorderStyle::Dashed => 3,
++        BorderStyle::Dotted => 4,
++        BorderStyle::Thick => 5,
++        BorderStyle::Double => 6,
++        BorderStyle::Hair => 7,
++        BorderStyle::MediumDashed => 8,
++        BorderStyle::DashDot => 9,
++        BorderStyle::MediumDashDot => 10,
++        BorderStyle::DashDotDot => 11,
++        BorderStyle::MediumDashDotDot => 12,
++        BorderStyle::SlantDashDot => 13,
++    }
++}
++
++fn h_align(value: HAlign) -> u8 {
++    match value {
++        HAlign::General => 0,
++        HAlign::Left => 1,
++        HAlign::Center => 2,
++        HAlign::Right => 3,
++        HAlign::Fill => 4,
++        HAlign::Justify => 5,
++        HAlign::CenterAcross => 6,
++        HAlign::Distributed => 7,
++    }
++}
++
++fn v_align(value: VAlign) -> u8 {
++    match value {
++        VAlign::Top => 0,
++        VAlign::Center => 1,
++        VAlign::Bottom => 2,
++        VAlign::Justify => 3,
++        VAlign::Distributed => 4,
++    }
++}
++
++fn pattern_code(pattern: PatternType) -> u32 {
++    match pattern {
++        PatternType::None => 0,
++        PatternType::Solid => 1,
++        PatternType::Gray50 => 2,
++        PatternType::Gray75 => 3,
++        PatternType::Gray25 => 4,
++        PatternType::DarkHorizontal => 5,
++        PatternType::DarkVertical => 6,
++        PatternType::DarkDown => 7,
++        PatternType::DarkUp => 8,
++        PatternType::DarkGrid => 9,
++        PatternType::DarkTrellis => 10,
++        PatternType::LightHorizontal => 11,
++        PatternType::LightVertical => 12,
++        PatternType::LightDown => 13,
++        PatternType::LightUp => 14,
++        PatternType::LightGrid => 15,
++        PatternType::LightTrellis => 16,
++        PatternType::Gray125 => 17,
++        PatternType::Gray0625 => 18,
++    }
++}
++
++fn border_bits(style: &Style, palette: &mut Palette, theme: &Theme) -> (u32, u32) {
++    let left = (border_code(style.borders.left.style), palette.index(style.borders.left.color, theme, false));
++    let right = (border_code(style.borders.right.style), palette.index(style.borders.right.color, theme, false));
++    let top = (border_code(style.borders.top.style), palette.index(style.borders.top.color, theme, false));
++    let bottom = (border_code(style.borders.bottom.style), palette.index(style.borders.bottom.color, theme, false));
++    let diagonal = if style.borders.diag_down.style != BorderStyle::None { style.borders.diag_down } else { style.borders.diag_up };
++    let diagonal = (border_code(diagonal.style), palette.index(diagonal.color, theme, false));
++    let mut lr = left.0 | (right.0 << 4) | (top.0 << 8) | (bottom.0 << 12);
++    lr |= (u32::from(left.1) & 127) << 16;
++    lr |= (u32::from(right.1) & 127) << 23;
++    if style.borders.diag_down.style != BorderStyle::None {
++        lr |= 1 << 30;
++    }
++    if style.borders.diag_up.style != BorderStyle::None {
++        lr |= 1 << 31;
++    }
++    let mut tb = u32::from(top.1) & 127;
++    tb |= (u32::from(bottom.1) & 127) << 7;
++    tb |= (u32::from(diagonal.1) & 127) << 14;
++    tb |= (diagonal.0 & 15) << 21;
++    tb |= (pattern_code(style.fill.pattern) & 15) << 26;
++    (lr, tb)
++}
++
++fn xf_record(
++    style: &Style,
++    font_ids: &HashMap<Font, u16>,
++    formats: &HashMap<String, u16>,
++    palette: &mut Palette,
++    theme: &Theme,
++) -> Result<Vec<u8>, IoError> {
++    let logical_font = font_ids.get(&style.font).copied().unwrap_or(0);
++    let font = if logical_font >= 4 { logical_font.checked_add(1).ok_or_else(|| invalid("too many fonts for BIFF8"))? } else { logical_font };
++    let format = formats
++        .get(style.num_fmt.as_str())
++        .copied()
++        .or_else(|| tables::builtin_id(style.num_fmt.as_str()).and_then(|id| u16::try_from(id).ok()))
++        .unwrap_or(0);
++    let mut align = h_align(style.align.h) | (v_align(style.align.v) << 4);
++    if style.align.wrap {
++        align |= 0x08;
++    }
++    let rotation = match style.align.rotation {
++        255 => 255,
++        value if value < 0 => u8::try_from((90i16).saturating_sub(value)).unwrap_or(180),
++        value => u8::try_from(value.min(90)).unwrap_or(0),
++    };
++    let indent = (style.align.indent & 15) | if style.align.shrink { 0x10 } else { 0 };
++    let mut flags = 0u8;
++    if style.protection.locked {
++        flags |= 1;
++    }
++    if style.protection.hidden {
++        flags |= 2;
++    }
++    let (lr, tb) = border_bits(style, palette, theme);
++    let fg = palette.index(style.fill.fg, theme, true) & 127;
++    let bg = palette.index(style.fill.bg, theme, true) & 127;
++    let fill = u16::try_from(u32::from(fg) | (u32::from(bg) << 7)).map_err(|_| invalid("fill palette index overflow"))?;
++    let mut out = Vec::with_capacity(20);
++    put_u16(&mut out, font);
++    put_u16(&mut out, format);
++    put_u16(&mut out, u16::from(flags));
++    out.extend_from_slice(&[align, rotation, indent, 0]);
++    put_u32(&mut out, lr);
++    put_u32(&mut out, tb);
++    put_u16(&mut out, fill);
++    record(0x00E0, &out)
++}
++
++fn collect_styles(
++    wb: &Workbook,
++    palette: &mut Palette,
++) -> Result<(Vec<(StyleId, Style)>, HashMap<StyleId, u16>, Vec<Font>, HashMap<Font, u16>, HashMap<String, u16>, Vec<String>), IoError> {
++    collect_palette(wb, palette);
++    let styles: Vec<(StyleId, Style)> = wb.styles.iter().map(|(id, style)| (id, style.clone())).collect();
++    if styles.is_empty() {
++        return Err(invalid("workbook has no cell styles"));
++    }
++    let mut style_ids = HashMap::new();
++    let mut fonts = Vec::new();
++    let mut font_ids = HashMap::new();
++    let mut formats = HashMap::new();
++    let mut custom_formats = Vec::new();
++    for (index, (id, style)) in styles.iter().enumerate() {
++        let xf = u16::try_from(index).map_err(|_| invalid("workbook has more than 65,536 cell styles"))?;
++        style_ids.insert(*id, xf);
++        if !font_ids.contains_key(&style.font) {
++            let font_id = u16::try_from(fonts.len()).map_err(|_| invalid("workbook has more than 65,536 fonts"))?;
++            font_ids.insert(style.font.clone(), font_id);
++            fonts.push(style.font.clone());
++        }
++        format_id(style.num_fmt.as_str(), &mut formats, &mut custom_formats)?;
++    }
++    Ok((styles, style_ids, fonts, font_ids, formats, custom_formats))
++}
++
++fn write_globals(
++    wb: &Workbook,
++    offsets: &[u32],
++    styles: &[(StyleId, Style)],
++    font_ids: &HashMap<Font, u16>,
++    fonts: &[Font],
++    formats: &HashMap<String, u16>,
++    custom_formats: &[String],
++    palette: &mut Palette,
++) -> Result<Vec<u8>, IoError> {
++    let mut out = bof(0x0005)?;
++    push_record(&mut out, 0x0042, &0x04B0u16.to_le_bytes())?;
++    push_record(&mut out, 0x0022, &u16::from(wb.date_system == DateSystem::D1904).to_le_bytes())?;
++    for font in fonts {
++        out.extend_from_slice(&font_record(font, palette, &wb.theme)?);
++    }
++    for code in custom_formats {
++        let id = formats.get(code).copied().ok_or_else(|| invalid("custom number format is not indexed"))?;
++        let units: Vec<u16> = code.encode_utf16().collect();
++        if units.len() > u16::MAX as usize {
++            return Err(invalid("number format is longer than 65,535 characters"));
++        }
++        let mut payload = Vec::with_capacity(5 + units.len() * 2);
++        put_u16(&mut payload, id);
++        put_u16(&mut payload, u16::try_from(units.len()).map_err(|_| invalid("number format length overflow"))?);
++        payload.push(1);
++        for unit in units {
++            put_u16(&mut payload, unit);
++        }
++        // FORMAT may use CONTINUE for unusually long codes; ordinary format strings fit in one
++        // record and are the only ones Excel 97-2003 accepts in practice.
++        push_record(&mut out, 0x041E, &payload)?;
++    }
++    for (_, style) in styles {
++        out.extend_from_slice(&xf_record(style, font_ids, formats, palette, &wb.theme)?);
++    }
++    if !palette.custom.is_empty() {
++        let mut payload = Vec::with_capacity(2 + palette.custom.len() * 4);
++        put_u16(&mut payload, u16::try_from(palette.custom.len()).map_err(|_| invalid("palette is too large"))?);
++        for rgb in &palette.custom {
++            payload.extend_from_slice(&[((rgb >> 16) & 0xFF) as u8, ((rgb >> 8) & 0xFF) as u8, (rgb & 0xFF) as u8, 0]);
++        }
++        push_record(&mut out, 0x0092, &payload)?;
++    }
++    for (index, sheet) in wb.sheets.iter().enumerate() {
++        let offset = *offsets.get(index).ok_or_else(|| invalid("worksheet offset is missing"))?;
++        let offset = offset;
++        let mut payload = Vec::new();
++        put_u32(&mut payload, offset);
++        payload.push(match sheet.visibility {
++            Visibility::Visible => 0,
++            Visibility::Hidden => 1,
++            Visibility::VeryHidden => 2,
++        });
++        payload.push(0); // worksheet substream
++        payload.extend_from_slice(&short_string(&sheet.name)?);
++        push_record(&mut out, 0x0085, &payload)?;
++    }
++    push_record(&mut out, EOF, &[])?;
++    Ok(out)
++}
++
++fn validate_ref(c: CellRef) -> Result<(), IoError> {
++    if c.row > MAX_ROW || c.col > MAX_COL {
++        return Err(invalid(format!("cell {} is outside the Excel 97-2003 grid", c.a1())));
++    }
++    Ok(())
++}
++
++fn validate_range(range: RangeRef) -> Result<(), IoError> {
++    validate_ref(range.start)?;
++    validate_ref(range.end)
++}
++
++fn used_bounds(sheet: &Sheet) -> Result<(u32, u32, u32, u32), IoError> {
++    let mut bounds: Option<(u32, u32, u32, u32)> = None;
++    let mut add = |r0: u32, c0: u32, r1: u32, c1: u32| {
++        bounds = Some(match bounds {
++            Some((a, b, c, d)) => (a.min(r0), b.min(c0), c.max(r1), d.max(c1)),
++            None => (r0, c0, r1, c1),
++        });
++    };
++    for (cell, _) in sheet.cells.iter() {
++        validate_ref(cell)?;
++        add(cell.row, cell.col, cell.row, cell.col);
++    }
++    for range in &sheet.merges {
++        validate_range(*range)?;
++        add(range.start.row, range.start.col, range.end.row, range.end.col);
++    }
++    for row in sheet.rows.keys() {
++        if *row > MAX_ROW {
++            return Err(invalid("row layout is outside the Excel 97-2003 grid"));
++        }
++        add(*row, 0, *row, 0);
++    }
++    for col in sheet.cols.keys() {
++        if *col > MAX_COL {
++            return Err(invalid("column layout is outside the Excel 97-2003 grid"));
++        }
++        add(0, *col, 0, *col);
++    }
++    Ok(bounds.unwrap_or((0, 0, 0, 0)))
++}
++
++fn row_height_twips(size: f32) -> Result<u16, IoError> {
++    if !size.is_finite() || size <= 0.0 {
++        return Ok(0);
++    }
++    let twips = (tables::px_to_pt(size) * 20.0).round().clamp(0.0, f64::from(u16::MAX));
++    u16::try_from(twips as u32).map_err(|_| invalid("row height is out of BIFF8 range"))
++}
++
++fn column_width(size: f32) -> Result<u16, IoError> {
++    if !size.is_finite() || size <= 0.0 {
++        return Ok(0);
++    }
++    let width = (tables::px_to_col_width(size) * 256.0).round().clamp(0.0, f64::from(u16::MAX));
++    u16::try_from(width as u32).map_err(|_| invalid("column width is out of BIFF8 range"))
++}
++
++fn line_flags(info: &LineInfo) -> u16 {
++    let mut flags = 0u16;
++    if info.hidden {
++        flags |= 1;
++    }
++    if info.size.is_some() {
++        flags |= 2;
++    }
++    flags |= u16::from(info.outline.min(7)) << 8;
++    if info.collapsed {
++        flags |= 0x1000;
++    }
++    flags
++}
++
++fn write_columns(out: &mut Vec<u8>, sheet: &Sheet, styles: &HashMap<StyleId, u16>) -> Result<(), IoError> {
++    for (&col, info) in &sheet.cols {
++        if col > MAX_COL {
++            return Err(invalid("column layout is outside the Excel 97-2003 grid"));
++        }
++        let mut payload = Vec::with_capacity(12);
++        put_u16(&mut payload, u16::try_from(col).map_err(|_| invalid("column index overflow"))?);
++        put_u16(&mut payload, u16::try_from(col).map_err(|_| invalid("column index overflow"))?);
++        put_u16(&mut payload, column_width(info.size.unwrap_or(sheet.default_col_width))?);
++        put_u16(&mut payload, style_index(styles, info.style.unwrap_or_default())?);
++        put_u16(&mut payload, line_flags(info));
++        put_u16(&mut payload, 0);
++        push_record(out, 0x007D, &payload)?;
++    }
++    Ok(())
++}
++
++fn write_rows(out: &mut Vec<u8>, sheet: &Sheet, styles: &HashMap<StyleId, u16>) -> Result<(), IoError> {
++    for (&row, info) in &sheet.rows {
++        if row > MAX_ROW {
++            return Err(invalid("row layout is outside the Excel 97-2003 grid"));
++        }
++        let mut payload = Vec::with_capacity(16);
++        put_u16(&mut payload, u16::try_from(row).map_err(|_| invalid("row index overflow"))?);
++        put_u16(&mut payload, 0);
++        put_u16(&mut payload, u16::try_from(MAX_COL + 1).map_err(|_| invalid("row last-column overflow"))?);
++        put_u16(&mut payload, row_height_twips(info.size.unwrap_or(sheet.default_row_height))?);
++        put_u16(&mut payload, 0);
++        put_u16(&mut payload, 0);
++        let mut flags = u32::from(line_flags(info));
++        if info.custom {
++            flags |= 0x40;
++        }
++        if info.style.is_some() {
++            flags |= 0x80;
++            flags |= u32::from(style_index(styles, info.style.unwrap_or_default())?) << 16;
++        }
++        put_u32(&mut payload, flags);
++        push_record(out, 0x0208, &payload)?;
++    }
++    Ok(())
++}
++
++fn error_code(error: CellError) -> u8 {
++    match error {
++        CellError::Null => 0x00,
++        CellError::Div0 => 0x07,
++        CellError::Value | CellError::Calc | CellError::Circ => 0x0F,
++        CellError::Ref => 0x17,
++        CellError::Name => 0x1D,
++        CellError::Num => 0x24,
++        CellError::NA | CellError::Spill | CellError::GettingData => 0x2A,
++    }
++}
++
++fn cell_header(row: u32, col: u32, style: u16) -> Result<Vec<u8>, IoError> {
++    let mut payload = Vec::with_capacity(6);
++    put_u16(&mut payload, u16::try_from(row).map_err(|_| invalid("row index overflow"))?);
++    put_u16(&mut payload, u16::try_from(col).map_err(|_| invalid("column index overflow"))?);
++    put_u16(&mut payload, style);
++    Ok(payload)
++}
++
++fn label_records(row: u32, col: u32, style: u16, text: &str, out: &mut Vec<u8>) -> Result<(), IoError> {
++    let units: Vec<u16> = text.encode_utf16().collect();
++    if units.len() > u16::MAX as usize {
++        return Err(invalid("cell text is longer than 65,535 UTF-16 characters"));
++    }
++    let mut first = cell_header(row, col, style)?;
++    put_u16(&mut first, u16::try_from(units.len()).map_err(|_| invalid("cell text length overflow"))?);
++    first.push(1);
++    let first_capacity = (MAX_RECORD_PAYLOAD - first.len()) / 2;
++    let first_count = units.len().min(first_capacity);
++    for unit in &units[..first_count] {
++        put_u16(&mut first, *unit);
++    }
++    push_record(out, 0x0204, &first)?;
++    let mut at = first_count;
++    while at < units.len() {
++        let count = (MAX_RECORD_PAYLOAD - 1) / 2;
++        let end = (at + count).min(units.len());
++        let mut more = Vec::with_capacity(1 + (end - at) * 2);
++        more.push(1);
++        for unit in &units[at..end] {
++            put_u16(&mut more, *unit);
++        }
++        push_record(out, CONTINUE, &more)?;
++        at = end;
++    }
++    Ok(())
++}
++
++fn write_value(row: u32, col: u32, style: u16, value: Value, styles: &HashMap<StyleId, u16>, out: &mut Vec<u8>) -> Result<(), IoError> {
++    match value {
++        Value::Empty => push_record(out, 0x0201, &cell_header(row, col, style)?),
++        Value::Number(number) => {
++            if !number.is_finite() {
++                return write_value(row, col, style, Value::Error(CellError::Num), styles, out);
++            }
++            let mut payload = cell_header(row, col, style)?;
++            payload.extend_from_slice(&number.to_le_bytes());
++            push_record(out, 0x0203, &payload)
++        }
++        Value::Text(text) => label_records(row, col, style, &text, out),
++        Value::Bool(value) => {
++            let mut payload = cell_header(row, col, style)?;
++            payload.extend_from_slice(&[u8::from(value), 0]);
++            push_record(out, 0x0205, &payload)
++        }
++        Value::Error(error) => {
++            let mut payload = cell_header(row, col, style)?;
++            payload.extend_from_slice(&[error_code(error), 1]);
++            push_record(out, 0x0205, &payload)
++        }
++        Value::Array(array) => write_value(row, col, style, array.data.first().cloned().unwrap_or(Value::Empty), styles, out),
++    }
++}
++
++fn write_cell(row: u32, col: u32, cell: &gridcraft_model::Cell, styles: &HashMap<StyleId, u16>, out: &mut Vec<u8>) -> Result<(), IoError> {
++    write_value(row, col, style_index(styles, cell.style)?, cell.value.scalar(), styles, out)
++}
++
++fn write_merges(out: &mut Vec<u8>, sheet: &Sheet) -> Result<(), IoError> {
++    let mut ranges = Vec::new();
++    for range in &sheet.merges {
++        validate_range(*range)?;
++        if !range.is_single() {
++            ranges.push(*range);
++        }
++    }
++    for chunk in ranges.chunks(8_191) {
++        let mut payload = Vec::with_capacity(2 + chunk.len() * 8);
++        put_u16(&mut payload, u16::try_from(chunk.len()).map_err(|_| invalid("too many merged ranges"))?);
++        for range in chunk {
++            put_u16(&mut payload, u16::try_from(range.start.row).map_err(|_| invalid("merge row overflow"))?);
++            put_u16(&mut payload, u16::try_from(range.end.row).map_err(|_| invalid("merge row overflow"))?);
++            put_u16(&mut payload, u16::try_from(range.start.col).map_err(|_| invalid("merge column overflow"))?);
++            put_u16(&mut payload, u16::try_from(range.end.col).map_err(|_| invalid("merge column overflow"))?);
++        }
++        push_record(out, 0x00E5, &payload)?;
++    }
++    Ok(())
++}
++
++fn write_sheet(sheet: &Sheet, styles: &HashMap<StyleId, u16>) -> Result<Vec<u8>, IoError> {
++    let (first_row, first_col, last_row, last_col) = used_bounds(sheet)?;
++    let mut out = bof(0x0010)?;
++    let mut dimensions = Vec::with_capacity(14);
++    put_u32(&mut dimensions, first_row);
++    put_u32(&mut dimensions, last_row.saturating_add(1));
++    put_u16(&mut dimensions, u16::try_from(first_col).map_err(|_| invalid("dimension column overflow"))?);
++    put_u16(&mut dimensions, u16::try_from(last_col.saturating_add(1)).map_err(|_| invalid("dimension column overflow"))?);
++    put_u16(&mut dimensions, 0);
++    push_record(&mut out, 0x0200, &dimensions)?;
++    let mut default_height = Vec::with_capacity(4);
++    put_u16(&mut default_height, 0);
++    put_u16(&mut default_height, row_height_twips(sheet.default_row_height)?);
++    push_record(&mut out, 0x0225, &default_height)?;
++    write_columns(&mut out, sheet, styles)?;
++    write_rows(&mut out, sheet, styles)?;
++    for (cell, value) in sheet.cells.iter() {
++        write_cell(cell.row, cell.col, value, styles, &mut out)?;
++    }
++    write_merges(&mut out, sheet)?;
++    push_record(&mut out, EOF, &[])?;
++    Ok(out)
++}
++
++/// Writes a workbook as an Excel 97-2003 BIFF8 `.xls` compound file.
++pub fn write_xls(wb: &Workbook) -> Result<Vec<u8>, IoError> {
++    if wb.sheets.is_empty() {
++        return Err(invalid("workbook has no worksheets"));
++    }
++    for sheet in &wb.sheets {
++        let name_units = sheet.name.encode_utf16().count();
++        if sheet.name.is_empty() || name_units > 31 {
++            return Err(invalid("worksheet name is empty or longer than 31 UTF-16 characters"));
++        }
++    }
++    let mut palette = Palette::default();
++    let (styles, style_ids, fonts, font_ids, formats, custom_formats) = collect_styles(wb, &mut palette)?;
++    let sheets: Vec<Vec<u8>> = wb.sheets.iter().map(|sheet| write_sheet(sheet, &style_ids)).collect::<Result<_, _>>()?;
++    let mut offsets;
++    let mut globals_len = 0u32;
++    // The globals length depends on the BOUNDSHEET offsets, so calculate it to a fixed point.
++    for _ in 0..3 {
++        offsets = offsets_for(&sheets, globals_len);
++        let globals = write_globals(wb, &offsets, &styles, &font_ids, &fonts, &formats, &custom_formats, &mut palette)?;
++        let base = u32::try_from(globals.len()).map_err(|_| invalid("workbook globals are too large"))?;
++        if base == globals_len {
++            globals_len = base;
++            break;
++        }
++        globals_len = base;
++    }
++    offsets = offsets_for(&sheets, globals_len);
++    let globals = write_globals(wb, &offsets, &styles, &font_ids, &fonts, &formats, &custom_formats, &mut palette)?;
++    let mut stream = globals;
++    for sheet in sheets {
++        stream.extend_from_slice(&sheet);
++    }
++    let stream_len = u32::try_from(stream.len()).map_err(|_| invalid("Workbook stream is too large"))?;
++    if stream_len == 0 {
++        return Err(invalid("Workbook stream is empty"));
++    }
++    cfb::write_stream("Workbook", &stream).map_err(IoError::Format)
++}
++
++fn offsets_for(sheets: &[Vec<u8>], globals_len: u32) -> Vec<u32> {
++    let mut at = globals_len;
++    let mut offsets = Vec::with_capacity(sheets.len());
++    for sheet in sheets {
++        offsets.push(at);
++        let size = u32::try_from(sheet.len()).unwrap_or(u32::MAX);
++        at = at.saturating_add(size);
++    }
++    offsets
++}
++
++#[cfg(test)]
++mod tests {
++    use std::sync::Arc;
++
++    use gridcraft_core::{CellRef, RangeRef, Value};
++    use gridcraft_model::{BorderLine, Color, Fill, HAlign, LineInfo, StyleId, VAlign, Workbook};
++
++    use super::write_xls;
++
++    #[test]
++    fn writes_values_styles_and_merges_that_the_reader_can_open() {
++        let mut workbook = Workbook::new();
++        let style = workbook.styles.derive(StyleId::DEFAULT, |style| {
++            style.font.bold = true;
++            style.font.color = Color::rgb(0x1F, 0x4E, 0x79);
++            style.fill = Fill::solid(Color::rgb(0xD9, 0xEA, 0xF7));
++            style.borders.left = BorderLine::thin();
++            style.borders.right = BorderLine::thin();
++            style.borders.top = BorderLine::thin();
++            style.borders.bottom = BorderLine::thin();
++            style.align.h = HAlign::Center;
++            style.align.v = VAlign::Center;
++        });
++        let sheet = Arc::make_mut(workbook.sheets.get_mut(0).expect("default sheet"));
++        sheet.name = "中文表格".into();
++        sheet.set_value(CellRef::new(0, 0), Value::text("人员名单"));
++        sheet.set_value(CellRef::new(1, 0), Value::Number(2026.0));
++        sheet.set_style(CellRef::new(0, 0), style);
++        sheet.merges.push(RangeRef::new(CellRef::new(0, 0), CellRef::new(0, 2)));
++        sheet.cols.insert(0, LineInfo { size: Some(120.0), ..LineInfo::default() });
++        sheet.rows.insert(0, LineInfo { size: Some(30.0), custom: true, ..LineInfo::default() });
++
++        let bytes = write_xls(&workbook).expect("BIFF8 writer");
++        assert_eq!(crate::sniff(&bytes), crate::Format::Xls);
++        let (opened, report) = crate::read_xls(&bytes).expect("BIFF8 reader");
++        assert!(report.warnings.iter().any(|warning| warning.contains("Saving .xls")));
++        let sheet = opened.sheets.first().expect("opened sheet");
++        assert_eq!(sheet.name, "中文表格");
++        assert_eq!(sheet.value(CellRef::new(0, 0)).as_text(), Some("人员名单"));
++        assert_eq!(sheet.value(CellRef::new(1, 0)).as_f64(), Some(2026.0));
++        assert_eq!(sheet.merges, vec![RangeRef::new(CellRef::new(0, 0), CellRef::new(0, 2))]);
++        assert!(sheet.cols.contains_key(&0));
++        assert!(sheet.rows.contains_key(&0));
++    }
++}
 diff --git a/docs/file-format-parity.md b/docs/file-format-parity.md
 index 9884724..b5aed16 100644
 --- a/docs/file-format-parity.md
