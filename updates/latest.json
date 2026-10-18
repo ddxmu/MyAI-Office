@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "1.1.3",
-  "releaseNotes": "Excel 与 WPS 版面一致性修复：校正列宽、行高和表格整体显示比例，改善多种 XLSX/旧版 XLS 文件的打开显示。",
+  "latestVersion": "1.1.4",
+  "releaseNotes": "Excel 中文粗体修复：选中中文单元格点击粗体后，正确使用中文粗体字面并同步修复字体回退显示。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.3/MyAI-Office-1.1.3-arm64.zip",
-    "sha256": "db3bfc1abe29c6de8b9aebfc009b2dfd079627481f973d87e799a2b8b6ef37ea",
-    "size": 165201514,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.4/MyAI-Office-1.1.4-arm64.zip",
+    "sha256": "81908c51c42dff50de54a11bb090a7e5d4e52c4d912f7b0f4e94a7275b35075c",
+    "size": 165211142,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.3/MyAI-Office-1.1.3-arm64.dmg",
-    "sha256": "8bf568c80fb6d849b33ee6e0d278c35356dfd363094f0a8f2dad7f92e2ed815c",
-    "size": 164987495
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.4/MyAI-Office-1.1.4-arm64.dmg",
+    "sha256": "0407b9c41b49c4e61d2e0543d30ca6df90a5f161dc604b6b7066b9d3ac3d8723",
+    "size": 165000433
   },
   "deltas": [
     {
-      "baseVersion": "1.1.2",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.3/MyAI-Office-1.1.2-to-1.1.3-arm64.bsdiff.zip",
-      "sha256": "3adc0d764ea8169fec221850b6e1fbcbac9ee667bbda3447a492fef7e25d9a92",
-      "size": 6759,
+      "baseVersion": "1.1.3",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.1.4/MyAI-Office-1.1.3-to-1.1.4-arm64.bsdiff.zip",
+      "sha256": "91db7866244c8ee84ed5fcedfe15abeb1b7971a6ade98ec90a3517e9c6b50e70",
+      "size": 1030827,
       "format": "bsdiff-v2"
     }
   ]
