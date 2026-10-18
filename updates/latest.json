@@ -1,24 +1,24 @@
 {
   "app": "MyAI Office",
-  "latestVersion": "1.0.7",
-  "releaseNotes": "修复 Word 中文字号框显示不全；欢迎页改为响应式布局，并修复最近文档长路径越界导致的错位。",
+  "latestVersion": "1.0.8",
+  "releaseNotes": "段落对话框按 WPS 风格优化缩进和间距、换行和分页，并补充行距预设、设置值与预览。",
   "full": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.7/MyAI-Office-1.0.7-arm64.zip",
-    "sha256": "60052e5b145986e8428738141f69d96e1189aa0f12836e0f1f86a89b8062f938",
-    "size": 165172656,
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.8-arm64.zip",
+    "sha256": "8bfe1bf45a63314ee941e1b3b59eeb593cde4c9047fa91318ac86be0347e9be3",
+    "size": 165182797,
     "baseVersion": null
   },
   "dmg": {
-    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.7/MyAI-Office-1.0.7-arm64.dmg",
-    "sha256": "3c8f6ede6b7800d33bc598f901f6410917ddf2ea14c3d65a57d4c29c3c4965dc",
-    "size": 164948265
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.8-arm64.dmg",
+    "sha256": "334bc1e9d430ff6bf7f9a11873c20252cf64545c64b8175a1c4e09832bd7e926",
+    "size": 164980925
   },
   "deltas": [
     {
-      "baseVersion": "1.0.6",
-      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.7/MyAI-Office-1.0.6-to-1.0.7-arm64.bsdiff.zip",
-      "sha256": "3661b5f616421448619ac810186d3a6da3e163a44e624e04f065f21b72426c0b",
-      "size": 1760742,
+      "baseVersion": "1.0.7",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.7-to-1.0.8-arm64.bsdiff.zip",
+      "sha256": "8f845c140f0182a2782d37eaf3b9752562d72638ed4e1193e3c0391a7170951d",
+      "size": 1982262,
       "format": "bsdiff-v2"
     }
   ]

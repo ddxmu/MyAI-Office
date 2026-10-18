@@ -1,0 +1,25 @@
+{
+  "app": "MyAI Office",
+  "latestVersion": "1.0.8",
+  "releaseNotes": "段落对话框按 WPS 风格优化缩进和间距、换行和分页，并补充行距预设、设置值与预览。",
+  "full": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.8-arm64.zip",
+    "sha256": "8bfe1bf45a63314ee941e1b3b59eeb593cde4c9047fa91318ac86be0347e9be3",
+    "size": 165182797,
+    "baseVersion": null
+  },
+  "dmg": {
+    "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.8-arm64.dmg",
+    "sha256": "334bc1e9d430ff6bf7f9a11873c20252cf64545c64b8175a1c4e09832bd7e926",
+    "size": 164980925
+  },
+  "deltas": [
+    {
+      "baseVersion": "1.0.7",
+      "url": "https://github.com/ddxmu/MyAI-Office/releases/download/v1.0.8/MyAI-Office-1.0.7-to-1.0.8-arm64.bsdiff.zip",
+      "sha256": "8f845c140f0182a2782d37eaf3b9752562d72638ed4e1193e3c0391a7170951d",
+      "size": 1982262,
+      "format": "bsdiff-v2"
+    }
+  ]
+}
